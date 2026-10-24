@@ -1,0 +1,21 @@
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      batch-size: 16384
+      acks: -1
+      retries: 10
+      buffer-memory: 33554432
+      key-serializer: com.linmour.mq.serializer.KafkaSerializer
+      value-serializer: com.linmour.mq.serializer.KafkaSerializer
+      properties:
+        spring.json.key.type: java.lang.String
+        spring.json.key.serializer: com.linmour.mq.serializer.StringSerializer
+        spring.json.value.type: java.lang.String
+        spring.json.value.serializer: com.linmour.mq.serializer.StringSerializer
+        linger:
+          ms: 2000
+    consumer:
+      group-id: testGroup
+      enable-auto-commit: true
+      auto-commit-interval: 2000

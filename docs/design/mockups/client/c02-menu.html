@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup C02: Menu Thực Đơn – Ẩm Thực Việt (Đã Sửa Triệt Để)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Be Vietnam Pro', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-slate-200 text-slate-900 min-h-screen flex flex-col items-center p-0 md:p-6">
+
+  <!-- Interactive Control Bar for Reviewer (A9: Fixed active button highlight) -->
+  <div class="w-full max-w-[420px] bg-slate-900 text-white p-3 rounded-b-2xl md:rounded-2xl mb-4 shadow-lg flex flex-col gap-2">
+    <div class="flex items-center justify-between text-xs font-semibold">
+      <span class="text-amber-400">⚡ Chuyển đổi 4 trạng thái xem trước:</span>
+      <span class="text-slate-400">Khung Mobile 375×812</span>
+    </div>
+    <div class="grid grid-cols-2 gap-1.5 text-xs">
+      <button onclick="setState('normal')" id="btn-normal" class="py-2 px-2 bg-red-600 text-white font-bold rounded-xl transition">1. Bình thường</button>
+      <button onclick="setState('loading')" id="btn-loading" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl transition">2. Đang tải (Skeleton)</button>
+      <button onclick="setState('empty')" id="btn-empty" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl transition">3. Toàn quán chưa có món</button>
+      <button onclick="setState('disconnected')" id="btn-disconnected" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl transition">4. Rớt mạng / Mất kết nối</button>
+    </div>
+  </div>
+
+  <!-- Mobile Frame (375x812) -->
+  <div class="w-full max-w-[375px] h-[812px] bg-slate-50 relative flex flex-col shadow-2xl rounded-3xl overflow-hidden border-4 border-slate-800">
+    
+    <!-- Top System Status Bar Simulation -->
+    <div class="h-6 bg-white flex items-center justify-between px-6 text-xs font-semibold text-slate-800 select-none">
+      <span>14:30</span>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.28 19.57 10.6 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/></svg>
+        <span>5G</span>
+        <div class="w-5 h-2.5 border border-slate-700 rounded-sm p-0.5"><div class="h-full bg-slate-800 rounded-2xs w-3/4"></div></div>
+      </div>
+    </div>
+
+    <!-- State 4: Disconnected Alert Banner -->
+    <div id="disconnected-banner" class="hidden bg-red-600 text-white px-3 py-2 text-xs font-semibold flex items-center justify-between shadow-md z-30 transition-all">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
+        <span>Mất kết nối máy chủ bàn ăn • Đang thử lại...</span>
+      </div>
+      <button onclick="setState('normal')" class="text-xs bg-white text-red-700 font-bold px-2.5 py-1 rounded-lg">Thử lại</button>
+    </div>
+
+    <!-- Header Quán & Bàn ăn -->
+    <header class="bg-white px-4 pt-3 pb-3 border-b border-slate-100 flex-shrink-0 z-20 shadow-xs">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-100">BÀN SỐ 03</span>
+            
+            <!-- Online status badge -->
+            <span id="header-status-online" class="text-xs text-green-700 flex items-center gap-1 font-bold">
+              <span class="w-2 h-2 rounded-full bg-green-600"></span> Trực tuyến
+            </span>
+            <span id="header-status-offline" class="hidden text-xs text-red-600 flex items-center gap-1 font-bold">
+              <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span> Mất kết nối
+            </span>
+          </div>
+          <h1 class="text-lg font-bold text-slate-900 mt-1 leading-tight">Nhà Hàng Bếp Việt</h1>
+          <p class="text-xs text-slate-600 flex items-center gap-1 mt-0.5">
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>128 Xuân Thủy, Cầu Giấy</span>
+            <span class="text-slate-300">•</span>
+            <span>0988.123.456</span>
+          </p>
+        </div>
+        
+        <!-- Service Call Button -->
+        <button class="min-w-[44px] min-h-[44px] p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition" title="Gọi nhân viên">
+          <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Sticky Category Tabs (A8: Ẩn khi toàn quán chưa có món) -->
+    <nav id="category-nav" class="sticky top-0 bg-white/95 backdrop-blur-md px-3 py-2 border-b border-slate-200 flex-shrink-0 z-10 flex gap-2 overflow-x-auto no-scrollbar">
+      <a href="#cat-pho" class="px-3.5 py-1.5 bg-red-600 text-white rounded-full text-xs font-semibold shadow-xs whitespace-nowrap">
+        🍜 Phở & Bún
+      </a>
+      <a href="#cat-com" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-xs font-medium whitespace-nowrap">
+        🍚 Cơm Đĩa
+      </a>
+      <a href="#cat-douong" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-xs font-medium whitespace-nowrap">
+        ☕ Cà Phê & Đồ Uống
+      </a>
+    </nav>
+
+    <!-- Scrollable Content Area -->
+    <main class="flex-1 overflow-y-auto px-3.5 py-3 space-y-5 pb-24">
+      
+      <!-- STATE 1: NORMAL VIEW -->
+      <div id="view-normal" class="space-y-6">
+        
+        <!-- Nhóm 1: Phở & Bún -->
+        <section id="cat-pho" class="space-y-3">
+          <div class="text-xs font-bold text-slate-600 uppercase tracking-wider px-1 border-l-2 border-red-600 pl-2">
+            Phở & Bún Truyền Thống (2 món)
+          </div>
+
+          <!-- Dish 1 -->
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-xs flex gap-3 hover:border-red-200 transition">
+            <div class="w-20 h-20 rounded-xl bg-amber-50 border border-amber-100 flex-shrink-0 flex items-center justify-center text-3xl">
+              🍜
+            </div>
+            <div class="flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">Phở Bò Tái Nạm</h3>
+                <p class="text-xs text-slate-500 line-clamp-1 mt-0.5">Bò tái nạm tươi, nước ninh xương 12h thơm quế hồi</p>
+              </div>
+              <div class="flex items-center justify-between mt-2">
+                <span class="text-sm font-bold text-red-600">55.000 đ</span>
+                <button class="min-h-[44px] min-w-[70px] px-3.5 py-2 bg-red-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-1 active:scale-95 transition">
+                  <span>Chọn</span>
+                  <span class="text-sm leading-none">+</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dish 2 -->
+          <div class="bg-white p-3.5 rounded-2xl border-2 border-red-500 shadow-xs flex gap-3 relative">
+            <span class="absolute -top-2.5 left-3 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-xs">
+              Bạn cùng bàn vừa thêm
+            </span>
+            <div class="w-20 h-20 rounded-xl bg-orange-50 border border-orange-100 flex-shrink-0 flex items-center justify-center text-3xl">
+              🥓
+            </div>
+            <div class="flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">Bún Chả Hà Nội</h3>
+                <p class="text-xs text-slate-500 line-clamp-1 mt-0.5">Chả nướng than hoa thơm lừng, nước mắm đu đủ cà rốt</p>
+              </div>
+              <div class="flex items-center justify-between mt-2">
+                <span class="text-sm font-bold text-red-600">50.000 đ</span>
+                
+                <div class="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+                  <button class="w-11 h-11 rounded-lg bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-base flex items-center justify-center shadow-xs transition" title="Giảm 1">
+                    −
+                  </button>
+                  <span class="w-8 text-center font-bold text-xs text-slate-900">1</span>
+                  <button class="w-11 h-11 rounded-lg bg-red-600 hover:bg-red-700 text-white font-extrabold text-base flex items-center justify-center shadow-xs transition" title="Tăng 1">
+                    +
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Nhóm 2: Cơm Đĩa -->
+        <section id="cat-com" class="space-y-3">
+          <div class="text-xs font-bold text-slate-600 uppercase tracking-wider px-1 border-l-2 border-red-600 pl-2">
+            Cơm Đĩa & Món Nóng (1 món)
+          </div>
+
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-xs flex gap-3">
+            <div class="w-20 h-20 rounded-xl bg-emerald-50 border border-emerald-100 flex-shrink-0 flex items-center justify-center text-3xl">
+              🍚
+            </div>
+            <div class="flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">Cơm Tấm Sườn Bì Chả</h3>
+                <p class="text-xs text-slate-500 line-clamp-1 mt-0.5">Sườn nướng mật ong, bì thính, chả trứng hấp thơm ngậy</p>
+              </div>
+              <div class="flex items-center justify-between mt-2">
+                <span class="text-sm font-bold text-red-600">45.000 đ</span>
+                <button class="min-h-[44px] min-w-[70px] px-3.5 py-2 bg-red-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-1 active:scale-95 transition">
+                  <span>Chọn</span>
+                  <span class="text-sm leading-none">+</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Nhóm 3: Đồ Uống -->
+        <section id="cat-douong" class="space-y-3">
+          <div class="text-xs font-bold text-slate-600 uppercase tracking-wider px-1 border-l-2 border-red-600 pl-2">
+            Cà Phê & Đồ Uống (1 món)
+          </div>
+
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-xs flex gap-3">
+            <div class="w-20 h-20 rounded-xl bg-amber-100 border border-amber-200 flex-shrink-0 flex items-center justify-center text-3xl">
+              ☕
+            </div>
+            <div class="flex-1 flex flex-col justify-between">
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">Cà Phê Sữa Đá Sài Gòn</h3>
+                <p class="text-xs text-slate-500 line-clamp-1 mt-0.5">Cà phê pha phin truyền thống đậm đà, sữa đặc béo ngọt</p>
+              </div>
+              <div class="flex items-center justify-between mt-2">
+                <span class="text-sm font-bold text-red-600">25.000 đ</span>
+                <button class="min-h-[44px] min-w-[70px] px-3.5 py-2 bg-red-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-1 active:scale-95 transition">
+                  <span>Chọn</span>
+                  <span class="text-sm leading-none">+</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- STATE 2: LOADING SKELETON -->
+      <div id="view-loading" class="hidden space-y-4">
+        <div class="h-4 bg-slate-200 rounded-md w-32 animate-pulse"></div>
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs flex gap-3 animate-pulse">
+          <div class="w-20 h-20 rounded-xl bg-slate-200 flex-shrink-0"></div>
+          <div class="flex-1 flex flex-col justify-between py-1">
+            <div class="space-y-2">
+              <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+              <div class="h-3 bg-slate-200 rounded w-full"></div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="h-4 bg-slate-200 rounded w-16"></div>
+              <div class="h-9 bg-slate-200 rounded-xl w-16"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATE 3: MENU EMPTY (A8: Ẩn chip danh mục khi toàn quán chưa có món) -->
+      <div id="view-empty" class="hidden flex flex-col items-center justify-center py-20 text-center space-y-3">
+        <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-3xl">
+          🍽️
+        </div>
+        <div>
+          <h4 class="font-bold text-slate-800 text-sm">Quán chưa có món nào</h4>
+          <p class="text-xs text-slate-500 mt-1 max-w-[240px]">Hệ thống thực đơn đang được cập nhật, bạn vui lòng gọi nhân viên để được hỗ trợ nhé!</p>
+        </div>
+        <button class="min-h-[44px] px-5 py-2.5 bg-slate-900 text-white font-bold text-xs rounded-xl shadow-xs">
+          Gọi Nhân Viên Hỗ Trợ
+        </button>
+      </div>
+
+    </main>
+
+    <!-- Floating Cart Bar (C4) -->
+    <div id="floating-cart-bar" class="absolute bottom-4 left-3.5 right-3.5 z-20">
+      <div class="bg-slate-900 text-white px-4 py-2.5 rounded-2xl flex items-center justify-between shadow-2xl border border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="relative">
+            <div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white shadow-xs">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            </div>
+            <span class="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 text-slate-900 text-xs font-black rounded-full flex items-center justify-center">1</span>
+          </div>
+          <div>
+            <div class="text-xs text-slate-400">Bàn 03 • 1 món</div>
+            <div class="text-sm font-bold text-white">50.000 đ</div>
+          </div>
+        </div>
+        <button class="min-h-[44px] px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-md transition active:scale-95">
+          Xem Giỏ Hàng →
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function setState(state) {
+      document.getElementById('view-normal').classList.add('hidden');
+      document.getElementById('view-loading').classList.add('hidden');
+      document.getElementById('view-empty').classList.add('hidden');
+      document.getElementById('disconnected-banner').classList.add('hidden');
+      document.getElementById('category-nav').classList.remove('hidden');
+      document.getElementById('floating-cart-bar').classList.remove('hidden');
+      
+      const onlineHeader = document.getElementById('header-status-online');
+      const offlineHeader = document.getElementById('header-status-offline');
+
+      // A9: Reset all buttons class
+      ['normal', 'loading', 'empty', 'disconnected'].forEach(s => {
+        const btn = document.getElementById('btn-' + s);
+        if (btn) {
+          btn.className = 'py-2 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl transition';
+        }
+      });
+
+      // Highlight active button
+      const activeBtn = document.getElementById('btn-' + state);
+      if (activeBtn) {
+        activeBtn.className = 'py-2 px-2 bg-red-600 text-white font-bold rounded-xl transition';
+      }
+
+      if (state === 'normal') {
+        document.getElementById('view-normal').classList.remove('hidden');
+        onlineHeader.classList.remove('hidden');
+        offlineHeader.classList.add('hidden');
+      } else if (state === 'loading') {
+        document.getElementById('view-loading').classList.remove('hidden');
+        onlineHeader.classList.remove('hidden');
+        offlineHeader.classList.add('hidden');
+      } else if (state === 'empty') {
+        // A8: Ẩn cả thanh chip danh mục và giỏ hàng khi quán chưa có món
+        document.getElementById('view-empty').classList.remove('hidden');
+        document.getElementById('category-nav').classList.add('hidden');
+        document.getElementById('floating-cart-bar').classList.add('hidden');
+        onlineHeader.classList.remove('hidden');
+        offlineHeader.classList.add('hidden');
+      } else if (state === 'disconnected') {
+        document.getElementById('view-normal').classList.remove('hidden');
+        document.getElementById('disconnected-banner').classList.remove('hidden');
+        onlineHeader.classList.add('hidden');
+        offlineHeader.classList.remove('hidden');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANLYNHAHANG Admin: Đối Soát Giao Dịch PayOS (Y5)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-slate-200 text-slate-900 flex items-center justify-center m-0 p-0 overflow-hidden">
+
+  <!-- Desktop Frame Simulation (Exactly 1280x800) -->
+  <div class="w-[1280px] h-[800px] bg-slate-50 flex rounded-2xl shadow-2xl overflow-hidden border border-slate-300 relative">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between flex-shrink-0 z-20">
+      <div>
+        <!-- Logo & Brand Header -->
+        <div class="p-4 border-b border-slate-800 flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center font-black text-white text-base shadow-md tracking-wider">QL</span>
+          <div>
+            <div class="font-extrabold text-white text-sm tracking-wide">QUANLYNHAHANG</div>
+            <div class="text-xs text-slate-400">Hệ thống quản lý quán</div>
+          </div>
+        </div>
+
+        <!-- Active Shop Selector (Story P4) -->
+        <div class="p-3 border-b border-slate-800/60">
+          <div class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1 mb-1">Quán đang quản lý</div>
+          <a href="a03-shell.html" class="flex items-center justify-between px-3 py-2 bg-slate-800/80 hover:bg-slate-800 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700/60 transition group" title="Chuyển đổi quán ăn hoặc tạo chi nhánh mới">
+            <div class="flex items-center gap-2 truncate">
+              <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+              <span class="truncate font-bold text-white">Nhà Hàng Bếp Việt</span>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </a>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="p-3 space-y-1 text-xs">
+          <div class="px-3 py-1.5 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Vận hành quán</div>
+          
+          <a href="a04-dashboard.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            <span class="font-medium">Tổng quan (A9)</span>
+          </a>
+          
+          <a href="a05-orders-live.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span class="font-medium">Đơn thời gian thực (A7)</span>
+            <span class="ml-auto bg-slate-700 text-slate-300 font-bold px-2 py-0.5 rounded-full text-xs">3</span>
+          </a>
+
+          <a href="a06-kitchen.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <span class="font-medium">Màn hình bếp (F4)</span>
+          </a>
+
+          <div class="px-3 pt-3 pb-1 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Thực đơn & Bàn</div>
+
+          <a href="a07-products.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <span class="font-medium">Món ăn & Thực đơn (A5)</span>
+          </a>
+
+          <a href="a09-categories.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+            <span class="font-medium">Danh mục món (A4)</span>
+          </a>
+
+          <a href="a10-tables.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+            <span class="font-medium">Bàn ăn & Mã QR (A6)</span>
+          </a>
+
+          <div class="px-3 pt-3 pb-1 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Tài chính & Cấu hình</div>
+
+          <a href="a11-shop-settings.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span class="font-medium">Cài đặt quán & PayOS (A3, Y1)</span>
+          </a>
+
+          <a href="a12-payments.html" class="flex items-center gap-3 px-3 py-2.5 bg-red-600 text-white font-bold rounded-xl shadow-xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            <span class="font-medium">Đối soát giao dịch (Y5)</span>
+          </a>
+
+          <a href="a13-reports.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span class="font-medium">Báo cáo doanh thu (R1)</span>
+          </a>
+
+          <a href="a14-create-shop.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span class="font-medium">Tạo quán mới (P2)</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- User Profile -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/40 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white text-xs">NV</div>
+          <div>
+            <div class="text-xs font-bold text-white">Nguyễn Văn Nam</div>
+            <div class="text-xs text-slate-400">0912 345 678</div>
+          </div>
+        </div>
+        <a href="a01-login.html" class="text-slate-400 hover:text-red-400 p-2 transition" title="Đăng xuất">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN WORKSPACE -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+      
+      <!-- HEADER -->
+      <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between flex-shrink-0 z-10">
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-extrabold text-slate-900">Đối Soát Giao Dịch PayOS (Y5)</h1>
+            <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold text-xs border border-slate-200">Nhà Hàng Bếp Việt</span>
+          </div>
+          <p class="text-xs text-slate-500">Kiểm tra trạng thái thanh toán từ PayOS Webhook và xử lý các giao dịch treo</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button onclick="syncPendingOrders()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-xs">
+            <span>🔄 Đồng Bộ Lại Đơn Treo</span>
+          </button>
+          <button onclick="alert('Đã xuất file đối soát payments-20261021.csv')" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-2xs">
+            <span>📥 Xuất CSV</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- METRIC CARDS -->
+      <div class="px-8 py-4 bg-slate-100/60 border-b border-slate-200 grid grid-cols-4 gap-4 flex-shrink-0">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+          <div class="text-xs text-slate-500 font-medium">Doanh thu PayOS hôm nay</div>
+          <div class="text-xl font-black text-slate-900 mt-1">2.150.000 đ</div>
+          <div class="text-xs text-green-600 font-bold mt-0.5">24 giao dịch thành công</div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+          <div class="text-xs text-slate-500 font-medium">Đơn đang chờ thanh toán</div>
+          <div class="text-xl font-black text-amber-600 mt-1">95.000 đ</div>
+          <div class="text-xs text-amber-600 font-bold mt-0.5">1 đơn treo (Bàn 03)</div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+          <div class="text-xs text-slate-500 font-medium">Giao dịch hết hạn (Quá 15p)</div>
+          <div class="text-xl font-black text-slate-400 mt-1">3 giao dịch</div>
+          <div class="text-xs text-slate-400 font-medium mt-0.5">Khách hủy hoặc không quét</div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+          <div class="text-xs text-slate-500 font-medium">Tỷ lệ khớp Webhook</div>
+          <div class="text-xl font-black text-green-600 mt-1">100%</div>
+          <div class="text-xs text-green-600 font-bold mt-0.5">Không có sai lệch tiền</div>
+        </div>
+      </div>
+
+      <!-- FILTER BAR -->
+      <div class="px-8 py-3 bg-white border-b border-slate-200 flex items-center justify-between gap-4 flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <input type="date" value="2026-10-21" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+          
+          <select class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700">
+            <option>Tất cả trạng thái</option>
+            <option selected>Thành công</option>
+            <option>Đang chờ thanh toán</option>
+            <option>Hết hạn</option>
+          </select>
+
+          <input type="text" placeholder="Tìm theo Mã đơn / Mã PayOS..." class="px-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs w-64 focus:outline-none focus:border-red-500">
+        </div>
+
+        <div class="text-xs text-slate-500">
+          Hiển thị <strong>4</strong> giao dịch gần nhất
+        </div>
+      </div>
+
+      <!-- RECONCILIATION TABLE -->
+      <main class="flex-1 p-8 overflow-y-auto custom-scroll">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 select-none">
+              <tr>
+                <th class="py-3.5 px-4">Thời Gian</th>
+                <th class="py-3.5 px-4">Mã Đơn / Bàn</th>
+                <th class="py-3.5 px-4">Mã Giao Dịch PayOS</th>
+                <th class="py-3.5 px-4">Số Tiền</th>
+                <th class="py-3.5 px-4">Trạng Thái</th>
+                <th class="py-3.5 px-4 text-right">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              
+              <!-- Transaction 1: Bàn 03 Đang chờ -->
+              <tr class="hover:bg-slate-50/80 transition bg-amber-50/30">
+                <td class="py-3.5 px-4">
+                  <span class="font-bold text-slate-900">21/10/2026 14:24</span>
+                  <div class="text-xs text-amber-600 mt-0.5">Còn 9:15 đếm ngược</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900">#ORD-102938</div>
+                  <div class="text-xs text-slate-500">Bàn 03</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-mono text-slate-600">PAYOS-94029482</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-black text-amber-600 text-sm">95.000 đ</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 font-bold rounded-lg flex items-center gap-1.5 w-max">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                    Đang chờ quét QR
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button onclick="alert('Đang gọi API kiểm tra trạng thái thanh toán từ PayOS... Kết quả: Khách chưa chuyển khoản.')" class="px-3 py-1 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg font-bold text-xs shadow-2xs">
+                    Kiểm tra lại
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Transaction 2: Thành công -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-3.5 px-4">
+                  <span class="font-bold text-slate-900">21/10/2026 14:15</span>
+                  <div class="text-xs text-slate-400 mt-0.5">Webhook khớp lúc 14:15:32</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900">#ORD-102931</div>
+                  <div class="text-xs text-slate-500">Bàn 01</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-mono text-slate-600">PAYOS-94028912</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-black text-slate-900 text-sm">115.000 đ</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-1 bg-green-50 text-[#15803D] border border-green-200 font-bold rounded-lg flex items-center gap-1.5 w-max">
+                    <span class="w-2 h-2 rounded-full bg-[#15803D]"></span>
+                    Thành công
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <span class="text-xs text-slate-400">Đã đối soát</span>
+                </td>
+              </tr>
+
+              <!-- Transaction 3: Thành công -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-3.5 px-4">
+                  <span class="font-bold text-slate-900">21/10/2026 13:50</span>
+                  <div class="text-xs text-slate-400 mt-0.5">Webhook khớp lúc 13:51:02</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900">#ORD-102920</div>
+                  <div class="text-xs text-slate-500">Bàn 04</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-mono text-slate-600">PAYOS-94028120</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-black text-slate-900 text-sm">240.000 đ</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-1 bg-green-50 text-[#15803D] border border-green-200 font-bold rounded-lg flex items-center gap-1.5 w-max">
+                    <span class="w-2 h-2 rounded-full bg-[#15803D]"></span>
+                    Thành công
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <span class="text-xs text-slate-400">Đã đối soát</span>
+                </td>
+              </tr>
+
+              <!-- Transaction 4: Hết hạn -->
+              <tr class="hover:bg-slate-50/80 transition bg-slate-50/40">
+                <td class="py-3.5 px-4">
+                  <span class="font-bold text-slate-500">21/10/2026 13:20</span>
+                  <div class="text-xs text-slate-400 mt-0.5">Quá hạn 15 phút</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-500">#ORD-102910</div>
+                  <div class="text-xs text-slate-400">Bàn 02</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-mono text-slate-400">PAYOS-94027500</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-bold text-slate-400 text-sm">60.000 đ</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-500 font-semibold rounded-lg flex items-center gap-1.5 w-max">
+                    Hết hạn / Đã hủy
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <span class="text-xs text-slate-400">Khách đổi tiền mặt</span>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    function syncPendingOrders() {
+      alert('Đang đồng bộ giao dịch với hệ thống PayOS... Kết quả: Đã cập nhật 1 đơn đang chờ thanh toán.');
+    }
+  </script>
+</body>
+</html>

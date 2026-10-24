@@ -1,0 +1,25 @@
+server:
+  port: 12805
+spring:
+  application:
+      name: linmour-websocket
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: @nacos.ip@:@nacos.port@
+        namespace: @nacos.namespace@
+      config:
+        server-addr: @nacos.ip@:@nacos.port@
+        namespace: @nacos.namespace@
+        file-extension: yml
+        shared-configs:
+#          - dataId: rocketmq.yml
+#            refresh: true
+          - dataId: redis.yml
+            refresh: true
+          - dataId: security.yml
+            refresh: true
+
+

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup C04: Giỏ Hàng Chung Của Bàn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Be Vietnam Pro', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-200 text-slate-900 min-h-screen flex flex-col items-center p-0 md:p-6">
+
+  <!-- Interactive Control Bar for Reviewer -->
+  <div class="w-full max-w-[420px] bg-slate-900 text-white p-3 rounded-b-2xl md:rounded-2xl mb-4 shadow-lg flex flex-col gap-2">
+    <div class="flex items-center justify-between text-xs font-semibold">
+      <span class="text-amber-400">⚡ Chuyển đổi trạng thái Giỏ hàng:</span>
+      <span class="text-slate-400">Mobile 375×812</span>
+    </div>
+    <div class="grid grid-cols-2 gap-2 text-xs">
+      <button onclick="setCartState('ready')" id="btn-ready" class="py-2 px-2 bg-red-600 text-white font-bold rounded-xl transition">1. Giỏ sẵn sàng đặt</button>
+      <button onclick="setCartState('submitting')" id="btn-submitting" class="py-2 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl transition">2. Đang có người đặt món</button>
+    </div>
+  </div>
+
+  <!-- Mobile Frame 375x812 -->
+  <div class="w-full max-w-[375px] h-[812px] bg-white relative flex flex-col shadow-2xl rounded-3xl overflow-hidden border-4 border-slate-800">
+    
+    <!-- Top System Status Bar -->
+    <div class="h-6 bg-white flex items-center justify-between px-6 text-xs font-semibold text-slate-800 select-none">
+      <span>14:30</span>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.28 19.57 10.6 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/></svg>
+        <span>5G</span>
+        <div class="w-5 h-2.5 border border-slate-700 rounded-sm p-0.5"><div class="h-full bg-slate-800 rounded-2xs w-3/4"></div></div>
+      </div>
+    </div>
+
+    <!-- Header Giỏ Hàng -->
+    <header class="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-white flex-shrink-0">
+      <div class="flex items-center gap-2">
+        <button class="min-w-[40px] min-h-[40px] p-2 rounded-xl text-slate-600 hover:bg-slate-100 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <div>
+          <h2 class="text-base font-bold text-slate-900 leading-tight">Giỏ Hàng Bàn 03</h2>
+          <div class="text-xs text-slate-500">Đồng bộ tự động cùng bàn</div>
+        </div>
+      </div>
+      <button onclick="openClearCartModal()" class="text-xs font-semibold text-[#B91C1C] hover:underline px-2 py-1">
+        Xóa tất cả
+      </button>
+    </header>
+
+    <!-- Cart Items List (Scrollable) -->
+    <main class="flex-1 overflow-y-auto p-4 space-y-4">
+      
+      <!-- Realtime Toast Banner -->
+      <div class="bg-green-50 border border-green-200 rounded-2xl p-3 flex items-center gap-2.5 text-xs text-green-800">
+        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+        <span>Bạn và những người ngồi cùng bàn đang thấy giỏ hàng này.</span>
+      </div>
+
+      <!-- Item 1: Có tuỳ chọn & Tag "Bạn cùng bàn vừa thêm" -->
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2 relative">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold bg-red-100 text-[#B91C1C] px-2 py-0.5 rounded-full">
+            Khách 2 vừa thêm
+          </span>
+          <!-- A2: Nút xoá món dạng icon viền -->
+          <button class="text-slate-400 hover:text-[#B91C1C] p-1" title="Xóa món">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <div class="flex items-start justify-between">
+          <div>
+            <h4 class="font-bold text-slate-900 text-sm">Phở Bò Tái Nạm</h4>
+            <div class="text-xs text-slate-500 mt-0.5">Tô lớn (+10.000 đ), Trứng gà chần (+5.000 đ), Ít bánh</div>
+            <div class="text-sm font-bold text-red-600 mt-1">72.000 đ</div>
+          </div>
+          <!-- Stepper 44x44px (A3) -->
+          <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-0.5 shadow-xs">
+            <button class="w-11 h-11 rounded-lg hover:bg-slate-100 text-slate-800 font-extrabold text-base flex items-center justify-center">
+              −
+            </button>
+            <span class="w-7 text-center font-bold text-xs text-slate-900">1</span>
+            <button class="w-11 h-11 rounded-lg bg-red-600 text-white font-extrabold text-base flex items-center justify-center">
+              +
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 2 -->
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2">
+        <div class="flex items-start justify-between">
+          <div>
+            <h4 class="font-bold text-slate-900 text-sm">Bún Chả Hà Nội</h4>
+            <div class="text-xs text-slate-500 mt-0.5">Tiêu chuẩn</div>
+            <div class="text-sm font-bold text-red-600 mt-1">50.000 đ</div>
+          </div>
+          <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-0.5 shadow-xs">
+            <button class="w-11 h-11 rounded-lg hover:bg-slate-100 text-slate-800 font-extrabold text-base flex items-center justify-center">
+              −
+            </button>
+            <span class="w-7 text-center font-bold text-xs text-slate-900">1</span>
+            <button class="w-11 h-11 rounded-lg bg-red-600 text-white font-extrabold text-base flex items-center justify-center">
+              +
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 3 -->
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2">
+        <div class="flex items-start justify-between">
+          <div>
+            <h4 class="font-bold text-slate-900 text-sm">Cà Phê Sữa Đá Sài Gòn</h4>
+            <div class="text-xs text-slate-500 mt-0.5">Ít ngọt, nhiều đá</div>
+            <div class="text-sm font-bold text-red-600 mt-1">25.000 đ</div>
+          </div>
+          <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-0.5 shadow-xs">
+            <button class="w-11 h-11 rounded-lg hover:bg-slate-100 text-slate-800 font-extrabold text-base flex items-center justify-center">
+              −
+            </button>
+            <span class="w-7 text-center font-bold text-xs text-slate-900">1</span>
+            <button class="w-11 h-11 rounded-lg bg-red-600 text-white font-extrabold text-base flex items-center justify-center">
+              +
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Special Remark -->
+      <div class="space-y-1.5 pt-1">
+        <label class="text-xs font-bold text-slate-700">Ghi chú chung cho toàn bàn:</label>
+        <textarea rows="2" placeholder="Ví dụ: Lên món cùng lúc, cho đĩa ớt riêng..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-red-600 focus:bg-white resize-none"></textarea>
+      </div>
+
+    </main>
+
+    <!-- Footer Summary & Submit Button -->
+    <footer class="p-4 border-t border-slate-200 bg-white space-y-3 flex-shrink-0 shadow-lg">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-xs text-slate-500">Tổng cộng (3 món):</span>
+          <div class="text-xl font-black text-red-600">147.000 đ</div>
+        </div>
+      </div>
+
+      <!-- State 1: Normal Submit Button -->
+      <div id="btn-state-ready">
+        <button class="w-full min-h-[48px] py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition active:scale-95">
+          <span>Gửi Đơn Vào Bếp (Đặt Món)</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+      </div>
+
+      <!-- State 2: Locked Submit Button (Đang có người đặt món) -->
+      <div id="btn-state-submitting" class="hidden">
+        <button disabled class="w-full min-h-[48px] py-3.5 bg-amber-500 text-slate-950 font-bold text-sm rounded-xl flex items-center justify-center gap-2 cursor-wait">
+          <span class="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+          <span>Đang có người khác đặt món, vui lòng đợi...</span>
+        </button>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Modal Xác Nhận Xóa Giỏ Cả Bàn (PO Review 3) -->
+  <div id="clear-cart-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-2xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xs w-full p-5 shadow-2xl border border-slate-200 space-y-4">
+      <div class="w-12 h-12 rounded-full bg-red-100 text-[#B91C1C] flex items-center justify-center text-2xl mx-auto">
+        ⚠️
+      </div>
+      <div class="text-center space-y-1">
+        <h3 class="text-base font-bold text-slate-900">Xác Nhận Xóa Giỏ Hàng?</h3>
+        <p class="text-xs text-slate-600">Giỏ của mọi người cùng bàn sẽ bị xoá và không thể hoàn tác.</p>
+      </div>
+      <div class="flex items-center gap-3 pt-2">
+        <button onclick="closeClearCartModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">
+          Hủy bỏ
+        </button>
+        <button onclick="confirmClearCart()" class="flex-1 py-2.5 bg-white hover:bg-red-50 border border-red-300 text-[#B91C1C] font-bold text-xs rounded-xl shadow-xs">
+          Xóa Toàn Bộ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openClearCartModal() {
+      document.getElementById('clear-cart-modal').classList.remove('hidden');
+    }
+    function closeClearCartModal() {
+      document.getElementById('clear-cart-modal').classList.add('hidden');
+    }
+    function confirmClearCart() {
+      alert('Đã xóa toàn bộ giỏ hàng của bàn.');
+      closeClearCartModal();
+    }
+
+    function setCartState(s) {
+      document.getElementById('btn-state-ready').classList.add('hidden');
+      document.getElementById('btn-state-submitting').classList.add('hidden');
+
+      document.getElementById('btn-ready').className = 'py-2 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl transition';
+      document.getElementById('btn-submitting').className = 'py-2 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl transition';
+
+      if (s === 'ready') {
+        document.getElementById('btn-state-ready').classList.remove('hidden');
+        document.getElementById('btn-ready').className = 'py-2 px-2 bg-red-600 text-white font-bold rounded-xl transition';
+      } else {
+        document.getElementById('btn-state-submitting').classList.remove('hidden');
+        document.getElementById('btn-submitting').className = 'py-2 px-2 bg-red-600 text-white font-bold rounded-xl transition';
+      }
+    }
+  </script>
+</body>
+</html>

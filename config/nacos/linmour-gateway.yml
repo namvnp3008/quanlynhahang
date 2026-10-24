@@ -1,0 +1,63 @@
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "${WEB_BASE_URL}"
+              - "http://localhost:5181"
+              - "http://127.0.0.1:5181"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+      routes:
+        - id: system
+          uri: lb://linmour-system
+          predicates:
+            - Path=/system/**
+        - id: system-app
+          uri: lb://linmour-system
+          predicates:
+            - Path=/app/system/**
+        - id: product
+          uri: lb://linmour-product
+          predicates:
+            - Path=/product/**
+        - id: product-app
+          uri: lb://linmour-product
+          predicates:
+            - Path=/app/product/**
+        - id: restaurant
+          uri: lb://linmour-restaurant
+          predicates:
+            - Path=/restaurant/**
+        - id: restaurant-app
+          uri: lb://linmour-restaurant
+          predicates:
+            - Path=/app/restaurant/**
+        - id: restaurant-QR
+          uri: lb://linmour-restaurant
+          predicates:
+            - Path=/file/**
+        - id: order
+          uri: lb://linmour-order
+          predicates:
+            - Path=/order/**
+        - id: order-app
+          uri: lb://linmour-order
+          predicates:
+            - Path=/app/order/**
+        - id: websocket
+          uri: lb://linmour-websocket
+          predicates:
+            - Path=/websocket/**
+        - id: dataAnaly
+          uri: lb://linmour-dataAnaly
+          predicates:
+            - Path=/dataAnaly/**

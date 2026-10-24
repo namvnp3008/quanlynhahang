@@ -1,0 +1,12 @@
+security:
+  internal-token: "${INTERNAL_TOKEN}"
+  jwt-secret: "${JWT_SECRET}"
+  payos-config-secret: "${PAYOS_CONFIG_SECRET}"
+  otp-secret: "${OTP_SECRET}"
+  table-token-secret: "${TABLE_TOKEN_SECRET}"
+  require-otp-for-platform-admin: "${SECURITY_REQUIRE_OTP_FOR_PLATFORM_ADMIN:-true}"
+  force-weak-password-change: "${SECURITY_FORCE_WEAK_PASSWORD_CHANGE:-true}"
+  allow-raw-table-ids: "${SECURITY_ALLOW_RAW_TABLE_IDS:-false}"
+app:
+  web-base-url: "${WEB_BASE_URL}"
+  public-base-url: "${PUBLIC_BASE_URL}"

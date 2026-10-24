@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.linmour.dataAnaly.mapper.OrderSummaryDayMapper">
+
+    <resultMap id="BaseResultMap" type="com.linmour.dataAnaly.pojo.Do.OrderSummaryDay">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="date" column="date" jdbcType="DATE"/>
+            <result property="orderNum" column="order_num" jdbcType="INTEGER"/>
+            <result property="productNum" column="product_num" jdbcType="INTEGER"/>
+            <result property="price" column="price" jdbcType="DECIMAL"/>
+            <result property="avgPrice" column="avg_price" jdbcType="DECIMAL"/>
+            <result property="shopId" column="shop_id" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,date,order_num,
+        product_num,price,avg_price,
+        shop_id
+    </sql>
+
+    <insert id="syncDailySummaryFromOrders">
+        INSERT INTO lsc_data_analy.order_summary_day (`date`, `order_num`, `product_num`, `price`, `avg_price`, `shop_id`, `deleted`)
+        SELECT 
+          o.d, 
+          o.order_num, 
+          COALESCE(p.product_num, 0) AS product_num, 
+          o.total_amount, 
+          ROUND(o.total_amount / o.order_num, 2) AS avg_price, 
+          o.shop_id, 
+          0 AS deleted
+        FROM (
+          SELECT DATE(create_time) AS d, shop_id, COUNT(*) AS order_num, SUM(pay_amount) AS total_amount
+          FROM lsc_order.order_info
+          WHERE pay_status = 1 AND shop_id IS NOT NULL
+          <if test="targetDate != null and targetDate != ''">
+              AND DATE(create_time) = #{targetDate}
+          </if>
+          GROUP BY DATE(create_time), shop_id
+        ) o
+        LEFT JOIN (
+          SELECT DATE(o2.create_time) AS d, o2.shop_id, SUM(oi.quantity) AS product_num
+          FROM lsc_order.order_info o2
+          JOIN lsc_order.order_item oi ON o2.id = oi.order_id
+          WHERE o2.pay_status = 1 AND o2.shop_id IS NOT NULL
+          <if test="targetDate != null and targetDate != ''">
+              AND DATE(o2.create_time) = #{targetDate}
+          </if>
+          GROUP BY DATE(o2.create_time), o2.shop_id
+        ) p ON o.d = p.d AND o.shop_id = p.shop_id
+        ON DUPLICATE KEY UPDATE
+          `order_num` = VALUES(`order_num`),
+          `product_num` = VALUES(`product_num`),
+          `price` = VALUES(`price`),
+          `avg_price` = VALUES(`avg_price`),
+          `deleted` = 0
+    </insert>
+
+    <select id="selectPaidOrdersByDate" resultType="com.linmour.dataAnaly.pojo.Dto.OrderRawDto">
+        SELECT 
+          id,
+          shop_id AS shopId,
+          pay_amount AS payAmount,
+          create_time AS createTime
+        FROM lsc_order.order_info
+        WHERE pay_status = 1 AND shop_id IS NOT NULL
+        <if test="targetDate != null and targetDate != ''">
+            AND DATE(create_time) = #{targetDate}
+        </if>
+        <if test="shopId != null">
+            AND shop_id = #{shopId}
+        </if>
+        ORDER BY create_time ASC
+    </select>
+
+    <select id="selectPaidOrderItemsByDate" resultType="com.linmour.dataAnaly.pojo.Dto.OrderItemRawDto">
+        SELECT 
+          oi.order_id AS orderId,
+          o.shop_id AS shopId,
+          oi.name AS name,
+          COALESCE(oi.quantity, 1) AS quantity
+        FROM lsc_order.order_item oi
+        JOIN lsc_order.order_info o ON oi.order_id = o.id
+        WHERE o.pay_status = 1 AND o.shop_id IS NOT NULL
+        <if test="targetDate != null and targetDate != ''">
+            AND DATE(o.create_time) = #{targetDate}
+        </if>
+        <if test="shopId != null">
+            AND o.shop_id = #{shopId}
+        </if>
+    </select>
+
+    <select id="selectPaidOrdersByDateRange" resultType="com.linmour.dataAnaly.pojo.Dto.OrderRawDto">
+        SELECT 
+          id,
+          shop_id AS shopId,
+          pay_amount AS payAmount,
+          create_time AS createTime
+        FROM lsc_order.order_info
+        WHERE pay_status = 1 AND shop_id = #{shopId}
+          AND DATE(create_time) &gt;= #{startDate}
+          AND DATE(create_time) &lt;= #{endDate}
+        ORDER BY create_time ASC
+    </select>
+
+    <select id="selectPaidOrderItemsByDateRange" resultType="com.linmour.dataAnaly.pojo.Dto.OrderItemRawDto">
+        SELECT 
+          oi.order_id AS orderId,
+          o.shop_id AS shopId,
+          oi.name AS name,
+          COALESCE(oi.quantity, 1) AS quantity,
+          COALESCE(oi.price, 0) AS price
+        FROM lsc_order.order_item oi
+        JOIN lsc_order.order_info o ON oi.order_id = o.id
+        WHERE o.pay_status = 1 AND o.shop_id = #{shopId}
+          AND DATE(o.create_time) &gt;= #{startDate}
+          AND DATE(o.create_time) &lt;= #{endDate}
+    </select>
+</mapper>

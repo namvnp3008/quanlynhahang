@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANLYNHAHANG: Design System Preview – Ẩm Thực Việt Hiện Đại (D1)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Be Vietnam Pro', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen p-6 md:p-12">
+  <div class="max-w-6xl mx-auto space-y-12 pb-16">
+    
+    <!-- Header -->
+    <header class="border-b border-slate-200 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-3 h-3 rounded-full bg-red-600"></span>
+          <span class="text-xs font-semibold uppercase tracking-wider text-red-600">Hệ Thống Thiết Kế UI/UX Toàn Diện</span>
+        </div>
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900 mt-1">Ẩm Thực Việt Hiện Đại</h1>
+        <p class="text-slate-500 text-sm mt-1">Khôi phục đầy đủ toàn bộ thành phần UI, đo chuẩn WCAG 2.1 AA thực tế</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">WCAG 2.1 AA Đạt 100%</span>
+        <span class="px-3 py-1 bg-slate-200 text-slate-800 text-xs font-bold rounded-full">Tiền tệ: 55.000 đ</span>
+      </div>
+    </header>
+
+    <!-- 1. Bảng Màu Đo Thực Tế Chuẩn Xác (PO Review Lần 2b) -->
+    <section class="space-y-4">
+      <h2 class="text-xl font-bold text-slate-800">1. Bảng Màu & Đo Tương Phản Chuẩn Xác (Color Tokens)</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+          <div class="h-14 rounded-xl bg-[#DC2626] flex items-center justify-center text-white font-bold text-sm">#DC2626</div>
+          <div>
+            <div class="font-bold text-xs text-slate-900">Primary Red</div>
+            <div class="text-xs text-slate-500">Nút chính, Giá tiền</div>
+            <div class="text-xs text-green-700 font-bold mt-1">4.83:1 (Đạt AA)</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+          <div class="h-14 rounded-xl bg-[#15803D] flex items-center justify-center text-white font-bold text-sm">#15803D</div>
+          <div>
+            <div class="font-bold text-xs text-slate-900">Green-700 Text</div>
+            <div class="text-xs text-slate-500">Đã lên món, Trực tuyến</div>
+            <div class="text-xs text-green-700 font-bold mt-1">4.79:1 trên #F0FDF4</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+          <div class="h-14 rounded-xl bg-[#C2410C] flex items-center justify-center text-white font-bold text-sm">#C2410C</div>
+          <div>
+            <div class="font-bold text-xs text-slate-900">Orange-700 Text</div>
+            <div class="text-xs text-slate-500">Chờ lên món</div>
+            <div class="text-xs text-green-700 font-bold mt-1">4.88:1 trên #FFF7ED</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+          <div class="h-14 rounded-xl bg-[#B45309] flex items-center justify-center text-white font-bold text-sm">#B45309</div>
+          <div>
+            <div class="font-bold text-xs text-slate-900">Amber-700 Text</div>
+            <div class="text-xs text-slate-500">Chờ thanh toán</div>
+            <div class="text-xs text-green-700 font-bold mt-1">4.84:1 trên #FFFBEB</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+          <div class="h-14 rounded-xl bg-[#B91C1C] flex items-center justify-center text-white font-bold text-sm">#B91C1C</div>
+          <div>
+            <div class="font-bold text-xs text-slate-900">Chip / Danger Text</div>
+            <div class="text-xs text-slate-500">Chip active, Nút xoá</div>
+            <div class="text-xs text-green-700 font-bold mt-1">5.91:1 trên #FEF2F2</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+          <div class="h-14 rounded-xl bg-[#0F172A] flex items-center justify-center text-white font-bold text-sm">#0F172A</div>
+          <div>
+            <div class="font-bold text-xs text-slate-900">Slate-900 Text</div>
+            <div class="text-xs text-slate-500">Tiêu đề, Tên món</div>
+            <div class="text-xs text-green-700 font-bold mt-1">17.85:1 (Đạt AAA)</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. Typography Chuẩn >= 12px -->
+    <section class="space-y-4">
+      <h2 class="text-xl font-bold text-slate-800">2. Kiểu Chữ (Typography – Be Vietnam Pro, Không Dưới 12px)</h2>
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <div class="border-b pb-3">
+          <span class="text-xs text-slate-400 uppercase font-semibold">Display Large (24px Bold)</span>
+          <div class="text-2xl font-bold text-slate-900 mt-1">Phở Bò Tái Nạm Cổ Truyền • 55.000 đ</div>
+        </div>
+        <div class="border-b pb-3">
+          <span class="text-xs text-slate-400 uppercase font-semibold">Heading Medium (18px SemiBold)</span>
+          <div class="text-lg font-semibold text-slate-900 mt-1">Chi Tiết Bàn 03 – Đang Ăn (Tổng cộng: 165.000 đ)</div>
+        </div>
+        <div class="border-b pb-3">
+          <span class="text-xs text-slate-400 uppercase font-semibold">Body Base (14px / 15px Regular)</span>
+          <div class="text-sm text-slate-700 mt-1">Bánh phở tươi tráng tay trong ngày, nước dùng ninh từ xương ống bò hầm 12 tiếng cùng quế hồi thảo quả.</div>
+        </div>
+        <div>
+          <span class="text-xs text-slate-400 uppercase font-semibold">Caption Small (12px SemiBold – Cỡ Nhỏ Nhất Hệ Thống)</span>
+          <div class="flex items-center gap-3 mt-1">
+            <span class="text-xs text-slate-600 font-medium">Đặt lúc: 21/10/2026 14:30</span>
+            <span class="text-xs font-semibold bg-red-100 text-[#B91C1C] px-2.5 py-0.5 rounded-full">Tag 12px chuẩn</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Nút Bấm: Phân Biệt Chính vs Nguy Hiểm (A2) -->
+    <section class="space-y-4">
+      <h2 class="text-xl font-bold text-slate-800">3. Nút Bấm: Phân Biệt Rõ Ràng Hành Động Chính vs Nguy Hiểm (A2)</h2>
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <div class="flex flex-wrap items-center gap-4">
+          <!-- Primary -->
+          <button class="min-h-[44px] px-6 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-bold text-sm rounded-xl shadow-xs transition active:scale-95">
+            Đặt Món Ngay (Primary)
+          </button>
+          
+          <!-- Secondary -->
+          <button class="min-h-[44px] px-6 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-bold text-sm rounded-xl transition">
+            Gọi Phục Vụ (Secondary)
+          </button>
+
+          <!-- Danger Action (Outlined, Not Solid Red) -->
+          <button class="min-h-[44px] px-5 py-2.5 bg-white hover:bg-red-50 border border-red-300 text-[#B91C1C] font-bold text-sm rounded-xl flex items-center gap-2 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Xóa món khỏi giỏ (Danger)
+          </button>
+
+          <!-- Disabled -->
+          <button disabled class="min-h-[44px] px-5 py-2.5 bg-slate-100 text-slate-400 font-bold text-sm rounded-xl cursor-not-allowed">
+            Hết Hàng (Disabled)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Ô Nhập, Chọn & Công Tắc (Input, Select, Switch) -->
+    <section class="space-y-4">
+      <h2 class="text-xl font-bold text-slate-800">4. Ô Nhập Liệu, Lựa Chọn & Công Tắc (Form Controls)</h2>
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Input -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-700">Tên món ăn</label>
+          <input type="text" value="Phở Bò Tái Nạm" class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600" />
+        </div>
+
+        <!-- Select -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-700">Danh mục món</label>
+          <select class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-red-600">
+            <option>🍜 Phở & Bún Truyền Thống</option>
+            <option>🍚 Cơm Đĩa & Món Nóng</option>
+            <option>☕ Đồ Uống & Cà Phê</option>
+          </select>
+        </div>
+
+        <!-- Switch (Còn/Hết món) -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-slate-700">Trạng thái bán (Còn món / Hết món)</label>
+          <div class="flex items-center gap-3 pt-1">
+            <button class="w-12 h-6 bg-green-600 rounded-full p-0.5 transition flex items-center justify-end">
+              <span class="w-5 h-5 bg-white rounded-full shadow-xs"></span>
+            </button>
+            <span class="text-xs font-bold text-green-700">Đang phục vụ (Còn hàng)</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 5. Chip Danh Mục & Thẻ Món Ăn (Category Chip & Product Card) -->
+    <section class="space-y-4">
+      <h2 class="text-xl font-bold text-slate-800">5. Chip Danh Mục & Thẻ Món Ăn (Client UI)</h2>
+      
+      <!-- Category Tabs (Đúng màu #B91C1C trên #FEF2F2 đạt 5.91:1) -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-1">
+        <button class="px-4 py-2 bg-[#FEF2F2] border border-red-300 text-[#B91C1C] rounded-full text-xs font-bold shadow-xs whitespace-nowrap">
+          🍜 Phở & Bún (Active • 5.91:1)
+        </button>
+        <button class="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-full text-xs font-medium whitespace-nowrap">
+          🍚 Cơm Đĩa
+        </button>
+        <button class="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-full text-xs font-medium whitespace-nowrap">
+          ☕ Đồ Uống & Cà Phê
+        </button>
+      </div>
+
+      <!-- Stepper & Product Card -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs flex gap-3">
+          <div class="w-20 h-20 rounded-xl bg-amber-50 border border-amber-100 flex-shrink-0 flex items-center justify-center text-3xl">🍜</div>
+          <div class="flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm">Phở Bò Tái Nạm</h3>
+              <p class="text-xs text-slate-500 line-clamp-1 mt-0.5">Bò tái nạm tươi, nước ninh xương 12h thơm quế hồi</p>
+            </div>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-sm font-bold text-red-600">55.000 đ</span>
+              <button class="min-h-[44px] min-w-[70px] px-3.5 py-2 bg-red-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-1 active:scale-95 transition">
+                <span>Chọn</span>
+                <span class="text-sm leading-none">+</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stepper 44x44px -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+          <div>
+            <div class="font-bold text-sm text-slate-900">Bún Chả Hà Nội</div>
+            <div class="text-xs font-bold text-red-600">50.000 đ</div>
+          </div>
+          <div class="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+            <button class="w-11 h-11 rounded-lg bg-white hover:bg-slate-50 text-slate-800 font-extrabold text-base flex items-center justify-center shadow-xs transition" title="Giảm 1">
+              −
+            </button>
+            <span class="w-8 text-center font-bold text-xs text-slate-900">1</span>
+            <button class="w-11 h-11 rounded-lg bg-red-600 hover:bg-red-700 text-white font-extrabold text-base flex items-center justify-center shadow-xs transition" title="Tăng 1">
+              +
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Huy Hiệu Trạng Thái & Toast -->
+    <section class="space-y-4">
+      <h2 class="text-xl font-bold text-slate-800">6. Huy Hiệu Trạng Thái & Toast Thông Báo</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Badges -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap gap-3 items-center">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FFF7ED] text-[#C2410C] border border-[#FFEDD5] text-xs font-bold rounded-full">
+            <span class="w-2 h-2 rounded-full bg-[#EA580C] animate-pulse"></span>
+            Chờ lên món (4.88:1)
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F0FDF4] text-[#15803D] border border-[#DCFCE7] text-xs font-bold rounded-full">
+            ✓ Đã lên món (4.79:1)
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FFFBEB] text-[#B45309] border border-[#FEF3C7] text-xs font-bold rounded-full">
+            Chờ thanh toán (4.84:1)
+          </span>
+        </div>
+
+        <!-- Toast Realtime -->
+        <div class="bg-slate-900 text-white p-4 rounded-2xl shadow-xl border border-slate-800 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-red-600 flex items-center justify-center text-white font-bold flex-shrink-0">
+            🔔
+          </div>
+          <div class="flex-1">
+            <div class="font-bold text-xs text-white">Đơn Mới Vừa Tới!</div>
+            <div class="text-xs text-slate-300">Bàn 01 vừa gọi: 2x Phở Bò Tái Nạm (110.000 đ)</div>
+          </div>
+          <span class="text-xs text-slate-400 font-medium">Vừa xong</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 7. Bảng Dữ Liệu & Phân Trang (Table & Pagination) -->
+    <section class="space-y-4">
+      <h2 class="text-xl font-bold text-slate-800">7. Bảng Quản Trị & Phân Trang (Admin Table)</h2>
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+            <tr>
+              <th class="p-3.5 font-bold">MÓN ĂN</th>
+              <th class="p-3.5 font-bold">DANH MỤC</th>
+              <th class="p-3.5 font-bold">GIÁ BÁN</th>
+              <th class="p-3.5 font-bold">TRẠNG THÁI</th>
+              <th class="p-3.5 font-bold text-right">THAO TÁC</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr>
+              <td class="p-3.5 font-bold text-slate-900">Phở Bò Tái Nạm</td>
+              <td class="p-3.5 text-slate-600">Phở & Bún Truyền Thống</td>
+              <td class="p-3.5 font-bold text-red-600">55.000 đ</td>
+              <td class="p-3.5"><span class="px-2.5 py-0.5 bg-green-50 text-[#15803D] font-bold rounded-full">Đang bán</span></td>
+              <td class="p-3.5 text-right space-x-2">
+                <button class="text-blue-600 font-bold hover:underline">Sửa</button>
+                <button class="text-[#B91C1C] font-bold hover:underline">Xóa</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="p-3.5 font-bold text-slate-900">Bún Chả Hà Nội</td>
+              <td class="p-3.5 text-slate-600">Phở & Bún Truyền Thống</td>
+              <td class="p-3.5 font-bold text-red-600">50.000 đ</td>
+              <td class="p-3.5"><span class="px-2.5 py-0.5 bg-green-50 text-[#15803D] font-bold rounded-full">Đang bán</span></td>
+              <td class="p-3.5 text-right space-x-2">
+                <button class="text-blue-600 font-bold hover:underline">Sửa</button>
+                <button class="text-[#B91C1C] font-bold hover:underline">Xóa</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <!-- Pagination -->
+        <div class="p-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs">
+          <span class="text-slate-500 font-medium">Hiển thị 1 - 2 trong tổng số 8 món</span>
+          <div class="flex items-center gap-1">
+            <button class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-slate-600">Trước</button>
+            <button class="px-2.5 py-1 bg-red-600 text-white font-bold rounded-lg">1</button>
+            <button class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-slate-600">2</button>
+            <button class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-slate-600">Sau</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Trạng Thái Rỗng, Skeleton & Banner Lỗi -->
+    <section class="space-y-4">
+      <h2 class="text-xl font-bold text-slate-800">8. Trạng Thái Rỗng, Đang Tải (Skeleton) & Banner Lỗi</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Empty State -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col items-center text-center space-y-2">
+          <div class="text-4xl">🍽️</div>
+          <div class="font-bold text-sm text-slate-900">Quán chưa có món nào</div>
+          <div class="text-xs text-slate-500">Vui lòng gọi nhân viên để được hỗ trợ thực đơn.</div>
+        </div>
+
+        <!-- Skeleton -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3 animate-pulse">
+          <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+          <div class="h-10 bg-slate-200 rounded-xl w-full"></div>
+          <div class="h-4 bg-slate-200 rounded w-1/3"></div>
+        </div>
+
+        <!-- Error Banner -->
+        <div class="bg-red-50 border border-red-200 p-4 rounded-2xl flex items-start gap-3">
+          <span class="text-red-600 text-lg">⚠️</span>
+          <div>
+            <div class="text-xs font-bold text-red-800">Mất kết nối máy chủ bàn ăn</div>
+            <div class="text-xs text-red-600 mt-0.5">Đang tự động thử lại kết nối qua mạng...</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

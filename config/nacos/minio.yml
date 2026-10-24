@@ -1,0 +1,6 @@
+minio:
+  accessKey: ${MINIO_ACCESS_KEY:-minio}
+  secretKey: ${MINIO_SECRET_KEY:-}
+  bucket: ${MINIO_BUCKET:-linmourscanorder}
+  endpoint: ${MINIO_ENDPOINT:-http://127.0.0.1:9000}
+  readPath: ${MINIO_READ_PATH:-http://127.0.0.1:9000}

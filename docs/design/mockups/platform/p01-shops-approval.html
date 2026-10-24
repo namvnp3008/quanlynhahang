@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANLYNHAHANG Platform: Phê Duyệt Quán Ăn Mới (P5)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-slate-200 text-slate-900 flex items-center justify-center m-0 p-0 overflow-hidden">
+
+  <!-- Desktop Frame Simulation (Exactly 1280x800) -->
+  <div class="w-[1280px] h-[800px] bg-slate-50 flex rounded-2xl shadow-2xl overflow-hidden border border-slate-300 relative">
+    
+    <!-- LEFT SIDEBAR (PLATFORM ADMIN) -->
+    <aside class="w-64 bg-slate-950 text-white flex flex-col justify-between flex-shrink-0 z-20 border-r border-slate-800">
+      <div>
+        <!-- Logo -->
+        <div class="p-5 border-b border-slate-800 flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-black text-white text-base shadow-md tracking-wider">QL</span>
+          <div>
+            <div class="font-extrabold text-white text-base tracking-wide">QUANLYNHAHANG</div>
+            <div class="text-xs text-blue-400 font-bold">Quản Trị Nền Tảng (P5)</div>
+          </div>
+        </div>
+
+        <!-- Platform Navigation Links -->
+        <nav class="p-3 space-y-1 text-xs">
+          <div class="px-3 py-2 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Hệ thống SaaS</div>
+          
+          <a href="p01-shops-approval.html" class="flex items-center gap-3 px-3 py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Duyệt quán ăn mới (P5)</span>
+            <span class="ml-auto bg-white text-blue-700 font-black px-2 py-0.5 rounded-full text-xs">2</span>
+          </a>
+
+          <a href="p02-merchants.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-850 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <span>Quản lý chủ quán (P5)</span>
+          </a>
+
+          <a href="p03-revenue.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-850 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Doanh thu & Hoa hồng (P6)</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Super Admin Profile -->
+      <div class="p-4 border-t border-slate-800 bg-slate-900/60 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white text-xs">AD</div>
+          <div>
+            <div class="text-xs font-bold text-white">Platform SuperAdmin</div>
+            <div class="text-xs text-slate-400">admin@quanlynhahang.vn</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN WORKSPACE -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+      
+      <!-- HEADER -->
+      <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between flex-shrink-0 z-10">
+        <div>
+          <h1 class="text-lg font-extrabold text-slate-900">Phê Duyệt Quán Ăn Mới Đăng Ký (P5)</h1>
+          <p class="text-xs text-slate-500">Xem xét thông tin quán ăn, cấp phép mở bàn và thiết lập tỷ lệ phí hoa hồng sàn (fee_rate)</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-xs font-bold flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+            2 quán đang chờ duyệt
+          </span>
+        </div>
+      </header>
+
+      <!-- FILTER TABS -->
+      <div class="px-8 bg-white border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-6 text-xs">
+          <button class="py-3 border-b-2 border-blue-600 font-bold text-blue-600 flex items-center gap-2">
+            <span>Chờ Phê Duyệt</span>
+            <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-black">2</span>
+          </button>
+          <button class="py-3 border-b-2 border-transparent font-medium text-slate-500 hover:text-slate-900">
+            Đã Duyệt Hoạt Động (48)
+          </button>
+          <button class="py-3 border-b-2 border-transparent font-medium text-slate-500 hover:text-slate-900">
+            Đã Từ Chối (3)
+          </button>
+        </div>
+
+        <div class="text-xs text-slate-500">
+          Hiển thị hồ sơ mới nhất tháng 10/2026
+        </div>
+      </div>
+
+      <!-- APPROVALS TABLE -->
+      <main class="flex-1 p-8 overflow-y-auto custom-scroll">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 select-none">
+              <tr>
+                <th class="py-3.5 px-4">Tên Quán & Địa Chỉ</th>
+                <th class="py-3.5 px-4">Chủ Sở Hữu (Merchant)</th>
+                <th class="py-3.5 px-4">Ngày Gửi Hồ Sơ</th>
+                <th class="py-3.5 px-4">Giấy Phép / CCCD</th>
+                <th class="py-3.5 px-4">Trạng Thái</th>
+                <th class="py-3.5 px-4 text-right w-44">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              
+              <!-- Shop 1: Nhà Hàng Bếp Việt -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900 text-sm">Nhà Hàng Bếp Việt</div>
+                  <div class="text-xs text-slate-500 mt-0.5">Số 128 Đường Xuân Thủy, Cầu Giấy, Hà Nội</div>
+                  <div class="text-xs text-slate-400 mt-0.5">Hotline: 0912 345 678</div>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900">Nguyễn Văn Nam</div>
+                  <div class="text-xs text-slate-500">SĐT: 0912 345 678</div>
+                  <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono">ID: MCH-0001</span>
+                </td>
+                <td class="py-4 px-4">
+                  <span class="font-bold text-slate-900">21/10/2026</span>
+                  <div class="text-xs text-slate-400">09:30 sáng</div>
+                </td>
+                <td class="py-4 px-4">
+                  <a href="#" onclick="alert('Xem giấy phép ĐKKD & ATVSTP của quán'); return false;" class="text-blue-600 hover:underline font-bold flex items-center gap-1">
+                    <span>📄 Xem ĐKKD & Giấy ATTP</span>
+                  </a>
+                </td>
+                <td class="py-4 px-4">
+                  <span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 font-bold rounded-lg flex items-center gap-1.5 w-max">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                    Chờ duyệt (P2)
+                  </span>
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button onclick="openRejectModal('Nhà Hàng Bếp Việt')" class="px-3 py-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 rounded-xl font-bold transition">
+                      Từ chối
+                    </button>
+                    <button onclick="openApproveModal('Nhà Hàng Bếp Việt')" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-xs transition">
+                      ✓ Phê Duyệt
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Shop 2: Cơm Tấm Sài Gòn Xưa -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900 text-sm">Cơm Tấm Sài Gòn Xưa - CN Thủ Đức</div>
+                  <div class="text-xs text-slate-500 mt-0.5">24 Võ Văn Ngân, TP. Thủ Đức, TP. Hồ Chí Minh</div>
+                  <div class="text-xs text-slate-400 mt-0.5">Hotline: 0903 999 888</div>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900">Lê Thị Mai Lan</div>
+                  <div class="text-xs text-slate-500">SĐT: 0903 999 888</div>
+                  <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono">ID: MCH-0092</span>
+                </td>
+                <td class="py-4 px-4">
+                  <span class="font-bold text-slate-900">20/10/2026</span>
+                  <div class="text-xs text-slate-400">16:45 chiều</div>
+                </td>
+                <td class="py-4 px-4">
+                  <a href="#" onclick="alert('Xem giấy tờ'); return false;" class="text-blue-600 hover:underline font-bold flex items-center gap-1">
+                    <span>📄 Xem ĐKKD & Giấy ATTP</span>
+                  </a>
+                </td>
+                <td class="py-4 px-4">
+                  <span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 font-bold rounded-lg flex items-center gap-1.5 w-max">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                    Chờ duyệt (P2)
+                  </span>
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button onclick="openRejectModal('Cơm Tấm Sài Gòn Xưa')" class="px-3 py-1.5 bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 rounded-xl font-bold transition">
+                      Từ chối
+                    </button>
+                    <button onclick="openApproveModal('Cơm Tấm Sài Gòn Xưa - CN Thủ Đức')" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-xs transition">
+                      ✓ Phê Duyệt
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL DUYỆT QUÁN & ĐẶT TỶ LỆ PHÍ FEE_RATE (P5) -->
+  <div id="approve-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-5">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="text-base font-bold text-slate-900">Phê Duyệt Quán Ăn Lên Sàn</h3>
+        <button onclick="closeApproveModal()" class="text-slate-400 hover:text-slate-600 p-1">✕</button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl space-y-1">
+          <div class="font-bold text-blue-900" id="approve-shop-name">Nhà Hàng Bếp Việt</div>
+          <p class="text-blue-700 text-2xs">Sau khi duyệt, link quét mã QR tại bàn của quán sẽ chính thức hoạt động đón khách.</p>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Thiết lập tỷ lệ phí hoa hồng sàn (fee_rate) <span class="text-red-600">*</span></label>
+          <div class="relative">
+            <input type="number" step="0.1" value="1.5" class="w-full pl-3.5 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-black text-slate-900 text-sm focus:outline-none focus:border-blue-500">
+            <span class="absolute right-3.5 top-2.5 text-slate-400 font-bold text-xs">%</span>
+          </div>
+          <p class="text-slate-400 text-2xs mt-1">Mức chuẩn toàn sàn là 1.5% - 2.0% trên mỗi đơn thanh toán thành công.</p>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Ghi chú phê duyệt (Tùy chọn)</label>
+          <input type="text" placeholder="Đã kiểm tra đầy đủ giấy phép ATVSTP..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-700">
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 pt-2">
+        <button onclick="closeApproveModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">Hủy</button>
+        <button onclick="confirmApprove()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs">Xác Nhận & Cấp Phép</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL TỪ CHỐI DUYỆT -->
+  <div id="reject-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mx-auto">⚠️</div>
+      <div class="text-center space-y-1">
+        <h3 class="text-base font-bold text-slate-900">Từ Chối Duyệt Quán?</h3>
+        <p class="text-xs text-slate-500" id="reject-shop-name"></p>
+      </div>
+      <div class="space-y-1 text-xs">
+        <label class="font-bold text-slate-700 block">Lý do từ chối (Gửi SMS/Email cho chủ quán):</label>
+        <textarea rows="3" placeholder="Ví dụ: Giấy phép ATVSTP đã hết hạn, vui lòng gửi lại bản mới..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-red-500 text-slate-700"></textarea>
+      </div>
+      <div class="flex items-center gap-3 pt-2">
+        <button onclick="closeRejectModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">Hủy</button>
+        <button onclick="alert('Đã gửi thông báo từ chối kèm lý do tới chủ quán.'); closeRejectModal();" class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-xs">Xác Nhận Từ Chối</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openApproveModal(name) {
+      document.getElementById('approve-shop-name').innerText = name;
+      document.getElementById('approve-modal').classList.remove('hidden');
+    }
+    function closeApproveModal() {
+      document.getElementById('approve-modal').classList.add('hidden');
+    }
+    function confirmApprove() {
+      alert('Đã duyệt quán thành công! Quán đã sẵn sàng nhận đơn QR.');
+      closeApproveModal();
+    }
+
+    function openRejectModal(name) {
+      document.getElementById('reject-shop-name').innerText = name;
+      document.getElementById('reject-modal').classList.remove('hidden');
+    }
+    function closeRejectModal() {
+      document.getElementById('reject-modal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>

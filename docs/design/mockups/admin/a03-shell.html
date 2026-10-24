@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANLYNHAHANG Admin Shell: Khung Giao Diện & Chọn Quán (A2, P4)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-slate-200 text-slate-900 flex items-center justify-center m-0 p-0 overflow-hidden">
+
+  <!-- Desktop Frame Simulation (Exactly 1280x800, No body scrollbar) -->
+  <div class="w-[1280px] h-[800px] bg-slate-50 flex rounded-2xl shadow-2xl overflow-hidden border border-slate-300 relative">
+    
+    <!-- 403 Forbidden Toast Simulation (P3 / D2 Error Flow 4) -->
+    <div id="toast-403" class="hidden absolute top-20 right-8 z-50 bg-red-900 text-white p-4 rounded-2xl shadow-2xl border-2 border-red-500 flex items-center gap-3 animate-bounce">
+      <div class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white text-xl flex-shrink-0">
+        🚫
+      </div>
+      <div>
+        <div class="text-xs font-bold text-red-300 uppercase tracking-wider">Từ chối truy cập (403 Forbidden)</div>
+        <div class="text-sm font-bold text-white mt-0.5">Bạn không có quyền quản lý quán này! Đang giữ nguyên quán hiện tại.</div>
+      </div>
+      <button onclick="document.getElementById('toast-403').classList.add('hidden')" class="ml-2 text-slate-400 hover:text-white text-sm p-1">✕</button>
+    </div>
+
+    <!-- LEFT SIDEBAR (w-64 = 256px) -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between flex-shrink-0 z-20">
+      <div>
+        <!-- Logo & Brand Header -->
+        <div class="p-4 border-b border-slate-800 flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center font-black text-white text-base shadow-md tracking-wider">QL</span>
+          <div>
+            <div class="font-extrabold text-white text-sm tracking-wide">QUANLYNHAHANG</div>
+            <div class="text-xs text-slate-400">Hệ thống quản lý quán</div>
+          </div>
+        </div>
+
+        <!-- Active Shop Selector (Story P4) -->
+        <div class="p-3 border-b border-slate-800/60">
+          <div class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1 mb-1">Quán đang quản lý</div>
+          <button onclick="toggleShopDropdown()" class="w-full flex items-center justify-between px-3 py-2 bg-slate-800/80 hover:bg-slate-800 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700/60 transition group text-left" title="Chuyển đổi quán ăn hoặc tạo chi nhánh mới">
+            <div class="flex items-center gap-2 truncate">
+              <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+              <span class="truncate font-bold text-white">Nhà Hàng Bếp Việt</span>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="p-3 space-y-1 text-xs">
+          <div class="px-3 py-2 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Vận hành quán</div>
+          
+          <a href="a04-dashboard.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            <span class="font-medium">Tổng quan (A9)</span>
+          </a>
+          
+          <a href="a05-orders-live.html" class="flex items-center gap-3 px-3 py-2.5 bg-red-600 text-white font-bold rounded-xl shadow-xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Đơn thời gian thực (A7)</span>
+            <span class="ml-auto bg-white text-red-600 font-black px-2 py-0.5 rounded-full text-xs">3</span>
+          </a>
+
+          <a href="a06-kitchen.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <span class="font-medium">Màn hình bếp (F4)</span>
+          </a>
+
+          <div class="px-3 pt-4 pb-1 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Thực đơn & Bàn</div>
+
+          <a href="a07-products.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <span class="font-medium">Món ăn & Thực đơn (A5)</span>
+          </a>
+
+          <a href="a09-categories.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+            <span class="font-medium">Danh mục món (A4)</span>
+          </a>
+
+          <a href="a10-tables.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+            <span class="font-medium">Bàn ăn & Mã QR (A6)</span>
+          </a>
+
+          <div class="px-3 pt-4 pb-1 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Tài chính & Cấu hình</div>
+
+          <a href="a11-shop-settings.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span class="font-medium">Cài đặt quán & PayOS (A3, Y1)</span>
+          </a>
+
+          <a href="a12-payments.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            <span class="font-medium">Đối soát giao dịch (Y5)</span>
+          </a>
+
+          <a href="a13-reports.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span class="font-medium">Báo cáo doanh thu (R1)</span>
+          </a>
+
+          <a href="a14-create-shop.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span class="font-medium">Tạo quán mới (P2)</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- User Profile & Logout Footer -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/40 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white text-xs">
+            NV
+          </div>
+          <div>
+            <div class="text-xs font-bold text-white">Nguyễn Văn Nam</div>
+            <div class="text-xs text-slate-400">0912 345 678</div>
+          </div>
+        </div>
+        <a href="a01-login.html" class="text-slate-400 hover:text-red-400 p-2 transition" title="Đăng xuất">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN CONTENT (Header + Dynamic Page Area) -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+      
+      <!-- TOP HEADER (64px) -->
+      <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between flex-shrink-0 z-10">
+        
+        <!-- Shop Switcher Dropdown -->
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <button onclick="toggleShopDropdown()" class="flex items-center gap-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-2 rounded-xl border border-slate-200 transition text-xs font-bold">
+              <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+              <span id="current-shop-name">Nhà Hàng Bếp Việt</span>
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+
+            <!-- Shop Dropdown Menu -->
+            <div id="shop-dropdown" class="hidden absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-30 space-y-1">
+              <div class="px-3 py-1.5 text-xs text-slate-500 uppercase font-bold tracking-wider">Danh sách chi nhánh của bạn</div>
+              
+              <button onclick="selectShop('Nhà Hàng Bếp Việt')" class="w-full px-3.5 py-2.5 text-left text-xs flex items-center justify-between hover:bg-slate-50 transition">
+                <div>
+                  <div class="font-bold text-slate-900">Nhà Hàng Bếp Việt</div>
+                  <div class="text-xs text-slate-500">Số 128 Đường Xuân Thủy, Cầu Giấy, Hà Nội</div>
+                </div>
+                <span class="text-green-600 font-bold text-xs">Đang chọn</span>
+              </button>
+
+              <button onclick="selectShop('Nhà Hàng Bếp Việt - CN 2 (Bình Thạnh)')" class="w-full px-3.5 py-2.5 text-left text-xs flex items-center justify-between hover:bg-slate-50 transition">
+                <div>
+                  <div class="font-bold text-slate-900">Nhà Hàng Bếp Việt - CN 2 (Bình Thạnh)</div>
+                  <div class="text-xs text-slate-500">45 Điện Biên Phủ, P.15, Bình Thạnh</div>
+                </div>
+              </button>
+
+              <div class="border-t border-slate-100 my-1"></div>
+              
+              <a href="a14-create-shop.html" class="block px-3.5 py-2 text-xs text-red-600 font-bold hover:bg-red-50 transition">
+                + Đăng ký mở thêm chi nhánh mới (P2)
+              </a>
+            </div>
+          </div>
+
+          <!-- Shop status badge -->
+          <span class="px-2.5 py-1 bg-green-50 text-[#15803D] border border-green-200 rounded-lg text-xs font-bold flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-[#15803D]"></span>
+            Đang hoạt động (Đã duyệt)
+          </span>
+        </div>
+
+        <!-- Right Header Actions (Search, Notifications, Live Status) -->
+        <div class="flex items-center gap-3">
+          
+          <!-- Test Button for 403 Error -->
+          <button onclick="trigger403Error()" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5" title="Mô phỏng lỗi phân quyền P3">
+            <span>⚠️ Thử đổi quán trái phép</span>
+          </button>
+
+          <!-- Server Status Indicator -->
+          <div class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-xl text-xs font-medium">
+            <span class="w-2 h-2 rounded-full bg-[#15803D] animate-pulse"></span>
+            <span>Kết nối máy chủ: Trực tuyến</span>
+          </div>
+
+          <!-- Notifications Bell with Dropdown -->
+          <div class="relative">
+            <button onclick="toggleNotificationDropdown()" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center relative transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+              <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white rounded-full text-xs font-black flex items-center justify-center border-2 border-white">
+                2
+              </span>
+            </button>
+
+            <!-- Notifications Dropdown -->
+            <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-30 overflow-hidden">
+              <div class="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
+                <span class="font-bold text-xs text-slate-900">Thông báo mới</span>
+                <span class="text-xs text-red-600 font-semibold cursor-pointer">Đánh dấu đã đọc</span>
+              </div>
+              <div class="divide-y divide-slate-100 max-h-72 overflow-y-auto custom-scroll">
+                <div class="p-3 bg-red-50/50 hover:bg-red-50 transition cursor-pointer flex gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center text-sm flex-shrink-0">🔔</div>
+                  <div>
+                    <div class="text-xs font-bold text-slate-900">Bàn 01 vừa gọi 2 món mới</div>
+                    <div class="text-xs text-slate-500 mt-0.5">Phở Bò Tái Nạm, Cà Phê • 80.000 đ</div>
+                    <div class="text-xs text-red-600 font-semibold mt-1">1 phút trước</div>
+                  </div>
+                </div>
+                <div class="p-3 hover:bg-slate-50 transition cursor-pointer flex gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center text-sm flex-shrink-0">🙋</div>
+                  <div>
+                    <div class="text-xs font-bold text-slate-900">Bàn 05 yêu cầu thêm đá lạnh</div>
+                    <div class="text-xs text-slate-500 mt-0.5">Khách gọi phục vụ tại bàn</div>
+                    <div class="text-xs text-slate-400 mt-1">5 phút trước</div>
+                  </div>
+                </div>
+              </div>
+              <div class="p-2 border-t border-slate-100 text-center">
+                <a href="a05-orders-live.html" class="text-xs font-bold text-red-600 hover:underline">Xem tất cả trên màn hình đơn Live →</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Action: Kitchen Screen link -->
+          <a href="a06-kitchen.html" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <span>📺 Mở Bếp (Tablet)</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- BREADCRUMB & CONTENT HEADER -->
+      <div class="px-8 py-5 border-b border-slate-200 bg-white flex items-center justify-between flex-shrink-0">
+        <div>
+          <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
+            <span>Quản trị quán</span>
+            <span>/</span>
+            <span class="text-slate-900 font-bold">Khung Giao Diện Chính (Shell Layout)</span>
+          </div>
+          <h1 class="text-xl font-extrabold text-slate-900">Không Gian Làm Việc Quản Trị Viên</h1>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-500">Giờ máy chủ:</span>
+          <span class="text-xs font-bold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-lg">21/10/2026 14:30</span>
+        </div>
+      </div>
+
+      <!-- MAIN SCROLLABLE WORKSPACE -->
+      <main class="flex-1 p-8 overflow-y-auto custom-scroll space-y-6">
+        
+        <!-- Welcome banner -->
+        <div class="bg-gradient-to-r from-red-600 to-amber-600 rounded-3xl p-6 text-white shadow-md flex items-center justify-between">
+          <div class="space-y-2 max-w-xl">
+            <span class="px-3 py-1 bg-white/20 backdrop-blur-xs rounded-full text-xs font-bold uppercase tracking-wider">Hệ thống sẵn sàng</span>
+            <h2 class="text-xl font-bold">Xin chào, Nguyễn Văn Nam!</h2>
+            <p class="text-xs text-white/90 leading-relaxed">
+              Đây là khung layout chuẩn của hệ thống SaaS (Admin Shell). Mọi trang chức năng (Tổng quan, Đơn hàng, Thực đơn, Bàn ăn, Báo cáo) đều được nhúng trong khung này với thanh điều hướng cố định và bộ chuyển đổi quán đa chi nhánh.
+            </p>
+          </div>
+          <div class="flex flex-col gap-2">
+            <a href="a05-orders-live.html" class="px-5 py-2.5 bg-white text-red-600 font-bold text-xs rounded-xl shadow-xs text-center hover:bg-slate-50 transition">
+              Vào màn hình Đơn Realtime →
+            </a>
+            <a href="a04-dashboard.html" class="px-5 py-2.5 bg-slate-900/40 text-white font-bold text-xs rounded-xl text-center hover:bg-slate-900/60 transition">
+              Xem báo cáo hôm nay →
+            </a>
+          </div>
+        </div>
+
+        <!-- Quick Metrics Preview inside Shell -->
+        <div class="grid grid-cols-4 gap-5">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="text-xs text-slate-500 font-medium">Bàn đang phục vụ</div>
+            <div class="text-2xl font-black text-slate-900 mt-2">5 <span class="text-xs font-normal text-slate-500">/ 8 bàn</span></div>
+            <div class="text-xs text-green-600 font-bold mt-1">62.5% công suất</div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="text-xs text-slate-500 font-medium">Đơn chờ thực hiện</div>
+            <div class="text-2xl font-black text-red-600 mt-2">3 <span class="text-xs font-normal text-slate-500">đơn</span></div>
+            <div class="text-xs text-red-600 font-bold mt-1">Bếp đang chuẩn bị</div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="text-xs text-slate-500 font-medium">Doanh thu hôm nay</div>
+            <div class="text-2xl font-black text-slate-900 mt-2">3.450.000 đ</div>
+            <div class="text-xs text-green-600 font-bold mt-1">Hoàn thành 42 đơn</div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="text-xs text-slate-500 font-medium">Cấu hình PayOS</div>
+            <div class="text-sm font-black text-green-600 mt-2 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-green-500"></span>
+              Đã kết nối Webhook
+            </div>
+            <div class="text-xs text-slate-500 mt-1">Tự động đối soát</div>
+          </div>
+        </div>
+
+        <!-- Guidelines Box -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            📌 Quy Chuẩn Cấu Trúc Khung Layout Admin Shell (A2, P4):
+          </h3>
+          <ul class="text-xs text-slate-600 space-y-2 list-disc pl-5">
+            <li><strong>Sidebar cố định (256px)</strong>: Nền Slate-900, chứa logo, các nhóm chức năng logic, thông tin tài khoản và nút đăng xuất.</li>
+            <li><strong>Header cố định (64px)</strong>: Chứa bộ chọn quán, chuông thông báo Realtime, trạng thái kết nối máy chủ và nút tắt mở màn hình bếp.</li>
+            <li><strong>Kích thước 1280×800 pixel chuẩn</strong>: Không cuộn toàn trang (body `overflow-hidden`), chỉ cuộn riêng khu vực nội dung chính (`main overflow-y-auto`).</li>
+            <li><strong>Kiểm soát phân quyền (P3)</strong>: Khi người dùng đổi sang shopId không thuộc tài khoản merchant của mình, giao diện hiển thị thông báo lỗi 403 và giữ nguyên quán đang chọn.</li>
+          </ul>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    function toggleShopDropdown() {
+      const dd = document.getElementById('shop-dropdown');
+      dd.classList.toggle('hidden');
+      document.getElementById('notification-dropdown').classList.add('hidden');
+    }
+
+    function toggleNotificationDropdown() {
+      const dd = document.getElementById('notification-dropdown');
+      dd.classList.toggle('hidden');
+      document.getElementById('shop-dropdown').classList.add('hidden');
+    }
+
+    function selectShop(name) {
+      document.getElementById('current-shop-name').innerText = name;
+      document.getElementById('shop-dropdown').classList.add('hidden');
+    }
+
+    function trigger403Error() {
+      const toast = document.getElementById('toast-403');
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

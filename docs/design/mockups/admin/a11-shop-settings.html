@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANLYNHAHANG Admin: Cài Đặt Quán & Cấu Hình PayOS (A3, F1, Y1)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-slate-200 text-slate-900 flex items-center justify-center m-0 p-0 overflow-hidden">
+
+  <!-- Desktop Frame Simulation (Exactly 1280x800) -->
+  <div class="w-[1280px] h-[800px] bg-slate-50 flex rounded-2xl shadow-2xl overflow-hidden border border-slate-300 relative">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between flex-shrink-0 z-20">
+      <div>
+        <!-- Logo & Brand Header -->
+        <div class="p-4 border-b border-slate-800 flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center font-black text-white text-base shadow-md tracking-wider">QL</span>
+          <div>
+            <div class="font-extrabold text-white text-sm tracking-wide">QUANLYNHAHANG</div>
+            <div class="text-xs text-slate-400">Hệ thống quản lý quán</div>
+          </div>
+        </div>
+
+        <!-- Active Shop Selector (Story P4) -->
+        <div class="p-3 border-b border-slate-800/60">
+          <div class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1 mb-1">Quán đang quản lý</div>
+          <a href="a03-shell.html" class="flex items-center justify-between px-3 py-2 bg-slate-800/80 hover:bg-slate-800 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700/60 transition group" title="Chuyển đổi quán ăn hoặc tạo chi nhánh mới">
+            <div class="flex items-center gap-2 truncate">
+              <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+              <span class="truncate font-bold text-white">Nhà Hàng Bếp Việt</span>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </a>
+        </div>
+
+        <nav class="p-3 space-y-1 text-xs">
+          <div class="px-3 py-1.5 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Vận hành quán</div>
+          <a href="a04-dashboard.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            <span>Tổng quan (A9)</span>
+          </a>
+          <a href="a05-orders-live.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Đơn thời gian thực (A7)</span>
+            <span class="ml-auto bg-slate-700 text-slate-300 font-bold px-2 py-0.5 rounded-full text-xs">3</span>
+          </a>
+          <a href="a06-kitchen.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <span>Màn hình bếp (F4)</span>
+          </a>
+
+          <div class="px-3 pt-3 pb-1 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Thực đơn & Bàn</div>
+          <a href="a07-products.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <span>Món ăn & Thực đơn (A5)</span>
+          </a>
+          <a href="a09-categories.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+            <span>Danh mục món (A4)</span>
+          </a>
+          <a href="a10-tables.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+            <span>Bàn ăn & Mã QR (A6)</span>
+          </a>
+
+          <div class="px-3 pt-3 pb-1 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Tài chính & Cấu hình</div>
+          <a href="a11-shop-settings.html" class="flex items-center gap-3 px-3 py-2.5 bg-red-600 text-white font-bold rounded-xl shadow-xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>Cài đặt quán & PayOS (A3, Y1)</span>
+          </a>
+          <a href="a12-payments.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            <span>Đối soát giao dịch (Y5)</span>
+          </a>
+          <a href="a13-reports.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span>Báo cáo doanh thu (R1)</span>
+          </a>
+          <a href="a14-create-shop.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Tạo quán mới (P2)</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="p-4 border-t border-slate-800 bg-slate-950/40 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white text-xs">NV</div>
+          <div>
+            <div class="text-xs font-bold text-white">Nguyễn Văn Nam</div>
+            <div class="text-xs text-slate-400">0912 345 678</div>
+          </div>
+        </div>
+        <a href="a01-login.html" class="text-slate-400 hover:text-red-400 p-2 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN WORKSPACE -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+      
+      <!-- HEADER -->
+      <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between flex-shrink-0 z-10">
+        <div>
+          <h1 class="text-lg font-extrabold text-slate-900">Cài Đặt Quán & Cổng Thanh Toán (A3, F1, Y1)</h1>
+          <p class="text-xs text-slate-500">Thiết lập thông tin thương hiệu, trạng thái duyệt và tích hợp cổng PayOS</p>
+        </div>
+
+        <button onclick="saveAllSettings()" class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-2">
+          <span>💾 Lưu Cấu Hình</span>
+        </button>
+      </header>
+
+      <!-- TABS BAR -->
+      <div class="px-8 bg-white border-b border-slate-200 flex items-center gap-8 flex-shrink-0">
+        <button onclick="switchTab('info')" id="tab-btn-info" class="py-3 border-b-2 border-red-600 font-bold text-xs text-red-600 transition">
+          1. Thông Tin Quán Ăn
+        </button>
+        <button onclick="switchTab('payos')" id="tab-btn-payos" class="py-3 border-b-2 border-transparent font-medium text-xs text-slate-500 hover:text-slate-900 transition flex items-center gap-1.5">
+          <span>2. Cấu Hình Cổng PayOS (Mốc 2 - Y1)</span>
+          <span class="w-2 h-2 rounded-full bg-green-500"></span>
+        </button>
+        <button onclick="switchTab('vietqr')" id="tab-btn-vietqr" class="py-3 border-b-2 border-transparent font-medium text-xs text-slate-500 hover:text-slate-900 transition">
+          3. Cấu Hình VietQR Tĩnh
+        </button>
+      </div>
+
+      <!-- SCROLLABLE TAB CONTENTS -->
+      <main class="flex-1 p-8 overflow-y-auto custom-scroll">
+        
+        <!-- TAB 1: THÔNG TIN QUÁN (A3, F1) -->
+        <div id="tab-content-info" class="space-y-6">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+            
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Hồ Sơ Thương Hiệu Quán</h3>
+                <p class="text-xs text-slate-500">Thông tin này hiển thị ở đầu trang menu khi khách quét mã QR</p>
+              </div>
+
+              <!-- Trạng thái phê duyệt (P2, P5) -->
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-500 font-medium">Trạng thái sàn:</span>
+                <span class="px-3 py-1 bg-green-50 text-[#15803D] border border-green-200 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-[#15803D]"></span>
+                  Đã duyệt hoạt động
+                </span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-5 text-xs">
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Tên quán ăn / Chi nhánh <span class="text-red-600">*</span></label>
+                <input type="text" value="Nhà Hàng Bếp Việt" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-red-500">
+              </div>
+
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Số điện thoại hotline <span class="text-red-600">*</span></label>
+                <input type="text" value="0912 345 678" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-red-500">
+              </div>
+
+              <div class="col-span-2">
+                <label class="font-bold text-slate-700 block mb-1">Địa chỉ quán ăn</label>
+                <input type="text" value="Số 128 Đường Xuân Thủy, Cầu Giấy, Hà Nội" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-red-500 font-medium">
+              </div>
+
+              <div class="col-span-2">
+                <label class="font-bold text-slate-700 block mb-1">Giờ mở & đóng cửa phục vụ</label>
+                <div class="grid grid-cols-2 gap-4 max-w-md">
+                  <div>
+                    <span class="text-xs text-slate-500 block mb-1">Giờ mở cửa</span>
+                    <input type="time" value="07:00" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-red-500">
+                  </div>
+                  <div>
+                    <span class="text-xs text-slate-500 block mb-1">Giờ đóng cửa</span>
+                    <input type="time" value="22:30" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:border-red-500">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- TAB 2: CẤU HÌNH PAYOS (Y1, Y4, Y5) -->
+        <div id="tab-content-payos" class="hidden space-y-6">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+            
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <span>Khóa Tích Hợp Cổng PayOS</span>
+                  <span class="px-2 py-0.5 bg-red-600 text-white rounded text-2xs font-bold uppercase tracking-wider">Mốc 2</span>
+                </h3>
+                <p class="text-xs text-slate-500">Khóa bí mật được lưu an toàn tại backend và không bao giờ gửi về trình duyệt</p>
+              </div>
+
+              <button onclick="testPayOSConnection()" class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                <span>⚡ Kiểm Tra Kết Nối PayOS</span>
+              </button>
+            </div>
+
+            <!-- Form Keys -->
+            <div class="space-y-4 text-xs">
+              
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Client ID <span class="text-red-600">*</span></label>
+                <input type="text" value="c7482910-482a-41df-9921-998811223344" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs font-semibold text-slate-900">
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="font-bold text-slate-700">API Key <span class="text-red-600">*</span></label>
+                  <span class="text-2xs text-[#15803D] font-bold bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">•••••••••••• (Đã lưu)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input type="password" readonly value="••••••••••••••••••••••••••••••••" class="flex-1 px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl font-mono text-xs font-semibold text-slate-500 cursor-not-allowed">
+                  <button type="button" onclick="alert('Nhập API Key mới')" class="px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition shadow-2xs">
+                    Thay đổi khóa
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="font-bold text-slate-700">Checksum Key <span class="text-red-600">*</span></label>
+                  <span class="text-2xs text-[#15803D] font-bold bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">•••••••••••• (Đã lưu)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input type="password" readonly value="••••••••••••••••••••••••••••••••" class="flex-1 px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl font-mono text-xs font-semibold text-slate-500 cursor-not-allowed">
+                  <button type="button" onclick="alert('Nhập Checksum Key mới')" class="px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition shadow-2xs">
+                    Thay đổi khóa
+                  </button>
+                </div>
+              </div>
+
+              <!-- Webhook URL Box -->
+              <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+                <div class="font-bold text-slate-900">Webhook URL (Nhận kết quả giao dịch tự động):</div>
+                <div class="flex items-center gap-2">
+                  <input type="text" readonly value="https://api.linmour.vn/api/order/payos/webhook" class="flex-1 px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl font-mono text-xs text-slate-700 select-all cursor-text">
+                  <button onclick="navigator.clipboard ? navigator.clipboard.writeText('https://api.linmour.vn/api/order/payos/webhook') : null; alert('Đã sao chép link Webhook!');" class="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl transition shadow-2xs">
+                    Sao chép
+                  </button>
+                </div>
+                <p class="text-slate-500 text-2xs">Sao chép liên kết này dán vào ô "Webhook URL" trên Cổng PayOS để hệ thống nhận thông báo tiền về ngay lập tức.</p>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- TAB 3: CẤU HÌNH VIETQR TĨNH -->
+        <div id="tab-content-vietqr" class="hidden space-y-6">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
+            <div class="pb-3 border-b border-slate-100">
+              <h3 class="text-sm font-bold text-slate-900">Cấu Hình Tài Khoản VietQR Tĩnh</h3>
+              <p class="text-xs text-slate-500">Mã QR này sẽ hiển thị khi khách chọn phương thức "Chuyển khoản VietQR Tĩnh" trên điện thoại</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-5 text-xs">
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Ngân hàng thụ hưởng</label>
+                <select class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800">
+                  <option>MB Bank (Ngân hàng Quân Đội)</option>
+                  <option selected>Vietcombank (Ngoại thương Việt Nam)</option>
+                  <option>Techcombank</option>
+                  <option>VietinBank</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Số tài khoản ngân hàng</label>
+                <input type="text" value="012345678910" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono font-bold text-slate-900 text-sm">
+              </div>
+
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Tên chủ tài khoản (Viết hoa không dấu)</label>
+                <input type="text" value="NGUYEN VAN NAM" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 uppercase">
+              </div>
+
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Cú pháp chuyển khoản gợi ý</label>
+                <input type="text" value="PHO [SO_BAN] [MA_DON]" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-700">
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tab) {
+      ['info', 'payos', 'vietqr'].forEach(t => {
+        const btn = document.getElementById('tab-btn-' + t);
+        const content = document.getElementById('tab-content-' + t);
+        if (t === tab) {
+          btn.className = 'py-3 border-b-2 border-red-600 font-bold text-xs text-red-600 transition flex items-center gap-1.5';
+          content.classList.remove('hidden');
+        } else {
+          btn.className = 'py-3 border-b-2 border-transparent font-medium text-xs text-slate-500 hover:text-slate-900 transition flex items-center gap-1.5';
+          content.classList.add('hidden');
+        }
+      });
+    }
+
+    function togglePasswordVisibility(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function testPayOSConnection() {
+      alert('Kết nối PayOS thành công! Khóa API và Checksum Key hoàn toàn hợp lệ.');
+    }
+
+    function saveAllSettings() {
+      alert('Đã lưu cấu hình cài đặt quán thành công!');
+    }
+  </script>
+</body>
+</html>

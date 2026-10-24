@@ -1,0 +1,17 @@
+spring:
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+    database: ${REDIS_DATABASE}
+redisson:
+  codec: org.redisson.codec.JsonJacksonCodec
+  threads: 4
+  netty:
+    threads: 4
+  single-server-config:
+    address: "redis://${REDIS_HOST}:${REDIS_PORT}"
+    password: ${REDIS_PASSWORD}
+    database: ${REDIS_DATABASE}
+security:
+  internal-token: "${INTERNAL_TOKEN}"

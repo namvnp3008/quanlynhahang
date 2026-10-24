@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANLYNHAHANG Admin: Màn Hình Bếp Điều Phối Món (F4)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 flex items-center justify-center m-0 p-0 overflow-hidden">
+
+  <!-- Tablet Frame Simulation (Exactly 1024x768) -->
+  <div class="w-[1024px] h-[768px] bg-slate-900 flex flex-col rounded-2xl shadow-2xl overflow-hidden border-2 border-slate-700 relative select-none">
+    
+    <!-- KITCHEN TOP BAR -->
+    <header class="h-16 bg-slate-950 border-b border-slate-800 px-6 flex items-center justify-between flex-shrink-0">
+      
+      <!-- Brand & Kitchen Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center font-black text-white text-base shadow-md">
+          🍳
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-black text-white tracking-wide">MÀN HÌNH BẾP (KDS)</h1>
+            <span class="px-2 py-0.5 bg-red-600/30 text-red-400 border border-red-500/40 rounded-full text-xs font-bold uppercase tracking-wider">
+              Khu Bếp Nấu
+            </span>
+          </div>
+          <div class="text-xs text-slate-400 font-medium">Nhà Hàng Bếp Việt</div>
+        </div>
+      </div>
+
+      <!-- Live summary counts & audio control -->
+      <div class="flex items-center gap-3">
+        
+        <div class="flex items-center gap-3 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+            <span class="text-slate-400 font-medium">Chờ làm:</span>
+            <strong class="text-amber-400 font-bold" id="total-pending">4</strong>
+          </div>
+          <span class="text-slate-700">|</span>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+            <span class="text-slate-400 font-medium">Đang nấu:</span>
+            <strong class="text-blue-400 font-bold" id="total-cooking">3</strong>
+          </div>
+          <span class="text-slate-700">|</span>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+            <span class="text-slate-400 font-medium">Đã xong:</span>
+            <strong class="text-green-400 font-bold" id="total-done">8</strong>
+          </div>
+        </div>
+
+        <span class="text-xs text-green-400 font-bold bg-green-950/60 border border-green-800 px-2.5 py-1.5 rounded-xl flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span>
+          Bếp Trực Tuyến
+        </span>
+
+        <button class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-1">
+          <span>🔔 Bật</span>
+        </button>
+
+        <a href="a05-orders-live.html" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition">
+          ← Về Thu Ngân
+        </a>
+
+        <div class="text-right pl-1">
+          <div class="text-sm font-black text-white" id="clock">14:30:15</div>
+          <div class="text-xs text-slate-400">21/10/2026</div>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- HORIZONTAL ORDER TICKETS CANVAS (Cuộn ngang linh hoạt trên Tablet) -->
+    <main class="flex-1 p-5 overflow-x-auto overflow-y-hidden custom-scroll flex gap-4 bg-slate-900/90">
+      
+      <!-- TICKET 1: BÀN 01 (Cảnh báo chờ lâu > 12 phút) -->
+      <div class="w-[305px] bg-slate-950 rounded-2xl border-2 border-red-500/80 shadow-xl flex flex-col flex-shrink-0 h-full overflow-hidden">
+        
+        <!-- Ticket Header -->
+        <div class="p-3.5 bg-red-950/40 border-b border-red-900/50 flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-black text-white">BÀN 01</span>
+              <span class="px-2 py-0.5 bg-red-500 text-white font-black text-xs rounded-md uppercase animate-pulse">14 phút</span>
+            </div>
+            <div class="text-xs text-slate-400 mt-0.5">Đơn #ORD-102931 • 14:16</div>
+          </div>
+          <button onclick="markAllTableDone(1)" class="px-2.5 py-1.5 bg-green-600 hover:bg-green-500 text-white font-bold text-xs rounded-xl shadow-xs transition" title="Xong hết bàn">
+            Xong hết
+          </button>
+        </div>
+
+        <!-- Ticket Items List -->
+        <div class="flex-1 p-3 space-y-2.5 overflow-y-auto custom-scroll">
+          
+          <!-- Item 1.1 -->
+          <div onclick="toggleStatus(this)" class="p-3 bg-slate-900 border-2 border-blue-500/70 rounded-xl cursor-pointer hover:bg-slate-850 transition relative group select-none">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-bold text-white text-sm">Phở Bò Tái Nạm</div>
+                <div class="text-xs text-amber-400 font-semibold mt-0.5">Nhiều hành lá, nước béo</div>
+                <div class="text-xs text-slate-400">Tuỳ chọn: Tô Lớn (+10.000 đ)</div>
+              </div>
+              <span class="text-base font-black text-white bg-blue-600 px-2.5 py-1 rounded-lg">x1</span>
+            </div>
+            <div class="mt-2.5 pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-blue-400 font-bold status-label flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                Đang nấu...
+              </span>
+              <span class="text-slate-500 font-medium">Chạm để đổi</span>
+            </div>
+          </div>
+
+          <!-- Item 1.2 -->
+          <div onclick="toggleStatus(this)" class="p-3 bg-slate-900 border-2 border-amber-500/70 rounded-xl cursor-pointer hover:bg-slate-850 transition relative group select-none">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-bold text-white text-sm">Phở Gà Ta Thảo Mộc</div>
+                <div class="text-xs text-amber-400 font-semibold mt-0.5">Ít bánh, thêm giá trụng</div>
+                <div class="text-xs text-slate-400">Tuỳ chọn: Tô Vừa</div>
+              </div>
+              <span class="text-base font-black text-white bg-amber-600 px-2.5 py-1 rounded-lg">x1</span>
+            </div>
+            <div class="mt-2.5 pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-amber-400 font-bold status-label flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                Chờ làm
+              </span>
+              <span class="text-slate-500 font-medium">Chạm để đổi</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Ticket Footer -->
+        <div class="p-3 bg-slate-950 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+          <span>Tổng: 2 món</span>
+          <span class="text-red-400 font-bold">Cần ưu tiên trả món!</span>
+        </div>
+      </div>
+
+      <!-- TICKET 2: BÀN 03 (Đang nấu - 8 phút) -->
+      <div class="w-[305px] bg-slate-950 rounded-2xl border border-slate-700 shadow-xl flex flex-col flex-shrink-0 h-full overflow-hidden">
+        
+        <!-- Ticket Header -->
+        <div class="p-3.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-black text-white">BÀN 03</span>
+              <span class="px-2 py-0.5 bg-slate-800 text-slate-300 font-bold text-xs rounded-md">8 phút</span>
+            </div>
+            <div class="text-xs text-slate-400 mt-0.5">Đơn #ORD-102938 • 14:22</div>
+          </div>
+          <button onclick="markAllTableDone(3)" class="px-2.5 py-1.5 bg-green-600 hover:bg-green-500 text-white font-bold text-xs rounded-xl shadow-xs transition">
+            Xong hết
+          </button>
+        </div>
+
+        <!-- Ticket Items List -->
+        <div class="flex-1 p-3 space-y-2.5 overflow-y-auto custom-scroll">
+          
+          <!-- Item 2.1 -->
+          <div onclick="toggleStatus(this)" class="p-3 bg-slate-900 border-2 border-blue-500/70 rounded-xl cursor-pointer hover:bg-slate-850 transition relative select-none">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-bold text-white text-sm">Bún Chả Hà Nội</div>
+                <div class="text-xs text-slate-400">Chả nướng than hoa, nem rán giòn</div>
+                <div class="text-xs text-amber-400 font-semibold mt-0.5">Nhiều đu đủ chua ngọt</div>
+              </div>
+              <span class="text-base font-black text-white bg-blue-600 px-2.5 py-1 rounded-lg">x2</span>
+            </div>
+            <div class="mt-2.5 pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-blue-400 font-bold status-label flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                Đang nấu...
+              </span>
+              <span class="text-slate-500 font-medium">Chạm để đổi</span>
+            </div>
+          </div>
+
+          <!-- Item 2.2 -->
+          <div onclick="toggleStatus(this)" class="p-3 bg-slate-900 border-2 border-green-500/70 rounded-xl cursor-pointer hover:bg-slate-850 transition relative select-none">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-bold text-white text-sm line-through opacity-80">Bánh Mì Thịt Nướng Giòn</div>
+                <div class="text-xs text-slate-400">1 ổ cắt đôi</div>
+              </div>
+              <span class="text-base font-black text-white bg-green-600 px-2.5 py-1 rounded-lg">x1</span>
+            </div>
+            <div class="mt-2.5 pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-green-400 font-bold status-label flex items-center gap-1.5">
+                ✓ Đã lên món
+              </span>
+              <span class="text-slate-500 font-medium">Xong</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Ticket Footer -->
+        <div class="p-3 bg-slate-950 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+          <span>Tổng: 3 phần</span>
+          <span class="text-blue-400 font-bold">1 món đã ra bàn</span>
+        </div>
+      </div>
+
+      <!-- TICKET 3: BÀN 05 (Đơn mới vào - 3 phút) -->
+      <div class="w-[305px] bg-slate-950 rounded-2xl border border-slate-700 shadow-xl flex flex-col flex-shrink-0 h-full overflow-hidden">
+        
+        <!-- Ticket Header -->
+        <div class="p-3.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-black text-white">BÀN 05</span>
+              <span class="px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-xs rounded-md">3 phút</span>
+            </div>
+            <div class="text-xs text-slate-400 mt-0.5">Đơn #ORD-102940 • 14:27</div>
+          </div>
+          <button onclick="markAllTableDone(5)" class="px-2.5 py-1.5 bg-green-600 hover:bg-green-500 text-white font-bold text-xs rounded-xl shadow-xs transition">
+            Xong hết
+          </button>
+        </div>
+
+        <!-- Ticket Items List -->
+        <div class="flex-1 p-3 space-y-2.5 overflow-y-auto custom-scroll">
+          
+          <!-- Item 3.1 -->
+          <div onclick="toggleStatus(this)" class="p-3 bg-slate-900 border-2 border-amber-500/70 rounded-xl cursor-pointer hover:bg-slate-850 transition relative select-none">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-bold text-white text-sm">Cơm Tấm Sườn Bì Chả</div>
+                <div class="text-xs text-amber-400 font-semibold mt-0.5">Nhiều mỡ hành, trứng ốp la</div>
+              </div>
+              <span class="text-base font-black text-white bg-amber-600 px-2.5 py-1 rounded-lg">x1</span>
+            </div>
+            <div class="mt-2.5 pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-amber-400 font-bold status-label flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                Chờ làm
+              </span>
+              <span class="text-slate-500 font-medium">Chạm để đổi</span>
+            </div>
+          </div>
+
+          <!-- Item 3.2 -->
+          <div onclick="toggleStatus(this)" class="p-3 bg-slate-900 border-2 border-amber-500/70 rounded-xl cursor-pointer hover:bg-slate-850 transition relative select-none">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-bold text-white text-sm">Bánh Mì Thịt Nướng Giòn</div>
+                <div class="text-xs text-slate-400">Không ớt, nhiều dưa góp</div>
+              </div>
+              <span class="text-base font-black text-white bg-amber-600 px-2.5 py-1 rounded-lg">x1</span>
+            </div>
+            <div class="mt-2.5 pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-amber-400 font-bold status-label flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                Chờ làm
+              </span>
+              <span class="text-slate-500 font-medium">Chạm để đổi</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Ticket Footer -->
+        <div class="p-3 bg-slate-950 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+          <span>Tổng: 2 món</span>
+          <span class="text-slate-400 font-medium">Vừa nhận đơn</span>
+        </div>
+      </div>
+
+      <!-- TICKET 4: BÀN 02 (Đã hoàn tất toàn bộ) -->
+      <div class="w-[305px] bg-slate-950/60 rounded-2xl border border-slate-800 shadow-xl flex flex-col flex-shrink-0 h-full overflow-hidden opacity-60 hover:opacity-100 transition">
+        
+        <!-- Ticket Header -->
+        <div class="p-3.5 bg-slate-900/60 border-b border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-black text-slate-300">BÀN 02</span>
+              <span class="px-2 py-0.5 bg-green-950 text-green-400 border border-green-800 font-bold text-xs rounded-md">Đã phục vụ</span>
+            </div>
+            <div class="text-xs text-slate-500 mt-0.5">Đơn #ORD-102925 • 14:05</div>
+          </div>
+          <span class="text-xs text-green-400 font-bold">100%</span>
+        </div>
+
+        <!-- Ticket Items List -->
+        <div class="flex-1 p-3 space-y-2.5 overflow-y-auto custom-scroll">
+          <div class="p-3 bg-slate-900/40 border border-green-900/50 rounded-xl">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-bold text-slate-400 text-sm line-through">Phở Bò Tái Nạm x2</div>
+                <div class="text-xs text-green-500 mt-1">✓ Đã lên bàn lúc 14:15</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-slate-950 border-t border-slate-800 text-xs text-slate-500 text-center">
+          Bàn đã nhận đủ món ăn
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // F4: Cycle Status logic (Chờ làm -> Đang nấu -> Đã lên món)
+    function toggleStatus(card) {
+      const label = card.querySelector('.status-label');
+      const title = card.querySelector('.text-white.text-sm');
+
+      if (card.classList.contains('border-amber-500/70')) {
+        // Chuyển từ Chờ làm sang Đang nấu
+        card.classList.remove('border-amber-500/70');
+        card.classList.add('border-blue-500/70');
+        label.className = 'text-blue-400 font-bold status-label flex items-center gap-1.5';
+        label.innerHTML = '<span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span> Đang nấu...';
+      } else if (card.classList.contains('border-blue-500/70')) {
+        // Chuyển từ Đang nấu sang Đã xong
+        card.classList.remove('border-blue-500/70');
+        card.classList.add('border-green-500/70');
+        if (title) title.classList.add('line-through', 'opacity-80');
+        label.className = 'text-green-400 font-bold status-label flex items-center gap-1.5';
+        label.innerHTML = '✓ Đã lên món';
+      } else {
+        // Đặt lại về Chờ làm
+        card.classList.remove('border-green-500/70');
+        card.classList.add('border-amber-500/70');
+        if (title) title.classList.remove('line-through', 'opacity-80');
+        label.className = 'text-amber-400 font-bold status-label flex items-center gap-1.5';
+        label.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span> Chờ làm';
+      }
+    }
+
+    function markAllTableDone(tableNum) {
+      alert('Đã đánh dấu toàn bộ món của Bàn 0' + tableNum + ' là "Đã lên món"!');
+    }
+
+    // Kitchen live timer
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById('clock').innerText = now.toTimeString().split(' ')[0];
+    }, 1000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+server:
+  port: 12800
+spring:
+  application:
+    name: linmour-gateway
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: @nacos.ip@:@nacos.port@
+        namespace: @nacos.namespace@
+      config:
+        server-addr: @nacos.ip@:@nacos.port@
+        namespace: @nacos.namespace@
+        file-extension: yml

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mục Lục Thiết Kế Toàn Dự Án – QUANLYNHAHANG (Giai Đoạn 1)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Be Vietnam Pro', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen py-10 px-4 md:px-8">
+
+  <div class="max-w-6xl mx-auto space-y-8">
+    
+    <!-- HEADER -->
+    <header class="bg-slate-900 text-white p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
+      <div class="space-y-2 z-10">
+        <div class="flex items-center gap-2">
+          <span class="w-9 h-9 rounded-xl bg-red-600 flex items-center justify-center font-black text-white text-base tracking-wider">QL</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-red-400">QUANLYNHAHANG • Gói Thiết Kế Hoàn Chỉnh</span>
+        </div>
+        <h1 class="text-2xl md:text-3xl font-black tracking-tight">Hệ Thống Thiết Kế Giao Diện Tiếng Việt (UI Mockups)</h1>
+        <p class="text-xs md:text-sm text-slate-300 max-w-2xl">
+          Toàn bộ 27 tài liệu & mockup HTML tĩnh chạy độc lập trên trình duyệt (26 màn hình nghiệp vụ + trang Demo Design System D1), tuân thủ bảng màu WCAG 2.1 AA, font chữ Be Vietnam Pro (tối thiểu 12px, nút chạm ≥ 44×44px), dành cho 3 nhóm người dùng: Thực khách, Chủ quán & Quản trị sàn.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2 z-10 w-full md:w-auto">
+        <a href="mockups/design-system.html" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-2xl text-center transition border border-slate-700 flex items-center justify-center gap-2">
+          <span>🎨 Xem Design System D1</span>
+        </a>
+      </div>
+
+      <!-- Decorative background blur -->
+      <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-red-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    </header>
+
+    <!-- STATUS OVERVIEW BANNER -->
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-6">
+        <div>
+          <span class="text-xs text-slate-500 font-semibold">Tổng số mockup:</span>
+          <div class="text-2xl font-black text-slate-900">26 màn hình (+1 D1)</div>
+        </div>
+        <div class="h-8 w-px bg-slate-200"></div>
+        <div>
+          <span class="text-xs text-slate-500 font-semibold">Nhánh Git:</span>
+          <div class="text-xs font-mono font-bold text-red-600 mt-1">design/phase-1</div>
+        </div>
+        <div class="h-8 w-px bg-slate-200"></div>
+        <div>
+          <span class="text-xs text-slate-500 font-semibold">Tình trạng:</span>
+          <div class="text-xs font-bold text-[#15803D] bg-green-50 px-2.5 py-0.5 rounded-full border border-green-200 mt-1 inline-flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#15803D]"></span>
+            Hoàn tất nộp Lần 3
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-600 font-medium">
+        Quy chuẩn: <strong class="text-slate-900">WCAG 2.1 AA</strong> • <strong class="text-slate-900">formatVND()</strong> • <strong class="text-slate-900">Không code app trước khi duyệt</strong>
+      </div>
+    </div>
+
+    <!-- SECTION 1: HỆ THỐNG THIẾT KẾ (D1 & D2) -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between border-b pb-2 border-slate-200">
+        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-red-100 text-red-600 flex items-center justify-center font-bold text-xs">D</span>
+          <span>Nền Tảng Thiết Kế & Luồng Nghiệp Vụ (D0, D1, D2)</span>
+        </h2>
+        <span class="text-xs text-slate-500">Đã cập nhật theo phản hồi PO Lần 2b</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-700 text-2xs font-bold rounded">Tài liệu D0</span>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">00-understanding.md</h3>
+            <p class="text-xs text-slate-500 mt-1">Báo cáo đọc hiểu toàn bộ kiến trúc 7 microservice, ánh xạ 100% story backlog và làm rõ 6 câu hỏi nghiệp vụ với PO.</p>
+          </div>
+          <a href="00-understanding.md" class="text-xs font-bold text-red-600 hover:underline">Đọc tài liệu D0 →</a>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <span class="px-2 py-0.5 bg-red-100 text-red-700 text-2xs font-bold rounded">Hệ thống D1</span>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Design System & Token Màu</h3>
+            <p class="text-xs text-slate-500 mt-1">Bảng màu WCAG AA thực tế, font Be Vietnam Pro ≥ 12px, nút ≥ 44px, nút nguy hiểm tách bạch, đầy đủ form, bảng, skeleton.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <a href="01-design-system.md" class="text-xs font-bold text-slate-600 hover:underline">Tài liệu D1</a>
+            <span class="text-slate-300">•</span>
+            <a href="mockups/design-system.html" class="text-xs font-bold text-red-600 hover:underline">Trang Demo D1 →</a>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-2xs font-bold rounded">Sơ đồ D2</span>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">02-user-flows.md</h3>
+            <p class="text-xs text-slate-500 mt-1">Sơ đồ Mermaid hành trình khách gọi món, thu ngân xác nhận tiền, admin sàn và đầy đủ 7 nhánh xử lý sự cố (F3, 401...).</p>
+          </div>
+          <a href="02-user-flows.md" class="text-xs font-bold text-blue-600 hover:underline">Xem sơ đồ Mermaid →</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 2: CLIENT SCREENS (D3 - 9 MÀN HÌNH MOBILE 375x812) -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between border-b pb-2 border-slate-200">
+        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-red-600 text-white flex items-center justify-center font-bold text-xs">C</span>
+          <span>D3: Màn Hình Thực Khách (Mobile 375×812) – 9 Màn Hình</span>
+        </h2>
+        <span class="text-xs text-slate-500">Mô phỏng trải nghiệm quét mã trên điện thoại</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <!-- C01 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 hover:border-red-400 transition">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-red-600">C01</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: C1, P2</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Quét QR Lỗi / Chờ Duyệt</h3>
+            <p class="text-xs text-slate-500 mt-1">Có thanh gạt thử 2 biến thể: Mã QR thiếu/sai tham số và Quán đang trong quá trình xét duyệt.</p>
+          </div>
+          <a href="mockups/client/c01-invalid-qr.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup C01</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- C02 -->
+        <div class="bg-white p-4 rounded-2xl border-2 border-red-500/60 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-red-600">C02</span>
+              <span class="text-2xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">Mẫu PO Duyệt</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Thực Đơn Quán (Menu)</h3>
+            <p class="text-xs text-slate-500 mt-1">Đầy đủ 4 trạng thái (Bình thường / Tải / Rỗng / Rớt mạng), chip danh mục dính, giỏ hàng nổi, nút ± 44px.</p>
+          </div>
+          <a href="mockups/client/c02-menu.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-red-600 text-white rounded-xl text-xs font-bold shadow-xs hover:bg-red-700 transition">
+            <span>Mở Mockup C02</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- C03 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 hover:border-red-400 transition">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-red-600">C03</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: C3</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Bottom Sheet Chọn Món</h3>
+            <p class="text-xs text-slate-500 mt-1">Chọn kích cỡ tô, topping thêm, tính tổng tiền động và ghi chú đặc biệt cho đầu bếp.</p>
+          </div>
+          <a href="mockups/client/c03-product-sheet.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup C03</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- C04 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 hover:border-red-400 transition">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-red-600">C04</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: C4, C5, C6</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Giỏ Hàng Của Bàn</h3>
+            <p class="text-xs text-slate-500 mt-1">Dấu hiệu bạn cùng bàn vừa thêm, nút Đặt món và cờ khóa chống đặt trùng (createOrder lock).</p>
+          </div>
+          <a href="mockups/client/c04-cart.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup C04</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- C05 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 hover:border-red-400 transition">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-red-600">C05</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: C7, F4</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Món Đã Đặt Của Bàn</h3>
+            <p class="text-xs text-slate-500 mt-1">Xem đơn hàng thực tế của bàn: món nào đang chờ làm và món nào đã lên bàn.</p>
+          </div>
+          <a href="mockups/client/c05-table-orders.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup C05</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- C06 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 hover:border-red-400 transition">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-red-600">C06</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: B2</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Gọi Nhân Viên Phục Vụ</h3>
+            <p class="text-xs text-slate-500 mt-1">Bottom sheet gọi nhanh (Xin đá lạnh, Thêm chén đũa, Xin ớt tỏi, Thanh toán) + nhập tự do.</p>
+          </div>
+          <a href="mockups/client/c06-service-call.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup C06</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- C07 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 hover:border-red-400 transition">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-red-600">C07</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: C8, Y4</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Chọn Phương Thức Thanh Toán</h3>
+            <p class="text-xs text-slate-500 mt-1">Chọn QR PayOS (Tự động), VietQR Tĩnh hoặc Tiền mặt tại quầy (gửi serviceCall).</p>
+          </div>
+          <a href="mockups/client/c07-payment.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup C07</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- C08 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 hover:border-red-400 transition">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-red-600">C08</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: Y4</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Mã QR PayOS Động</h3>
+            <p class="text-xs text-slate-500 mt-1">Mã QR động chứa số tiền & nội dung, đồng hồ đếm ngược 15:00, nút mở app ngân hàng.</p>
+          </div>
+          <a href="mockups/client/c08-payos-qr.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup C08</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- C09 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 hover:border-red-400 transition">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-red-600">C09</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: C8, Y4</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Cảm Ơn & Kết Quả</h3>
+            <p class="text-xs text-slate-500 mt-1">Có thanh gạt chuyển 2 biến thể: Thanh toán thành công và Thanh toán quá hạn / thất bại.</p>
+          </div>
+          <a href="mockups/client/c09-thank-you.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-red-50 text-slate-800 hover:text-red-600 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup C09</span>
+            <span>→</span>
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 3: ADMIN SCREENS (D4 - 14 MÀN HÌNH CHỦ QUÁN & BẾP) -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between border-b pb-2 border-slate-200">
+        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-xs">A</span>
+          <span>D4: Màn Hình Chủ Quán, Thu Ngân & Bếp (Admin 1280×800 & Tablet 1024×768) – 14 Màn Hình</span>
+        </h2>
+        <span class="text-xs text-slate-500">Khung Desktop chuẩn, cuộn riêng từng panel</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <!-- A01 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-slate-700">A01</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: A1</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Đăng Nhập Quán (Login)</h3>
+            <p class="text-xs text-slate-500 mt-1">Đăng nhập chỉ bằng SĐT + Mật khẩu (theo PO Review 2b), không dùng SMS code.</p>
+          </div>
+          <a href="mockups/admin/a01-login.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup A01</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- A02 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-slate-700">A02</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: P1</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Đăng Ký Merchant (Register)</h3>
+            <p class="text-xs text-slate-500 mt-1">Tạo tài khoản chủ quán mới, thông tin quán bước đầu để gửi duyệt sàn.</p>
+          </div>
+          <a href="mockups/admin/a02-register.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup A02</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- A03 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-slate-700">A03</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: A2, P4</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Khung Admin (Shell Layout)</h3>
+            <p class="text-xs text-slate-500 mt-1">Sidebar cố định, danh sách chuyển đổi quán, chuông thông báo, nút thử lỗi 403 (P3).</p>
+          </div>
+          <a href="mockups/admin/a03-shell.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup A03</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- A04 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-slate-700">A04</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: A9</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Tổng Quan Hôm Nay (Dashboard)</h3>
+            <p class="text-xs text-slate-500 mt-1">Doanh thu VNĐ, số đơn, tỷ lệ bàn, biểu đồ khung giờ cao điểm và top món bán chạy.</p>
+          </div>
+          <a href="mockups/admin/a04-dashboard.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup A04</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- A05 -->
+        <div class="bg-white p-4 rounded-2xl border-2 border-red-500/60 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-red-600">A05</span>
+              <span class="text-2xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">Mẫu PO Duyệt</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Đơn Realtime & Lưới Bàn</h3>
+            <p class="text-xs text-slate-500 mt-1">Lưới 3 cột 8 bàn, toast dưới góc phải, thanh yêu cầu phục vụ, modal xác nhận thu tiền.</p>
+          </div>
+          <a href="mockups/admin/a05-orders-live.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-red-600 text-white rounded-xl text-xs font-bold shadow-xs hover:bg-red-700 transition">
+            <span>Mở Mockup A05</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- A06 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-slate-700">A06</span>
+              <span class="text-2xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold">Tablet 1024×768</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Màn Hình Bếp (KDS Tablet)</h3>
+            <p class="text-xs text-slate-500 mt-1">Nhóm theo bàn, chạm chuyển 3 trạng thái (Chờ làm / Đang nấu / Đã xong), cảnh báo >12p.</p>
+          </div>
+          <a href="mockups/admin/a06-kitchen.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup A06 (Tablet)</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- A07 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-slate-700">A07</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: A5</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Quản Lý Món Ăn (Products)</h3>
+            <p class="text-xs text-slate-500 mt-1">Bảng món ăn, lọc danh mục, công tắc đang bán/tạm ngưng, modal xác nhận xóa món D1.</p>
+          </div>
+          <a href="mockups/admin/a07-products.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup A07</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- A08 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-slate-700">A08</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: A5</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Thêm/Sửa Món Ăn (Form)</h3>
+            <p class="text-xs text-slate-500 mt-1">Upload ảnh, giá VNĐ, nhóm tuỳ chọn động `productSortAndOptions` (Size, Topping).</p>
+          </div>
+          <a href="mockups/admin/a08-product-form.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup A08</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- A09 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-slate-700">A09</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: A4</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Danh Mục Món (Categories)</h3>
+            <p class="text-xs text-slate-500 mt-1">Thứ tự hiển thị, modal thêm/sửa danh mục, bảo vệ không xóa danh mục còn món.</p>
+          </div>
+          <a href="mockups/admin/a09-categories.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup A09</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- A10 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-slate-700">A10</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: A6</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Bàn Ăn & Mã QR (Tables)</h3>
+            <p class="text-xs text-slate-500 mt-1">Quản lý sơ đồ bàn, modal thêm bàn và popup xem trước bản in A4 chứa nhiều mã QR dán bàn.</p>
+          </div>
+          <a href="mockups/admin/a10-tables.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup A10</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- A11 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-slate-700">A11</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: A3, F1, Y1</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Cài Đặt Quán & PayOS</h3>
+            <p class="text-xs text-slate-500 mt-1">Thông tin quán, trạng thái duyệt + Tab cấu hình PayOS (Client ID, API Key ẩn, Webhook URL).</p>
+          </div>
+          <a href="mockups/admin/a11-shop-settings.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup A11</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- A12 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-slate-700">A12</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: Y5</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Đối Soát Giao Dịch PayOS</h3>
+            <p class="text-xs text-slate-500 mt-1">Đối soát giao dịch Webhook, kiểm tra lại đơn treo, tỷ lệ khớp tiền, xuất CSV.</p>
+          </div>
+          <a href="mockups/admin/a12-payments.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup A12</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- A13 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-slate-700">A13</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: R1</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Báo Cáo Doanh Thu (Reports)</h3>
+            <p class="text-xs text-slate-500 mt-1">Biểu đồ 7 ngày, phân tích 4 khung giờ dataAnaly, top 5 món sinh lời, xuất CSV.</p>
+          </div>
+          <a href="mockups/admin/a13-reports.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup A13</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- A14 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 hover:border-red-400 transition">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-slate-700">A14</span>
+              <span class="text-2xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">Story: P2</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Tạo Quán Ăn Mới (Create Shop)</h3>
+            <p class="text-xs text-slate-500 mt-1">Biểu mẫu đăng ký thêm quán: tên quán, địa chỉ, giờ mở cửa, upload giấy phép certificate, gửi sàn duyệt P5.</p>
+          </div>
+          <a href="mockups/admin/a14-create-shop.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup A14</span>
+            <span>→</span>
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 4: PLATFORM SCREENS (D5 - 3 MÀN HÌNH ADMIN SÀN) -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between border-b pb-2 border-slate-200">
+        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">P</span>
+          <span>D5: Màn Hình Admin Nền Tảng (Platform Admin 1280×800) – 3 Màn Hình</span>
+        </h2>
+        <span class="text-xs text-slate-500">Quản lý duyệt quán, tài khoản merchant và hoa hồng sàn</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <!-- P01 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 hover:border-blue-400 transition">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-blue-600">P01</span>
+              <span class="text-2xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded font-semibold">Story: P5</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Duyệt Quán Ăn Mới</h3>
+            <p class="text-xs text-slate-500 mt-1">Hồ sơ quán chờ duyệt, modal thiết lập tỷ lệ phí sàn khi cấp phép, từ chối kèm lý do.</p>
+          </div>
+          <a href="mockups/platform/p01-shops-approval.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-blue-50 text-slate-800 hover:text-blue-700 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup P01</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- P02 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 hover:border-blue-400 transition">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-blue-600">P02</span>
+              <span class="text-2xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded font-semibold">Story: P5</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Quản Lý Chủ Quán (Merchants)</h3>
+            <p class="text-xs text-slate-500 mt-1">Danh sách đối tác merchant, công tắc khóa/mở tài khoản có xác nhận cảnh báo an ninh.</p>
+          </div>
+          <a href="mockups/platform/p02-merchants.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-blue-50 text-slate-800 hover:text-blue-700 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup P02</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- P03 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between space-y-3 hover:border-blue-400 transition">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="font-mono text-xs font-bold text-blue-600">P03</span>
+              <span class="text-2xs bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded font-semibold">Story: P6</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">Doanh Thu Toàn Sàn (Revenue)</h3>
+            <p class="text-xs text-slate-500 mt-1">Tổng GMV 1.85 tỷ VNĐ, hoa hồng thu được theo quán, sao kê tài chính, xuất CSV.</p>
+          </div>
+          <a href="mockups/platform/p03-revenue.html" class="inline-flex items-center justify-between px-3.5 py-2 bg-slate-50 hover:bg-blue-50 text-slate-800 hover:text-blue-700 rounded-xl text-xs font-bold transition">
+            <span>Mở Mockup P03</span>
+            <span>→</span>
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="pt-8 pb-12 text-center text-xs text-slate-500 border-t border-slate-200 space-y-2">
+      <div>Nền tảng <strong>QUANLYNHAHANG</strong> • Hệ thống quản lý quán & gọi món tại bàn</div>
+      <div>Bộ thiết kế giao diện ban đầu (mockup HTML tĩnh). Đặc tả kỹ thuật: <code>docs/specs/</code></div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

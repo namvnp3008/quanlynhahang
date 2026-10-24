@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANLYNHAHANG Platform: Doanh Thu Toàn Sàn & Hoa Hồng (P6)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-slate-200 text-slate-900 flex items-center justify-center m-0 p-0 overflow-hidden">
+
+  <!-- Desktop Frame Simulation (Exactly 1280x800) -->
+  <div class="w-[1280px] h-[800px] bg-slate-50 flex rounded-2xl shadow-2xl overflow-hidden border border-slate-300 relative">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="w-64 bg-slate-950 text-white flex flex-col justify-between flex-shrink-0 z-20 border-r border-slate-800">
+      <div>
+        <div class="p-5 border-b border-slate-800 flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-black text-white text-base shadow-md tracking-wider">QL</span>
+          <div>
+            <div class="font-extrabold text-white text-base tracking-wide">QUANLYNHAHANG</div>
+            <div class="text-xs text-blue-400 font-bold">Quản Trị Nền Tảng (P5)</div>
+          </div>
+        </div>
+
+        <nav class="p-3 space-y-1 text-xs">
+          <div class="px-3 py-2 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Hệ thống SaaS</div>
+          
+          <a href="p01-shops-approval.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-850 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Duyệt quán ăn mới (P5)</span>
+          </a>
+
+          <a href="p02-merchants.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-850 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <span>Quản lý chủ quán (P5)</span>
+          </a>
+
+          <a href="p03-revenue.html" class="flex items-center gap-3 px-3 py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Doanh thu & Hoa hồng (P6)</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="p-4 border-t border-slate-800 bg-slate-900/60 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white text-xs">AD</div>
+          <div>
+            <div class="text-xs font-bold text-white">Platform SuperAdmin</div>
+            <div class="text-xs text-slate-400">admin@quanlynhahang.vn</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN WORKSPACE -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+      
+      <!-- HEADER -->
+      <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between flex-shrink-0 z-10">
+        <div>
+          <h1 class="text-lg font-extrabold text-slate-900">Báo Cáo Doanh Thu & Hoa Hồng Toàn Sàn (P6)</h1>
+          <p class="text-xs text-slate-500">Tổng hợp GMV, phân bổ phí hoa hồng theo từng quán ăn đối tác (theo tỷ lệ phí sàn)</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="flex items-center bg-slate-100 rounded-xl p-1 text-xs">
+            <button class="px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-900 font-medium">Hôm nay</button>
+            <button class="px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-900 font-medium">7 ngày</button>
+            <button class="px-3 py-1.5 rounded-lg bg-white shadow-xs font-bold text-slate-900">Tháng 10/2026</button>
+          </div>
+
+          <button onclick="alert('Đã xuất báo cáo tài chính toàn sàn: platform-revenue-10-2026.csv')" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-xs">
+            <span>📥 Xuất Báo Cáo CSV</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- 4 METRIC CARDS -->
+      <div class="px-8 py-4 bg-slate-100/60 border-b border-slate-200 grid grid-cols-4 gap-4 flex-shrink-0">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+          <div class="text-xs text-slate-500 font-medium">Tổng GMV toàn hệ thống</div>
+          <div class="text-xl font-black text-slate-900 mt-1">1.850.000.000 đ</div>
+          <div class="text-xs text-green-600 font-bold mt-0.5">↑ +18.2% so với tháng trước</div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+          <div class="text-xs text-slate-500 font-medium">Hoa hồng sàn thu về (Revenue)</div>
+          <div class="text-xl font-black text-blue-700 mt-1">29.600.000 đ</div>
+          <div class="text-xs text-slate-500 mt-0.5">Tỷ lệ phí bình quân: 1.6%</div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+          <div class="text-xs text-slate-500 font-medium">Tổng đơn đặt món thành công</div>
+          <div class="text-xl font-black text-slate-900 mt-1">19.450 đơn</div>
+          <div class="text-xs text-slate-500 mt-0.5">~95.100 đ / đơn</div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+          <div class="text-xs text-slate-500 font-medium">Quán ăn phát sinh đơn</div>
+          <div class="text-xl font-black text-slate-900 mt-1">48 / 52 quán</div>
+          <div class="text-xs text-green-600 font-bold mt-0.5">92.3% hoạt động tích cực</div>
+        </div>
+      </div>
+
+      <!-- REVENUE BREAKDOWN TABLE -->
+      <main class="flex-1 p-8 overflow-y-auto custom-scroll">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-slate-900">Chi Tiết Doanh Thu & Hoa Hồng Từng Quán</h3>
+            <span class="text-xs text-slate-500">Đã sắp xếp theo GMV giảm dần</span>
+          </div>
+
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 select-none">
+              <tr>
+                <th class="py-3.5 px-4">Tên Quán Ăn</th>
+                <th class="py-3.5 px-4">Chủ Sở Hữu (Merchant)</th>
+                <th class="py-3.5 px-4">Tỷ Lệ Phí Sàn</th>
+                <th class="py-3.5 px-4">Tổng Đơn Hàng</th>
+                <th class="py-3.5 px-4">Tổng GMV</th>
+                <th class="py-3.5 px-4">Hoa Hồng Sàn Nhận</th>
+                <th class="py-3.5 px-4 text-right">Sao Kê</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              
+              <!-- Shop 1 -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900 text-sm">Nhà Hàng Bếp Việt</div>
+                  <div class="text-xs text-slate-400">Số 128 Đường Xuân Thủy, Cầu Giấy, Hà Nội</div>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-800">Nguyễn Văn Nam</div>
+                  <div class="text-slate-400">0912 345 678</div>
+                </td>
+                <td class="py-4 px-4">
+                  <span class="px-2.5 py-1 bg-blue-50 text-blue-700 font-bold rounded-lg">1.5%</span>
+                </td>
+                <td class="py-4 px-4 font-bold">1.250 đơn</td>
+                <td class="py-4 px-4 font-bold text-slate-900">118.750.000 đ</td>
+                <td class="py-4 px-4 font-black text-blue-700">1.781.250 đ</td>
+                <td class="py-4 px-4 text-right">
+                  <button onclick="alert('Đã tải sao kê quán Nhà Hàng Bếp Việt')" class="text-blue-600 font-bold hover:underline">Tải sao kê</button>
+                </td>
+              </tr>
+
+              <!-- Shop 2 -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900 text-sm">Phở Hà Nội Phố - CN Bình Thạnh</div>
+                  <div class="text-xs text-slate-400">45 Điện Biên Phủ, P.15, Bình Thạnh</div>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-800">Nguyễn Văn Nam</div>
+                  <div class="text-slate-400">0912 345 678</div>
+                </td>
+                <td class="py-4 px-4">
+                  <span class="px-2.5 py-1 bg-blue-50 text-blue-700 font-bold rounded-lg">1.5%</span>
+                </td>
+                <td class="py-4 px-4 font-bold">980 đơn</td>
+                <td class="py-4 px-4 font-bold text-slate-900">93.100.000 đ</td>
+                <td class="py-4 px-4 font-black text-blue-700">1.396.500 đ</td>
+                <td class="py-4 px-4 text-right">
+                  <button onclick="alert('Tải sao kê')" class="text-blue-600 font-bold hover:underline">Tải sao kê</button>
+                </td>
+              </tr>
+
+              <!-- Shop 3 -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900 text-sm">Bún Bò Huế Cố Đô - Quận 3</div>
+                  <div class="text-xs text-slate-400">82 Nguyễn Đình Chiểu, Q.3</div>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-800">Hoàng Thị Thu Thảo</div>
+                  <div class="text-slate-400">0909 111 222</div>
+                </td>
+                <td class="py-4 px-4">
+                  <span class="px-2.5 py-1 bg-blue-50 text-blue-700 font-bold rounded-lg">2.0%</span>
+                </td>
+                <td class="py-4 px-4 font-bold">850 đơn</td>
+                <td class="py-4 px-4 font-bold text-slate-900">80.750.000 đ</td>
+                <td class="py-4 px-4 font-black text-blue-700">1.615.000 đ</td>
+                <td class="py-4 px-4 text-right">
+                  <button class="text-blue-600 font-bold hover:underline">Tải sao kê</button>
+                </td>
+              </tr>
+
+              <!-- Shop 4 -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900 text-sm">Cà Phê Muối Chú Long - Phú Nhuận</div>
+                  <div class="text-xs text-slate-400">15 Phan Xích Long, Phú Nhuận</div>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-800">Dương Tuấn Kiệt</div>
+                  <div class="text-slate-400">0977 444 555</div>
+                </td>
+                <td class="py-4 px-4">
+                  <span class="px-2.5 py-1 bg-blue-50 text-blue-700 font-bold rounded-lg">2.0%</span>
+                </td>
+                <td class="py-4 px-4 font-bold">2.100 đơn</td>
+                <td class="py-4 px-4 font-bold text-slate-900">73.500.000 đ</td>
+                <td class="py-4 px-4 font-black text-blue-700">1.470.000 đ</td>
+                <td class="py-4 px-4 text-right">
+                  <button class="text-blue-600 font-bold hover:underline">Tải sao kê</button>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+</body>
+</html>

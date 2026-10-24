@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup C05: Món Đã Đặt Của Bàn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Be Vietnam Pro', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-200 text-slate-900 min-h-screen flex flex-col items-center p-0 md:p-6">
+
+  <!-- Mobile Frame 375x812 -->
+  <div class="w-full max-w-[375px] h-[812px] bg-slate-50 relative flex flex-col shadow-2xl rounded-3xl overflow-hidden border-4 border-slate-800">
+    
+    <!-- Top System Status Bar -->
+    <div class="h-6 bg-white flex items-center justify-between px-6 text-xs font-semibold text-slate-800 select-none">
+      <span>14:30</span>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.28 19.57 10.6 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9z"/></svg>
+        <span>5G</span>
+        <div class="w-5 h-2.5 border border-slate-700 rounded-sm p-0.5"><div class="h-full bg-slate-800 rounded-2xs w-3/4"></div></div>
+      </div>
+    </div>
+
+    <!-- Header Trang Đơn Của Bàn -->
+    <header class="px-4 py-3 bg-white border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-2">
+        <button class="min-w-[40px] min-h-[40px] p-2 rounded-xl text-slate-600 hover:bg-slate-100 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">BÀN 03</span>
+            <span class="text-xs font-bold text-slate-900">Món Đang Phục Vụ</span>
+          </div>
+          <div class="text-xs text-slate-500">Mã đơn: #ORD-102938 • 14:18</div>
+        </div>
+      </div>
+      <button class="min-w-[40px] min-h-[40px] p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center" title="Làm mới">
+        <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      </button>
+    </header>
+
+    <!-- Main Content List -->
+    <main class="flex-1 overflow-y-auto p-4 space-y-4">
+      
+      <!-- Order Progress Status Banner -->
+      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+            <span class="text-xs font-bold text-amber-900">Bếp đang chế biến món ăn</span>
+          </div>
+          <span class="text-xs font-bold text-amber-700">Tiến độ: 2/3 món</span>
+        </div>
+        <div class="w-full bg-amber-200/60 rounded-full h-1.5">
+          <div class="bg-amber-600 h-1.5 rounded-full w-2/3"></div>
+        </div>
+      </div>
+
+      <!-- Items List -->
+      <div class="space-y-3">
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">Danh Sách Món (3)</div>
+
+        <!-- Dish 1: Chờ lên món (Orange-700 / 4.88:1) -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-2xl flex-shrink-0">
+              🍜
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm">1x Phở Bò Tái Nạm</h4>
+              <div class="text-xs text-slate-500">Tô lớn (+10.000 đ), Trứng gà chần (+5.000 đ)</div>
+              <div class="text-xs font-bold text-red-600 mt-0.5">70.000 đ</div>
+            </div>
+          </div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFF7ED] text-[#C2410C] border border-[#FFEDD5] text-xs font-bold rounded-full whitespace-nowrap">
+            <span class="w-2 h-2 rounded-full bg-[#EA580C] animate-pulse"></span>
+            Chờ lên món
+          </span>
+        </div>
+
+        <!-- Dish 2: Đã lên món (Green-700 / 4.79:1) -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-2xl flex-shrink-0">
+              🥓
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm">1x Bún Chả Hà Nội</h4>
+              <div class="text-xs text-slate-500">Tiêu chuẩn</div>
+              <div class="text-xs font-bold text-red-600 mt-0.5">50.000 đ</div>
+            </div>
+          </div>
+          <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#F0FDF4] text-[#15803D] border border-[#DCFCE7] text-xs font-bold rounded-full whitespace-nowrap">
+            ✓ Đã lên bàn
+          </span>
+        </div>
+
+        <!-- Dish 3: Đã lên món (Green-700 / 4.79:1) -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-2xl flex-shrink-0">
+              ☕
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm">1x Cà Phê Sữa Đá Sài Gòn</h4>
+              <div class="text-xs text-slate-500">Ít ngọt, nhiều đá</div>
+              <div class="text-xs font-bold text-red-600 mt-0.5">25.000 đ</div>
+            </div>
+          </div>
+          <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#F0FDF4] text-[#15803D] border border-[#DCFCE7] text-xs font-bold rounded-full whitespace-nowrap">
+            ✓ Đã lên bàn
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Add more food note -->
+      <div class="p-3 bg-slate-100 rounded-2xl flex items-center justify-between text-xs">
+        <span class="text-slate-600 font-medium">Bạn muốn dùng thêm món khác?</span>
+        <button class="font-bold text-red-600 hover:underline">
+          + Gọi thêm món
+        </button>
+      </div>
+
+    </main>
+
+    <!-- Footer Total & Payment Button -->
+    <footer class="p-4 border-t border-slate-200 bg-white space-y-3 flex-shrink-0 shadow-lg">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-semibold text-slate-600">Tổng tiền bàn hiện tại:</span>
+        <span class="text-xl font-black text-red-600">147.000 đ</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <button class="min-h-[44px] py-3 bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-bold text-xs rounded-xl transition">
+          + Gọi Thêm Món
+        </button>
+        <button class="min-h-[44px] py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-md transition active:scale-95">
+          Yêu Cầu Thanh Toán
+        </button>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

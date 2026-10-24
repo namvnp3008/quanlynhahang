@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANLYNHAHANG Admin: Quản Lý Danh Mục Món (A4)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-slate-200 text-slate-900 flex items-center justify-center m-0 p-0 overflow-hidden">
+
+  <!-- Desktop Frame Simulation (Exactly 1280x800) -->
+  <div class="w-[1280px] h-[800px] bg-slate-50 flex rounded-2xl shadow-2xl overflow-hidden border border-slate-300 relative">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between flex-shrink-0 z-20">
+      <div>
+        <!-- Logo & Brand Header -->
+        <div class="p-4 border-b border-slate-800 flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center font-black text-white text-base shadow-md tracking-wider">QL</span>
+          <div>
+            <div class="font-extrabold text-white text-sm tracking-wide">QUANLYNHAHANG</div>
+            <div class="text-xs text-slate-400">Hệ thống quản lý quán</div>
+          </div>
+        </div>
+
+        <!-- Active Shop Selector (Story P4) -->
+        <div class="p-3 border-b border-slate-800/60">
+          <div class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1 mb-1">Quán đang quản lý</div>
+          <a href="a03-shell.html" class="flex items-center justify-between px-3 py-2 bg-slate-800/80 hover:bg-slate-800 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700/60 transition group" title="Chuyển đổi quán ăn hoặc tạo chi nhánh mới">
+            <div class="flex items-center gap-2 truncate">
+              <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+              <span class="truncate font-bold text-white">Nhà Hàng Bếp Việt</span>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </a>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="p-3 space-y-1 text-xs">
+          <div class="px-3 py-1.5 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Vận hành quán</div>
+          
+          <a href="a04-dashboard.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            <span class="font-medium">Tổng quan (A9)</span>
+          </a>
+          
+          <a href="a05-orders-live.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span class="font-medium">Đơn thời gian thực (A7)</span>
+            <span class="ml-auto bg-slate-700 text-slate-300 font-bold px-2 py-0.5 rounded-full text-xs">3</span>
+          </a>
+
+          <a href="a06-kitchen.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <span class="font-medium">Màn hình bếp (F4)</span>
+          </a>
+
+          <div class="px-3 pt-3 pb-1 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Thực đơn & Bàn</div>
+
+          <a href="a07-products.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <span class="font-medium">Món ăn & Thực đơn (A5)</span>
+          </a>
+
+          <a href="a09-categories.html" class="flex items-center gap-3 px-3 py-2.5 bg-red-600 text-white font-bold rounded-xl shadow-xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+            <span class="font-medium">Danh mục món (A4)</span>
+          </a>
+
+          <a href="a10-tables.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+            <span class="font-medium">Bàn ăn & Mã QR (A6)</span>
+          </a>
+
+          <div class="px-3 pt-3 pb-1 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Tài chính & Cấu hình</div>
+
+          <a href="a11-shop-settings.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span class="font-medium">Cài đặt quán & PayOS (A3, Y1)</span>
+          </a>
+
+          <a href="a12-payments.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            <span class="font-medium">Đối soát giao dịch (Y5)</span>
+          </a>
+
+          <a href="a13-reports.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span class="font-medium">Báo cáo doanh thu (R1)</span>
+          </a>
+
+          <a href="a14-create-shop.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span class="font-medium">Tạo quán mới (P2)</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- User Profile -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/40 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white text-xs">NV</div>
+          <div>
+            <div class="text-xs font-bold text-white">Nguyễn Văn Nam</div>
+            <div class="text-xs text-slate-400">0912 345 678</div>
+          </div>
+        </div>
+        <a href="a01-login.html" class="text-slate-400 hover:text-red-400 p-2 transition" title="Đăng xuất">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN WORKSPACE -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+      
+      <!-- HEADER -->
+      <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between flex-shrink-0 z-10">
+        <div>
+          <h1 class="text-lg font-extrabold text-slate-900">Danh Mục Món Ăn (A4)</h1>
+          <p class="text-xs text-slate-500">Phân nhóm thực đơn hiển thị trên thanh chip điều hướng trang quét mã khách hàng</p>
+        </div>
+
+        <button onclick="openCategoryModal('add')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-2">
+          <span class="text-base leading-none">+</span>
+          <span>Thêm Danh Mục Mới</span>
+        </button>
+      </header>
+
+      <!-- CONTENT BODY -->
+      <main class="flex-1 p-8 overflow-y-auto custom-scroll">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 select-none">
+              <tr>
+                <th class="py-3.5 px-4 w-24 text-center">Thứ Tự</th>
+                <th class="py-3.5 px-4">Tên Danh Mục</th>
+                <th class="py-3.5 px-4 text-center w-32">Số Món Ăn</th>
+                <th class="py-3.5 px-4 text-right w-36">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              
+              <!-- Category 1: Phở & Bún Truyền Thống -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-4 px-4 text-center">
+                  <div class="flex items-center justify-center gap-1.5">
+                    <span class="w-6 h-6 rounded-md bg-slate-100 font-bold text-slate-700 flex items-center justify-center">1</span>
+                    <div class="flex flex-col text-slate-400">
+                      <button class="hover:text-slate-700 text-2xs leading-none" title="Di chuyển lên">▲</button>
+                      <button class="hover:text-slate-700 text-2xs leading-none" title="Di chuyển xuống">▼</button>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <span>🍜</span>
+                    <span>Phở & Bún Truyền Thống</span>
+                  </div>
+                </td>
+                <td class="py-4 px-4 text-center">
+                  <span class="px-2.5 py-1 bg-red-50 text-red-700 font-bold rounded-full">3 món</span>
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button onclick="openCategoryModal('edit', 'Phở & Bún Truyền Thống')" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Đổi tên danh mục">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </button>
+                    <button onclick="alert('Không thể xóa danh mục đang có 3 món ăn. Vui lòng chuyển các món ăn sang danh mục khác trước!')" class="p-1.5 hover:bg-red-50 text-slate-400 rounded-lg transition" title="Không thể xóa khi còn món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Category 2: Cơm Đĩa & Món Nóng -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-4 px-4 text-center">
+                  <div class="flex items-center justify-center gap-1.5">
+                    <span class="w-6 h-6 rounded-md bg-slate-100 font-bold text-slate-700 flex items-center justify-center">2</span>
+                    <div class="flex flex-col text-slate-400">
+                      <button class="hover:text-slate-700 text-2xs leading-none">▲</button>
+                      <button class="hover:text-slate-700 text-2xs leading-none">▼</button>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <span>🍛</span>
+                    <span>Cơm Đĩa & Món Nóng</span>
+                  </div>
+                </td>
+                <td class="py-4 px-4 text-center">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-bold rounded-full">1 món</span>
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button onclick="openCategoryModal('edit', 'Cơm Đĩa & Món Nóng')" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Đổi tên danh mục">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </button>
+                    <button onclick="alert('Không thể xóa danh mục đang có món ăn!')" class="p-1.5 hover:bg-red-50 text-slate-400 rounded-lg transition" title="Không thể xóa khi còn món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Category 3: Món Khai Vị & Ăn Vặt -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-4 px-4 text-center">
+                  <div class="flex items-center justify-center gap-1.5">
+                    <span class="w-6 h-6 rounded-md bg-slate-100 font-bold text-slate-700 flex items-center justify-center">3</span>
+                    <div class="flex flex-col text-slate-400">
+                      <button class="hover:text-slate-700 text-2xs leading-none">▲</button>
+                      <button class="hover:text-slate-700 text-2xs leading-none">▼</button>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <span>🥖</span>
+                    <span>Món Khai Vị & Ăn Vặt</span>
+                  </div>
+                </td>
+                <td class="py-4 px-4 text-center">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-bold rounded-full">1 món</span>
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button onclick="openCategoryModal('edit', 'Món Khai Vị & Ăn Vặt')" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Đổi tên danh mục">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </button>
+                    <button onclick="alert('Không thể xóa danh mục đang có món ăn!')" class="p-1.5 hover:bg-red-50 text-slate-400 rounded-lg transition" title="Không thể xóa khi còn món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Category 4: Cà Phê & Đồ Uống -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-4 px-4 text-center">
+                  <div class="flex items-center justify-center gap-1.5">
+                    <span class="w-6 h-6 rounded-md bg-slate-100 font-bold text-slate-700 flex items-center justify-center">4</span>
+                    <div class="flex flex-col text-slate-400">
+                      <button class="hover:text-slate-700 text-2xs leading-none">▲</button>
+                      <button class="hover:text-slate-700 text-2xs leading-none">▼</button>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <span>☕</span>
+                    <span>Cà Phê & Đồ Uống</span>
+                  </div>
+                </td>
+                <td class="py-4 px-4 text-center">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-bold rounded-full">3 món</span>
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button onclick="openCategoryModal('edit', 'Cà Phê & Đồ Uống')" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Đổi tên danh mục">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </button>
+                    <button onclick="alert('Không thể xóa danh mục đang có món ăn!')" class="p-1.5 hover:bg-red-50 text-slate-400 rounded-lg transition" title="Không thể xóa khi còn món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Category 5: Tráng Miệng (0 món, cho phép xoá) -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-4 px-4 text-center">
+                  <div class="flex items-center justify-center gap-1.5">
+                    <span class="w-6 h-6 rounded-md bg-slate-100 font-bold text-slate-700 flex items-center justify-center">5</span>
+                    <div class="flex flex-col text-slate-400">
+                      <button class="hover:text-slate-700 text-2xs leading-none">▲</button>
+                      <button class="hover:text-slate-700 text-2xs leading-none">▼</button>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <span>🍮</span>
+                    <span>Tráng Miệng</span>
+                  </div>
+                </td>
+                <td class="py-4 px-4 text-center">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-500 font-bold rounded-full">0 món</span>
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button onclick="openCategoryModal('edit', 'Tráng Miệng')" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Đổi tên danh mục">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </button>
+                    <button onclick="openDeleteCategoryModal('Tráng Miệng')" class="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition" title="Xóa danh mục rỗng">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL THÊM / SỬA DANH MỤC -->
+  <div id="category-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 id="modal-title" class="text-base font-bold text-slate-900">Thêm Danh Mục Món Mới</h3>
+        <button onclick="closeCategoryModal()" class="text-slate-400 hover:text-slate-600 p-1">✕</button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Tên danh mục <span class="text-red-600">*</span></label>
+          <input id="cat-name-input" type="text" placeholder="Ví dụ: Phở & Bún Truyền Thống..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-red-500 font-bold text-slate-900">
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 pt-3">
+        <button onclick="closeCategoryModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">Hủy</button>
+        <button onclick="saveCategory()" class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-xs">Lưu Danh Mục</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL XÓA DANH MỤC -->
+  <div id="delete-cat-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="w-12 h-12 rounded-full bg-red-100 text-[#B91C1C] flex items-center justify-center text-2xl mx-auto">⚠️</div>
+      <div class="text-center space-y-1">
+        <h3 class="text-base font-bold text-slate-900">Xóa Danh Mục Này?</h3>
+        <p class="text-xs text-slate-500">Danh mục rỗng này sẽ bị xóa khỏi hệ thống quán.</p>
+      </div>
+      <div class="flex items-center gap-3 pt-2">
+        <button onclick="document.getElementById('delete-cat-modal').classList.add('hidden')" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl">Hủy</button>
+        <button onclick="alert('Đã xóa danh mục thành công!'); document.getElementById('delete-cat-modal').classList.add('hidden')" class="flex-1 py-2.5 bg-white hover:bg-red-50 border border-red-300 text-[#B91C1C] font-bold text-xs rounded-xl shadow-xs">Xác Nhận Xóa</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openCategoryModal(mode, name = '') {
+      document.getElementById('modal-title').innerText = mode === 'add' ? 'Thêm Danh Mục Món Mới' : 'Chỉnh Sửa Danh Mục: ' + name;
+      document.getElementById('cat-name-input').value = name;
+      document.getElementById('category-modal').classList.remove('hidden');
+    }
+
+    function closeCategoryModal() {
+      document.getElementById('category-modal').classList.add('hidden');
+    }
+
+    function saveCategory() {
+      alert('Đã lưu danh mục món thành công!');
+      closeCategoryModal();
+    }
+
+    function openDeleteCategoryModal(name) {
+      document.getElementById('delete-cat-modal').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

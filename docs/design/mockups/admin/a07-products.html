@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANLYNHAHANG Admin: Quản Lý Món Ăn & Thực Đơn (A5)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-slate-200 text-slate-900 flex items-center justify-center m-0 p-0 overflow-hidden">
+
+  <!-- Desktop Frame Simulation (Exactly 1280x800) -->
+  <div class="w-[1280px] h-[800px] bg-slate-50 flex rounded-2xl shadow-2xl overflow-hidden border border-slate-300 relative">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between flex-shrink-0 z-20">
+      <div>
+        <!-- Logo & Brand Header -->
+        <div class="p-4 border-b border-slate-800 flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center font-black text-white text-base shadow-md tracking-wider">QL</span>
+          <div>
+            <div class="font-extrabold text-white text-sm tracking-wide">QUANLYNHAHANG</div>
+            <div class="text-xs text-slate-400">Hệ thống quản lý quán</div>
+          </div>
+        </div>
+
+        <!-- Active Shop Selector (Story P4) -->
+        <div class="p-3 border-b border-slate-800/60">
+          <div class="text-xs font-bold text-slate-400 uppercase tracking-wider px-1 mb-1">Quán đang quản lý</div>
+          <a href="a03-shell.html" class="flex items-center justify-between px-3 py-2 bg-slate-800/80 hover:bg-slate-800 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700/60 transition group" title="Chuyển đổi quán ăn hoặc tạo chi nhánh mới">
+            <div class="flex items-center gap-2 truncate">
+              <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+              <span class="truncate font-bold text-white">Nhà Hàng Bếp Việt</span>
+            </div>
+            <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </a>
+        </div>
+
+        <nav class="p-3 space-y-1 text-xs">
+          <div class="px-3 py-1.5 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Vận hành quán</div>
+          
+          <a href="a04-dashboard.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            <span>Tổng quan (A9)</span>
+          </a>
+          
+          <a href="a05-orders-live.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Đơn thời gian thực (A7)</span>
+            <span class="ml-auto bg-slate-700 text-slate-300 font-bold px-2 py-0.5 rounded-full text-xs">3</span>
+          </a>
+
+          <a href="a06-kitchen.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <span>Màn hình bếp (F4)</span>
+          </a>
+
+          <div class="px-3 pt-3 pb-1 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Thực đơn & Bàn</div>
+
+          <a href="a07-products.html" class="flex items-center gap-3 px-3 py-2.5 bg-red-600 text-white font-bold rounded-xl shadow-xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <span>Món ăn & Thực đơn (A5)</span>
+          </a>
+
+          <a href="a09-categories.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+            <span>Danh mục món (A4)</span>
+          </a>
+
+          <a href="a10-tables.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+            <span>Bàn ăn & Mã QR (A6)</span>
+          </a>
+
+          <div class="px-3 pt-3 pb-1 text-slate-500 font-bold uppercase tracking-wider text-[12px]">Tài chính & Cấu hình</div>
+
+          <a href="a11-shop-settings.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>Cài đặt quán & PayOS (A3, Y1)</span>
+          </a>
+
+          <a href="a12-payments.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            <span>Đối soát giao dịch (Y5)</span>
+          </a>
+
+          <a href="a13-reports.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span>Báo cáo doanh thu (R1)</span>
+          </a>
+
+          <a href="a14-create-shop.html" class="flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <span>Tạo quán mới (P2)</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="p-4 border-t border-slate-800 bg-slate-950/40 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white text-xs">NV</div>
+          <div>
+            <div class="text-xs font-bold text-white">Nguyễn Văn Nam</div>
+            <div class="text-xs text-slate-400">0912 345 678</div>
+          </div>
+        </div>
+        <a href="a01-login.html" class="text-slate-400 hover:text-red-400 p-2 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN WORKSPACE -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+      
+      <!-- HEADER -->
+      <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between flex-shrink-0 z-10">
+        <div>
+          <h1 class="text-lg font-extrabold text-slate-900">Món Ăn & Thực Đơn Quán (A5)</h1>
+          <p class="text-xs text-slate-500">Quản lý giá bán, tình trạng đang bán / tạm ngưng và nhóm tuỳ chọn topping</p>
+        </div>
+
+        <a href="a08-product-form.html" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-2">
+          <span class="text-base leading-none">+</span>
+          <span>Thêm Món Mới</span>
+        </a>
+      </header>
+
+      <!-- FILTER & SEARCH BAR -->
+      <div class="px-8 py-3.5 bg-white border-b border-slate-200 flex items-center justify-between gap-4 flex-shrink-0">
+        <div class="flex items-center gap-3 flex-1">
+          <!-- Search box -->
+          <div class="relative w-72">
+            <input type="text" placeholder="Tìm tên món ăn..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-red-500 transition">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+
+          <!-- Category Filter -->
+          <select class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:border-red-500">
+            <option>Tất cả danh mục (8 món)</option>
+            <option>Phở & Bún Truyền Thống (3 món)</option>
+            <option>Cơm Đĩa & Món Nóng (1 món)</option>
+            <option>Món Khai Vị & Ăn Vặt (1 món)</option>
+            <option>Cà Phê & Đồ Uống (3 món)</option>
+            <option>Tráng Miệng (0 món)</option>
+          </select>
+
+          <!-- Stock status filter -->
+          <select class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:border-red-500">
+            <option>Tất cả trạng thái bán</option>
+            <option>Đang bán (7)</option>
+            <option>Tạm ngưng (1)</option>
+          </select>
+        </div>
+
+        <div class="text-xs text-slate-500">
+          Hiển thị <strong>8</strong> / 8 món
+        </div>
+      </div>
+
+      <!-- PRODUCTS TABLE (Cuộn riêng) -->
+      <main class="flex-1 p-8 overflow-y-auto custom-scroll">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 select-none">
+              <tr>
+                <th class="py-3.5 px-4 w-16">Ảnh</th>
+                <th class="py-3.5 px-4">Tên Món Ăn</th>
+                <th class="py-3.5 px-4">Danh Mục</th>
+                <th class="py-3.5 px-4">Giá Bán</th>
+                <th class="py-3.5 px-4">Nhóm Tuỳ Chọn</th>
+                <th class="py-3.5 px-4 w-36">Trạng Thái Bán</th>
+                <th class="py-3.5 px-4 text-right w-28">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              
+              <!-- Row 1: Phở Bò Tái Nạm -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-3.5 px-4">
+                  <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl shadow-2xs border border-slate-200">🍜</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900 text-sm">Phở Bò Tái Nạm</div>
+                  <div class="text-xs text-slate-500 truncate max-w-xs mt-0.5">Bò tái mềm ngọt hòa quyện cùng nạm bò béo thơm giòn sần sật</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-medium rounded-lg">Phở & Bún Truyền Thống</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-black text-slate-900 text-sm">55.000 đ</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded-md font-semibold">2 nhóm tuỳ chọn</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <label class="inline-flex items-center cursor-pointer gap-2">
+                    <input type="checkbox" checked class="sr-only peer" onchange="toggleStockBadge(this, 'badge-stock-1')">
+                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600 relative"></div>
+                    <span id="badge-stock-1" class="text-xs font-bold text-[#15803D]">Đang bán</span>
+                  </label>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <a href="a08-product-form.html" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Sửa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </a>
+                    <button onclick="openDeleteModal('Phở Bò Tái Nạm')" class="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition" title="Xóa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 2: Phở Gà Ta Thảo Mộc -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-3.5 px-4">
+                  <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl shadow-2xs border border-slate-200">🍜</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900 text-sm">Phở Gà Ta Thảo Mộc</div>
+                  <div class="text-xs text-slate-500 truncate max-w-xs mt-0.5">Thịt gà ta da giòn thịt dai ngọt, nước dùng thanh vị thảo mộc</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-medium rounded-lg">Phở & Bún Truyền Thống</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-black text-slate-900 text-sm">45.000 đ</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded-md font-semibold">1 nhóm tuỳ chọn</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <label class="inline-flex items-center cursor-pointer gap-2">
+                    <input type="checkbox" checked class="sr-only peer" onchange="toggleStockBadge(this, 'badge-stock-2')">
+                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600 relative"></div>
+                    <span id="badge-stock-2" class="text-xs font-bold text-[#15803D]">Đang bán</span>
+                  </label>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <a href="a08-product-form.html" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Sửa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </a>
+                    <button onclick="openDeleteModal('Phở Gà Ta Thảo Mộc')" class="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition" title="Xóa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 3: Bún Chả Hà Nội -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-3.5 px-4">
+                  <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl shadow-2xs border border-slate-200">🍲</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900 text-sm">Bún Chả Hà Nội</div>
+                  <div class="text-xs text-slate-500 truncate max-w-xs mt-0.5">Chả miếng và chả viên nướng than hoa thơm lừng kèm nước mắm đu đủ</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-medium rounded-lg">Phở & Bún Truyền Thống</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-black text-slate-900 text-sm">50.000 đ</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded-md font-semibold">1 nhóm tuỳ chọn</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <label class="inline-flex items-center cursor-pointer gap-2">
+                    <input type="checkbox" checked class="sr-only peer" onchange="toggleStockBadge(this, 'badge-stock-3')">
+                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600 relative"></div>
+                    <span id="badge-stock-3" class="text-xs font-bold text-[#15803D]">Đang bán</span>
+                  </label>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <a href="a08-product-form.html" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Sửa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </a>
+                    <button onclick="openDeleteModal('Bún Chả Hà Nội')" class="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition" title="Xóa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 4: Cơm Tấm Sườn Bì Chả -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-3.5 px-4">
+                  <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl shadow-2xs border border-slate-200">🍛</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900 text-sm">Cơm Tấm Sườn Bì Chả</div>
+                  <div class="text-xs text-slate-500 truncate max-w-xs mt-0.5">Sườn cốt lết nướng mật ong thơm phức, bì sợi dai bùi, chả trứng hấp béo ngậy</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-medium rounded-lg">Cơm Đĩa & Món Nóng</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-black text-slate-900 text-sm">45.000 đ</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded-md font-semibold">2 nhóm tuỳ chọn</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <label class="inline-flex items-center cursor-pointer gap-2">
+                    <input type="checkbox" checked class="sr-only peer" onchange="toggleStockBadge(this, 'badge-stock-4')">
+                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600 relative"></div>
+                    <span id="badge-stock-4" class="text-xs font-bold text-[#15803D]">Đang bán</span>
+                  </label>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <a href="a08-product-form.html" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Sửa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </a>
+                    <button onclick="openDeleteModal('Cơm Tấm Sườn Bì Chả')" class="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition" title="Xóa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 5: Bánh Mì Thịt Nướng Giòn -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-3.5 px-4">
+                  <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl shadow-2xs border border-slate-200">🥖</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900 text-sm">Bánh Mì Thịt Nướng Giòn</div>
+                  <div class="text-xs text-slate-500 truncate max-w-xs mt-0.5">Vỏ bánh giòn rụm, thịt nướng sốt đậm đà, đồ chua và ngò thơm</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-medium rounded-lg">Món Khai Vị & Ăn Vặt</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-black text-slate-900 text-sm">25.000 đ</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded-md font-semibold">1 nhóm tuỳ chọn</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <label class="inline-flex items-center cursor-pointer gap-2">
+                    <input type="checkbox" checked class="sr-only peer" onchange="toggleStockBadge(this, 'badge-stock-5')">
+                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600 relative"></div>
+                    <span id="badge-stock-5" class="text-xs font-bold text-[#15803D]">Đang bán</span>
+                  </label>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <a href="a08-product-form.html" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Sửa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </a>
+                    <button onclick="openDeleteModal('Bánh Mì Thịt Nướng Giòn')" class="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition" title="Xóa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 6: Cà Phê Sữa Đá Sài Gòn -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-3.5 px-4">
+                  <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl shadow-2xs border border-slate-200">☕</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900 text-sm">Cà Phê Sữa Đá Sài Gòn</div>
+                  <div class="text-xs text-slate-500 truncate max-w-xs mt-0.5">Cà phê pha phin truyền thống thơm đượm hòa cùng sữa đặc béo ngọt</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-medium rounded-lg">Cà Phê & Đồ Uống</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-black text-slate-900 text-sm">25.000 đ</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded-md font-semibold">2 nhóm tuỳ chọn</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <label class="inline-flex items-center cursor-pointer gap-2">
+                    <input type="checkbox" checked class="sr-only peer" onchange="toggleStockBadge(this, 'badge-stock-6')">
+                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600 relative"></div>
+                    <span id="badge-stock-6" class="text-xs font-bold text-[#15803D]">Đang bán</span>
+                  </label>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <a href="a08-product-form.html" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Sửa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </a>
+                    <button onclick="openDeleteModal('Cà Phê Sữa Đá Sài Gòn')" class="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition" title="Xóa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 7: Cà Phê Muối Cố Đô -->
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="py-3.5 px-4">
+                  <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl shadow-2xs border border-slate-200">☕</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900 text-sm">Cà Phê Muối Cố Đô</div>
+                  <div class="text-xs text-slate-500 truncate max-w-xs mt-0.5">Lớp kem muối béo ngậy mằn mặn hòa cùng cà phê phin đậm đà xứ Huế</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-medium rounded-lg">Cà Phê & Đồ Uống</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-black text-slate-900 text-sm">30.000 đ</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded-md font-semibold">1 nhóm tuỳ chọn</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <label class="inline-flex items-center cursor-pointer gap-2">
+                    <input type="checkbox" checked class="sr-only peer" onchange="toggleStockBadge(this, 'badge-stock-7')">
+                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600 relative"></div>
+                    <span id="badge-stock-7" class="text-xs font-bold text-[#15803D]">Đang bán</span>
+                  </label>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <a href="a08-product-form.html" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Sửa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </a>
+                    <button onclick="openDeleteModal('Cà Phê Muối Cố Đô')" class="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition" title="Xóa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 8: Trà Đào Cam Sả (Tạm ngưng) -->
+              <tr class="hover:bg-slate-50/80 transition bg-amber-50/30">
+                <td class="py-3.5 px-4">
+                  <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl shadow-2xs border border-slate-200 opacity-60">🍑</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-600 text-sm">Trà Đào Cam Sả</div>
+                  <div class="text-xs text-slate-400 truncate max-w-xs mt-0.5">Trà thanh vị cam tươi và sả đập dập thơm mát giải nhiệt</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-medium rounded-lg">Cà Phê & Đồ Uống</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="font-black text-slate-500 text-sm">35.000 đ</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded-md font-semibold">2 nhóm tuỳ chọn</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <label class="inline-flex items-center cursor-pointer gap-2">
+                    <input type="checkbox" class="sr-only peer" onchange="toggleStockBadge(this, 'badge-stock-8')">
+                    <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600 relative"></div>
+                    <span id="badge-stock-8" class="text-xs font-bold text-amber-600">Tạm ngưng</span>
+                  </label>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <a href="a08-product-form.html" class="p-1.5 hover:bg-slate-100 text-slate-600 rounded-lg transition" title="Sửa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </a>
+                    <button onclick="openDeleteModal('Trà Đào Cam Sả')" class="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition" title="Xóa món">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+
+          <!-- PAGINATION -->
+          <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs">
+            <span class="text-slate-500 font-medium">Trang 1 / 1 (8 món)</span>
+            <div class="flex items-center gap-1.5">
+              <button class="px-3 py-1.5 bg-white border border-slate-200 text-slate-400 rounded-lg cursor-not-allowed font-medium">Trước</button>
+              <button class="px-3 py-1.5 bg-red-600 text-white font-bold rounded-lg shadow-xs">1</button>
+              <button class="px-3 py-1.5 bg-white border border-slate-200 text-slate-400 rounded-lg cursor-not-allowed font-medium">Sau</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL XÁC NHẬN XÓA MÓN (A2 / D1 Standard - Bắt buộc Modal, không confirm browser) -->
+  <div id="delete-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="w-12 h-12 rounded-full bg-red-100 text-[#B91C1C] flex items-center justify-center text-2xl mx-auto">
+        ⚠️
+      </div>
+      <div class="text-center space-y-1">
+        <h3 class="text-base font-bold text-slate-900">Xóa Món Ăn Này?</h3>
+        <p class="text-xs text-slate-500">Món <strong id="delete-dish-name" class="text-slate-800"></strong> sẽ bị gỡ bỏ khỏi thực đơn của quán.</p>
+      </div>
+      <div class="flex items-center gap-3 pt-2">
+        <button onclick="closeDeleteModal()" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">
+          Hủy bỏ
+        </button>
+        <button onclick="confirmDelete()" class="flex-1 py-3 bg-white hover:bg-red-50 border border-red-300 text-[#B91C1C] font-bold text-xs rounded-xl shadow-xs transition">
+          Xác Nhận Xóa
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleStockBadge(input, badgeId) {
+      const badge = document.getElementById(badgeId);
+      if (input.checked) {
+        badge.className = 'text-xs font-bold text-[#15803D]';
+        badge.innerText = 'Đang bán';
+      } else {
+        badge.className = 'text-xs font-bold text-amber-600';
+        badge.innerText = 'Tạm ngưng';
+      }
+    }
+
+    function openDeleteModal(name) {
+      document.getElementById('delete-dish-name').innerText = name;
+      document.getElementById('delete-modal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('delete-modal').classList.add('hidden');
+    }
+
+    function confirmDelete() {
+      alert('Đã xóa món thành công!');
+      closeDeleteModal();
+    }
+  </script>
+</body>
+</html>
