@@ -20,3 +20,5 @@ feign:
       default:
         connectTimeout: 55000
         readTimeout: 55000
+app:
+  web-base-url: "${WEB_BASE_URL}"

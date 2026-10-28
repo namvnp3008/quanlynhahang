@@ -12,6 +12,7 @@ import {
   Download,
   Armchair,
   Loader2,
+  QrCode,
 } from 'lucide-react';
 import {
   getTables,
@@ -127,32 +128,40 @@ export const TableManage: React.FC = () => {
     loadData();
   }, [loadData]);
 
+  // Cấu hình domain cơ sở để sinh mã QR (cho phép điện thoại quét được qua Cloudflare Tunnel hoặc LAN IP)
+  const [qrBaseUrl, setQrBaseUrl] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+        return window.location.origin;
+      }
+    }
+    return 'https://knight-metallica-amplifier-mission.trycloudflare.com';
+  });
+
   const [tableQrUrls, setTableQrUrls] = useState<Record<string | number, string>>({});
 
   useEffect(() => {
     let active = true;
-    const currentOrigin = window.location.origin;
     const currentShopId = getAdminShopId() || 1;
+    const effectiveBase = qrBaseUrl.trim().replace(/\/+$/, '') || window.location.origin;
 
     const generateQrs = async () => {
       const newUrls: Record<string | number, string> = {};
       for (const t of tables) {
-        if (t.qrCodeUrl && t.qrCodeUrl.trim() !== '') {
-          newUrls[t.id] = t.qrCodeUrl;
-        } else {
-          const clientUrl = t.qrToken
-            ? `${currentOrigin}/?qr=${t.qrToken}`
-            : `${currentOrigin}/?shopId=${t.shopId || currentShopId}&tableId=${t.id}`;
-          try {
-            const dataUrl = await QRCode.toDataURL(clientUrl, {
-              width: 250,
-              margin: 1,
-              color: { dark: '#000000', light: '#ffffff' },
-            });
-            newUrls[t.id] = dataUrl;
-          } catch (err) {
-            console.error('Error generating QR code for table', t.id, err);
-          }
+        const clientUrl = t.qrToken
+          ? `${effectiveBase}/?qr=${t.qrToken}`
+          : `${effectiveBase}/?shopId=${t.shopId || currentShopId}&tableId=${t.id}`;
+        try {
+          const dataUrl = await QRCode.toDataURL(clientUrl, {
+            width: 320,
+            margin: 1,
+            color: { dark: '#000000', light: '#ffffff' },
+          });
+          newUrls[t.id] = dataUrl;
+        } catch (err) {
+          console.error('Error generating QR code for table', t.id, err);
+          if (t.qrCodeUrl) newUrls[t.id] = t.qrCodeUrl;
         }
       }
       if (active) {
@@ -169,14 +178,11 @@ export const TableManage: React.FC = () => {
     return () => {
       active = false;
     };
-  }, [tables]);
+  }, [tables, qrBaseUrl]);
 
-  // Sinh QR fallback nếu server chưa có ảnh (sử dụng QRCode client-side, không gọi bên thứ ba)
+  // Ưu tiên dùng QR sinh trực tiếp theo qrBaseUrl để điện thoại quét luôn mở đúng domain
   const getQrUrl = (table: RestaurantTable): string => {
-    if (table.qrCodeUrl && table.qrCodeUrl.trim() !== '') {
-      return table.qrCodeUrl;
-    }
-    return tableQrUrls[table.id] || '';
+    return tableQrUrls[table.id] || table.qrCodeUrl || '';
   };
 
   // Thêm bàn mới
@@ -382,6 +388,57 @@ export const TableManage: React.FC = () => {
 
       {/* MAIN CONTENT AREA (Cuộn riêng) */}
       <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
+        {/* Banner chọn Domain quét mã QR cho điện thoại */}
+        <div className="mb-6 p-4 bg-slate-900 text-white rounded-2xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-600/20 text-red-400 flex items-center justify-center shrink-0 border border-red-500/30">
+              <QrCode className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-300">Tên miền mã QR khách quét</span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                  qrBaseUrl.includes('trycloudflare.com')
+                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                    : qrBaseUrl.includes('localhost')
+                    ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                    : 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                }`}>
+                  {qrBaseUrl.includes('trycloudflare.com') ? '🌐 Cloudflare Tunnel (4G/5G/Wi-Fi)' : qrBaseUrl.includes('localhost') ? '💻 Chỉ mở trên máy này' : '📶 Wi-Fi Nội bộ (LAN)'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5 font-mono select-all">
+                {qrBaseUrl}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <span className="text-xs font-semibold text-slate-400 hidden sm:inline">Chuyển miền:</span>
+            <button
+              type="button"
+              onClick={() => setQrBaseUrl('https://knight-metallica-amplifier-mission.trycloudflare.com')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                qrBaseUrl === 'https://knight-metallica-amplifier-mission.trycloudflare.com'
+                  ? 'bg-red-600 text-white shadow-xs'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              }`}
+            >
+              🌐 Cloudflare Tunnel (Quét mọi nơi)
+            </button>
+            <button
+              type="button"
+              onClick={() => setQrBaseUrl('http://172.20.10.9:5173')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                qrBaseUrl === 'http://172.20.10.9:5173'
+                  ? 'bg-red-600 text-white shadow-xs'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              }`}
+            >
+              📶 Wi-Fi LAN
+            </button>
+          </div>
+        </div>
         {isLoading ? (
           <div data-testid="table-loading-spinner" className="flex flex-col items-center justify-center h-64 space-y-3">
             <Loader2 className="w-8 h-8 text-red-600 animate-spin" />
@@ -465,9 +522,15 @@ export const TableManage: React.FC = () => {
 
                   {/* QR Link Preview & Actions */}
                   <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-600 flex items-center justify-between gap-2">
-                    <span className="font-mono text-slate-500 text-xs truncate max-w-[130px]">
-                      ?shopId={table.shopId}&tableId={table.id}
-                    </span>
+                    <a
+                      href={table.qrToken ? `${qrBaseUrl.replace(/\/+$/, '')}/?qr=${table.qrToken}` : `${qrBaseUrl.replace(/\/+$/, '')}/?shopId=${table.shopId}&tableId=${table.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-red-600 hover:underline text-xs truncate max-w-[130px] font-medium"
+                      title="Bấm để mở thử trang gọi món của bàn này"
+                    >
+                      {table.qrToken ? `?qr=${table.qrToken.slice(0, 8)}...` : `?shopId=${table.shopId}&tableId=${table.id}`}
+                    </a>
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         type="button"
