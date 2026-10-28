@@ -14,39 +14,64 @@ export default defineConfig({
   server: {
     port: 5173,
     host: '0.0.0.0',
+    allowedHosts: true,
     proxy: {
       '/app': {
         target: 'http://127.0.0.1:12800',
         changeOrigin: true,
+        headers: {
+          Origin: 'http://localhost:5173',
+        },
       },
       '/system': {
         target: 'http://127.0.0.1:12800',
         changeOrigin: true,
+        headers: {
+          Origin: 'http://localhost:5173',
+        },
       },
       '/product': {
         target: 'http://127.0.0.1:12800',
         changeOrigin: true,
+        headers: {
+          Origin: 'http://localhost:5173',
+        },
       },
       '/restaurant': {
         target: 'http://127.0.0.1:12800',
         changeOrigin: true,
+        headers: {
+          Origin: 'http://localhost:5173',
+        },
       },
       '/order': {
         target: 'http://127.0.0.1:12800',
         changeOrigin: true,
+        headers: {
+          Origin: 'http://localhost:5173',
+        },
       },
       '/file': {
         target: 'http://127.0.0.1:12800',
         changeOrigin: true,
+        headers: {
+          Origin: 'http://localhost:5173',
+        },
       },
       '/dataAnaly': {
         target: 'http://127.0.0.1:12800',
         changeOrigin: true,
+        headers: {
+          Origin: 'http://localhost:5173',
+        },
       },
       '/websocket': {
         target: 'http://127.0.0.1:12800',
         ws: true,
         changeOrigin: true,
+        headers: {
+          Origin: 'http://localhost:5173',
+        },
       },
     },
   },
