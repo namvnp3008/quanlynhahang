@@ -178,7 +178,7 @@ SERVICES=(
     "linmour-gateway:linmour-gateway/target/linmour-gateway.jar"
 )
 
-JVM_OPTS="-Xms128m -Xmx256m"
+JVM_OPTS="-Xms128m -Xmx256m -Dspring.cloud.nacos.discovery.ip=127.0.0.1"
 
 touch .service_pids
 

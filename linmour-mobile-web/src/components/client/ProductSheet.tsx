@@ -208,7 +208,7 @@ export const ProductSheet: React.FC<ProductSheetProps> = ({
         </div>
 
         {/* Scrollable Options List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-5">
+        <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-5" style={{ WebkitOverflowScrolling: 'touch' }}>
           {groups.map((group, groupIndex) => {
             const spec = group.productSpecSort;
             const groupId = spec.id ?? groupIndex;

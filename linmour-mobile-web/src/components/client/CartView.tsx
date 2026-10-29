@@ -82,7 +82,7 @@ export const CartView: React.FC<CartViewProps> = ({
       </header>
 
       {/* Cart Items List (Scrollable) */}
-      <main className="flex-1 overflow-y-auto p-4 space-y-4">
+      <main className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4" style={{ WebkitOverflowScrolling: 'touch' }}>
         {/* Realtime Toast Banner */}
         <div className="bg-green-50 border border-green-200 rounded-2xl p-3 flex items-center gap-2.5 text-xs text-green-800">
           <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0" />

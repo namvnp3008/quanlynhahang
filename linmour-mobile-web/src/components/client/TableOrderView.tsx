@@ -152,7 +152,7 @@ export const TableOrderView: React.FC<TableOrderViewProps> = ({
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-4 space-y-4">
+      <main className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4" style={{ WebkitOverflowScrolling: 'touch' }}>
         {loading && !orderData ? (
           <div data-testid="table-order-loading" className="py-16 text-center space-y-3">
             <RefreshCw className="w-8 h-8 text-red-600 animate-spin mx-auto" />

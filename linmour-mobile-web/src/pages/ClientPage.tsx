@@ -449,7 +449,7 @@ const ClientPageContent: React.FC<ClientPageContentProps> = ({
 
   if (currentView === 'cart') {
     return (
-      <div className="w-full md:max-w-[375px] md:mx-auto min-h-screen bg-white relative flex flex-col shadow-2xl border-x border-slate-200 overflow-x-hidden">
+      <div className="w-full md:max-w-[375px] md:mx-auto min-h-screen min-h-[100dvh] bg-white relative flex flex-col shadow-2xl border-x border-slate-200 overflow-x-clip">
         <CartView
           tableName={tableInfo.name}
           onBack={() => setCurrentView('menu')}
@@ -485,7 +485,7 @@ const ClientPageContent: React.FC<ClientPageContentProps> = ({
 
   if (currentView === 'order') {
     return (
-      <div className="w-full md:max-w-[375px] md:mx-auto min-h-screen bg-slate-50 relative flex flex-col shadow-2xl border-x border-slate-200 overflow-x-hidden">
+      <div className="w-full md:max-w-[375px] md:mx-auto min-h-screen min-h-[100dvh] bg-slate-50 relative flex flex-col shadow-2xl border-x border-slate-200 overflow-x-clip">
         <TableOrderView
           tableId={tableInfo.id}
           shopId={shopInfo.id}
@@ -521,7 +521,7 @@ const ClientPageContent: React.FC<ClientPageContentProps> = ({
 
   if (currentView === 'payment') {
     return (
-      <div className="w-full md:max-w-[375px] md:mx-auto min-h-screen bg-slate-50 relative flex flex-col shadow-2xl border-x border-slate-200 overflow-x-hidden">
+      <div className="w-full md:max-w-[375px] md:mx-auto min-h-screen min-h-[100dvh] bg-slate-50 relative flex flex-col shadow-2xl border-x border-slate-200 overflow-x-clip">
         <PaymentView
           tableName={tableInfo.name}
           shopName={shopInfo.name}
@@ -572,7 +572,7 @@ const ClientPageContent: React.FC<ClientPageContentProps> = ({
 
   if (currentView === 'paid') {
     return (
-      <div className="w-full md:max-w-[375px] md:mx-auto min-h-screen bg-slate-50 relative flex flex-col shadow-2xl border-x border-slate-200 overflow-x-hidden">
+      <div className="w-full md:max-w-[375px] md:mx-auto min-h-screen min-h-[100dvh] bg-slate-50 relative flex flex-col shadow-2xl border-x border-slate-200 overflow-x-clip">
         <ThankYouView
           shopName={paidData?.shopName || shopInfo?.name}
           tableName={paidData?.tableName || tableInfo.name}
@@ -587,7 +587,7 @@ const ClientPageContent: React.FC<ClientPageContentProps> = ({
   }
 
   return (
-    <div className="w-full md:max-w-[375px] md:mx-auto min-h-screen bg-slate-50 relative flex flex-col shadow-2xl border-x border-slate-200 overflow-x-hidden">
+    <div className="w-full md:max-w-[375px] md:mx-auto min-h-screen min-h-[100dvh] bg-slate-50 relative flex flex-col shadow-2xl border-x border-slate-200 overflow-x-clip">
       <ClientHeader
         shopName={shopInfo.name}
         tableName={tableInfo.name}
@@ -1021,7 +1021,7 @@ export const ClientPage: React.FC = () => {
 
   if (pageState === 'loading') {
     return (
-      <div className="w-full md:max-w-[375px] md:mx-auto min-h-screen bg-slate-50 relative flex flex-col items-center justify-center p-6 text-center border-x border-slate-200 overflow-x-hidden">
+      <div className="w-full md:max-w-[375px] md:mx-auto min-h-screen min-h-[100dvh] bg-slate-50 relative flex flex-col items-center justify-center p-6 text-center border-x border-slate-200 overflow-x-clip">
         <Loader2 className="w-8 h-8 text-red-600 animate-spin" />
         <p className="text-xs font-semibold text-slate-500 mt-3">Đang kết nối bàn ăn...</p>
       </div>
