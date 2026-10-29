@@ -136,7 +136,7 @@ export const TableManage: React.FC = () => {
         return window.location.origin;
       }
     }
-    return 'https://plenty-trends-settings-fat.trycloudflare.com';
+    return 'https://dog-studying-lawn-emission.trycloudflare.com';
   });
 
   const [tableQrUrls, setTableQrUrls] = useState<Record<string | number, string>>({});
@@ -417,9 +417,9 @@ export const TableManage: React.FC = () => {
             <span className="text-xs font-semibold text-slate-400 hidden sm:inline">Chuyển miền:</span>
             <button
               type="button"
-              onClick={() => setQrBaseUrl('https://plenty-trends-settings-fat.trycloudflare.com')}
+              onClick={() => setQrBaseUrl('https://dog-studying-lawn-emission.trycloudflare.com')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                qrBaseUrl === 'https://plenty-trends-settings-fat.trycloudflare.com'
+                qrBaseUrl === 'https://dog-studying-lawn-emission.trycloudflare.com'
                   ? 'bg-red-600 text-white shadow-xs'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
