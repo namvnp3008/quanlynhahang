@@ -155,12 +155,12 @@ export const CartView: React.FC<CartViewProps> = ({
                   className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2 relative"
                 >
                   <div className="flex items-center justify-between">
-                    {(recentPeerAdds?.[item.lineId] || item.addedBy) ? (
+                    {recentPeerAdds?.[item.lineId] ? (
                       <span
                         data-testid={`peer-badge-${item.lineId}`}
                         className="text-xs font-bold bg-red-100 text-[#B91C1C] px-2 py-0.5 rounded-full animate-fade-in"
                       >
-                        {recentPeerAdds?.[item.lineId] || item.addedBy} vừa thêm
+                        {recentPeerAdds[item.lineId]} vừa thêm
                       </span>
                     ) : (
                       <span />
