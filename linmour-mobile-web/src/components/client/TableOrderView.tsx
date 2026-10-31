@@ -60,6 +60,11 @@ export const TableOrderView: React.FC<TableOrderViewProps> = ({
     const resolvedShopId = shopId || 1;
     const wsClient = getOrCreateClientWebSocket(resolvedShopId, tableId);
     const unsubscribe = wsClient.subscribe((msg) => {
+      if (msg.type === 'orderEdited') {
+        // OE-5: quán sửa đơn (thêm / xoá / đổi số lượng) → tải lại đơn của bàn
+        fetchOrder(true);
+        return;
+      }
       if (msg.type === 'itemStatus') {
         const { index, status } = msg.data;
         setOrderData((prev) => {
@@ -81,7 +86,7 @@ export const TableOrderView: React.FC<TableOrderViewProps> = ({
     return () => {
       unsubscribe();
     };
-  }, [shopId, tableId]);
+  }, [shopId, tableId, fetchOrder]);
 
   const items: OrderItem[] = useMemo(() => {
     if (!orderData || !Array.isArray(orderData.orderItems)) return [];

@@ -106,6 +106,8 @@ const ClientPageContent: React.FC<ClientPageContentProps> = ({
   // C6 Order placement states
   const [isPlacingOrder, setIsPlacingOrder] = useState<boolean>(false);
   const [otherPlacingOrder, setOtherPlacingOrder] = useState<boolean>(false);
+  // OE-5: tăng mỗi lần nhận orderEdited để PaymentView bỏ mã PayOS cũ
+  const [orderEditedVersion, setOrderEditedVersion] = useState(0);
   const [orderToast, setOrderToast] = useState<{ type: 'success' | 'error' | 'warning'; message: string } | null>(
     payosParam === 'cancel' ? { type: 'warning', message: 'Bạn đã huỷ thanh toán' } : null
   );
@@ -246,6 +248,12 @@ const ClientPageContent: React.FC<ClientPageContentProps> = ({
               // Ignore fallback fetch error
             });
         }
+      } else if (msg.type === 'orderEdited') {
+        // OE-5: quán vừa sửa đơn của bàn → cập nhật tổng tiền, báo màn thanh toán bỏ mã PayOS cũ
+        const newTotal = Number(msg.data?.payAmount);
+        if (!Number.isNaN(newTotal)) setCurrentOrderTotal(newTotal);
+        setOrderEditedVersion((v) => v + 1);
+        setOrderToast({ type: 'warning', message: 'Quán vừa cập nhật đơn của bàn' });
       } else if (msg.type === 'tokenRevoked') {
         setOrderToast({ type: 'error', message: 'Mã QR đã được thay mới, vui lòng quét lại' });
         onTokenRevoked?.();
@@ -530,6 +538,7 @@ const ClientPageContent: React.FC<ClientPageContentProps> = ({
           tableId={tableInfo.id}
           payosEnabled={Boolean(shopInfo.payosEnabled || searchParams.get('payosMock') === '1')}
           cancelBanner={showPayosCancelAlert}
+          orderEditedVersion={orderEditedVersion}
           onDismissCancelBanner={() => setShowPayosCancelAlert(false)}
           onBack={() => setCurrentView('order')}
           onRequestPayment={(method) => {

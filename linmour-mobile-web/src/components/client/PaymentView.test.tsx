@@ -382,4 +382,41 @@ describe('Story C8 & Y4: PaymentView Component', () => {
       expect(screen.getByTestId('payment-waiting-banner')).toBeInTheDocument();
     });
   });
+
+  describe('OE-5: quán sửa đơn khi khách đang mở mã PayOS', () => {
+    it('bỏ mã cũ, báo tổng mới và chỉ tạo mã mới khi khách bấm', async () => {
+      vi.mocked(api.createPayosPaymentLink).mockResolvedValue({
+        orderCode: 111,
+        checkoutUrl: 'https://pay.payos.vn/web/a',
+        qrCode: 'https://img.example/qr-a.png',
+        amount: 145000,
+        expiredAt: Math.floor(Date.now() / 1000) + 900,
+      });
+      const props = { tableName: 'Bàn 03', tableId: 3, payosEnabled: true, onBack: vi.fn(), onRequestPayment: vi.fn() };
+      const { rerender } = render(<PaymentView {...props} totalAmount={145000} orderEditedVersion={0} />);
+      expect(await screen.findByTestId('payos-qr-image')).toBeInTheDocument();
+      expect(api.createPayosPaymentLink).toHaveBeenCalledTimes(1);
+
+      rerender(<PaymentView {...props} totalAmount={100000} orderEditedVersion={1} />);
+
+      const notice = await screen.findByTestId('payos-order-edited-notice');
+      expect(notice).toHaveTextContent('Đơn của bàn vừa được quán cập nhật');
+      expect(notice).toHaveTextContent('100.000');
+      expect(screen.queryByTestId('payos-qr-image')).not.toBeInTheDocument();
+      expect(api.createPayosPaymentLink).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(screen.getByTestId('payos-recreate-after-edit-btn'));
+      await waitFor(() => expect(api.createPayosPaymentLink).toHaveBeenCalledTimes(2));
+      expect(screen.queryByTestId('payos-order-edited-notice')).not.toBeInTheDocument();
+    });
+
+    it('không hiện thông báo khi chưa có mã PayOS', () => {
+      vi.spyOn(vietqrUtil, 'buildVietQrUrl').mockReturnValue(null);
+      const props = { tableName: 'Bàn 03', tableId: 3, onBack: vi.fn(), onRequestPayment: vi.fn() };
+      const { rerender } = render(<PaymentView {...props} totalAmount={145000} orderEditedVersion={0} />);
+      rerender(<PaymentView {...props} totalAmount={100000} orderEditedVersion={1} />);
+      expect(screen.queryByTestId('payos-order-edited-notice')).not.toBeInTheDocument();
+      expect(screen.getByTestId('payment-total-amount')).toHaveTextContent('100.000');
+    });
+  });
 });

@@ -226,4 +226,24 @@ describe('Story C7: TableOrderView Component (mockup c05)', () => {
 
     vi.useRealTimers();
   });
+
+  it('tải lại đơn khi quán sửa đơn (orderEdited – OE-5)', async () => {
+    const spy = vi.spyOn(api, 'getCurrentOrderInfo').mockResolvedValue(mockOrderData);
+    let capturedCallback: ((msg: WsIncomingMessage) => void) | null = null;
+    const mockWs = {
+      subscribe: vi.fn((cb) => {
+        capturedCallback = cb;
+        return vi.fn();
+      }),
+    };
+    vi.spyOn(wsService, 'getOrCreateClientWebSocket').mockReturnValue(mockWs as unknown as wsService.WebSocketClient);
+
+    render(<TableOrderView tableId={3} shopId={1} tableName="Bàn 03" onBackToMenu={vi.fn()} />);
+    await screen.findByTestId('dish-status-waiting-1');
+    const callsBefore = spy.mock.calls.length;
+
+    capturedCallback!({ type: 'orderEdited', data: { tableId: 3, version: 4, payAmount: 100000 } });
+
+    await waitFor(() => expect(spy.mock.calls.length).toBeGreaterThan(callsBefore));
+  });
 });
