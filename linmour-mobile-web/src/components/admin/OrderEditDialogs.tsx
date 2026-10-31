@@ -146,6 +146,19 @@ export const ReduceItemDialog: React.FC<ReduceItemDialogProps> = ({
   );
 };
 
+/** Máy chủ giới hạn pageSize ≤ 100 nên tải lần lượt từng trang tới khi đủ total */
+const PRODUCT_PAGE_SIZE = 100;
+async function loadAllProducts(): Promise<ProductDetailDto[]> {
+  const first = await getProductPage({ pageNo: 1, pageSize: PRODUCT_PAGE_SIZE });
+  const all = [...(first?.list || [])];
+  const pages = Math.ceil((first?.total || 0) / PRODUCT_PAGE_SIZE);
+  for (let pageNo = 2; pageNo <= pages; pageNo++) {
+    const next = await getProductPage({ pageNo, pageSize: PRODUCT_PAGE_SIZE });
+    all.push(...(next?.list || []));
+  }
+  return all;
+}
+
 export interface AddItemSelection {
   productId: number;
   specOptionIds: number[];
@@ -174,9 +187,9 @@ export const AddItemDialog: React.FC<AddItemDialogProps> = ({ tableName, isSubmi
 
   const loadProducts = () => {
     setLoadState('loading');
-    Promise.all([getProductPage({ pageNo: 1, pageSize: 500 }), getAdminProductSort().catch(() => [])])
-      .then(([page, sortList]) => {
-        setProducts(page?.list || []);
+    Promise.all([loadAllProducts(), getAdminProductSort().catch(() => [])])
+      .then(([list, sortList]) => {
+        setProducts(list);
         setSorts(sortList || []);
         setLoadState('ready');
       })

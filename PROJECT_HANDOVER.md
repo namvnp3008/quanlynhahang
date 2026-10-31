@@ -207,6 +207,7 @@ quanlynhahang/
 | Sprint 8 – Báo cáo & nghiệm thu | R1, R2, E2E (H2 / R3) | Báo cáo quán, job tổng hợp + dựng lại thống kê, Playwright |
 | Sau sự cố 22/10 | A-1…A-10, B-1…B-9 | Bỏ dữ liệu giả, sửa thống kê realtime, token hỏng không chặn API khách, doanh thu nền tảng thật… |
 | Sprint 9 – Bảo mật | S9-*, T-1, BUG-* | Chống dò mật khẩu, phiên `jti`, OTP, nhật ký, QR token mờ, vé WS admin, endpoint nội bộ `/internal` |
+| Sửa đơn (`feat/order-edit`) | OE-1…OE-6 | Chủ quán thêm / đổi số lượng / xoá món trong đơn đang mở ở `/admin/orders`; giá tính ở máy chủ, trừ / hoàn kho, lý do bắt buộc với món đang làm / đã lên, huỷ link PayOS chờ, WS `orderEdited`, audit `ORDER_EDIT`. Spec `docs/specs/2026-10-31-admin-sua-don.md` |
 
 ---
 
@@ -224,7 +225,13 @@ quanlynhahang/
 - **QR token mờ theo bàn** (`/?qr=`, `X-Table-Token`, thu hồi khi tạo lại QR);
 - **vé WS admin**.
 
-**Việc nhỏ không chặn**: E2E màn bếp nên chờ WS sẵn sàng trước khi bấm (lần chạy đầu sau khi khởi động đôi khi fail).
+**Việc nhỏ không chặn**:
+- E2E màn bếp nên chờ WS sẵn sàng trước khi bấm (lần chạy đầu sau khi khởi động đôi khi fail).
+- Kịch bản E2E 2, 3, 6 dùng món id 3 và 6, hiện đang ngừng bán trong dữ liệu quán 1 → cần chọn món theo thực đơn như kịch bản 7.
+- `createOrder` cộng `payAmount` theo số tiền máy khách gửi (khách có thể sửa giá qua WS) → nên tính lại giá ở máy chủ bằng `priceQuote`.
+- `CategoryManage` gọi `getProductPage` với `pageSize: 200` nhưng máy chủ giới hạn 100 → danh sách món rỗng.
+- Thêm món không có ảnh lỗi 500 (`product_info.picture` NOT NULL, không có mặc định).
+- Audit `CHECKOUT` dùng `CompletableFuture.runAsync` như `ORDER_EDIT` trước khi sửa → có thể mất bản ghi ngay sau khi khởi động `linmour-order`.
 
 **Nghiệm thu cuối (cần chủ dự án)**:
 1. Kiểm kênh PayOS trên my.payos.vn (lỗi `214` = kênh chưa kích hoạt / tạm dừng), nhập key thật trong `/admin/settings`, bật tunnel, thanh toán thật 1 đơn nhỏ, tắt tunnel.

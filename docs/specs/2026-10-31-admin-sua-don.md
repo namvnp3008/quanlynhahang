@@ -1,6 +1,6 @@
 # Spec: chủ quán sửa đơn đang mở (thêm / sửa số lượng / xoá món)
 
-> Ngày: 31/10/2026 · Trạng thái: **chờ duyệt G1**
+> Ngày: 31/10/2026 · Trạng thái: **đã duyệt G1 (31/10/2026), đã code OE-1…OE-6 trên nhánh `feat/order-edit`**
 > Understanding note + quyết định G0: `.claude/plans/2026-10-31-admin-sua-don-understanding.md`
 > Mockup: `docs/design/mockups/admin/a15-order-edit.html`
 

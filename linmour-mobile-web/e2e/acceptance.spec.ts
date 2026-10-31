@@ -713,3 +713,142 @@ test.describe.serial('Sprint 8 E2E Acceptance Test Suite (Kịch bản 2 -> 3 ->
     await adminContext.close();
   });
 });
+
+// ---------------------------------------------------------------------------
+// KỊCH BẢN 7 – Chủ quán sửa đơn đang mở (OE-6, shop 1, bàn 5)
+// Món lấy từ thực đơn đang bán (không cố định id) để chạy được trên dữ liệu thật của quán.
+// ---------------------------------------------------------------------------
+test.describe('Kịch bản 7 – Chủ quán sửa đơn đang mở (OE-6)', () => {
+  const GATEWAY = 'http://127.0.0.1:12800';
+  type MenuProduct = {
+    id: number;
+    name: string;
+    price: number;
+    status: number;
+    productSortAndOptions?: { productSpecSort: { required?: number } }[];
+  };
+
+  const api = async (method: string, urlPath: string, token: string, body?: unknown) => {
+    const res = await fetch(`${GATEWAY}${urlPath}`, {
+      method,
+      headers: { 'Content-Type': 'application/json', token, Shopid: '1' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    return res.json();
+  };
+
+  const placeOrderOnTable5 = (items: unknown[], amount: number) =>
+    new Promise<void>((resolve, reject) => {
+      const ws = new WebSocket(`${GATEWAY.replace(/^http/, 'ws')}/websocket/shop/1/table/5`);
+      const timer = setTimeout(() => reject(new Error('Hết thời gian đặt món qua WS')), 8000);
+      ws.onopen = () => ws.send(JSON.stringify({ createOrder: true, amount, remark: 'E2E OE-6', orderItem: items }));
+      ws.onmessage = () => {
+        clearTimeout(timer);
+        ws.close();
+        resolve();
+      };
+      ws.onerror = () => reject(new Error('Lỗi WS bàn 5'));
+    });
+
+  test.beforeEach(async () => {
+    await cleanTable5();
+  });
+
+  test.afterEach(async () => {
+    await cleanTable5();
+  });
+
+  test('tăng số lượng, xoá món đã lên có lý do, thêm món; tổng tính lại và khoá thu tiền khi đang sửa', async ({ browser }) => {
+    const loginData = await (
+      await fetch(`${GATEWAY}/system/merchant/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: E2E_MERCHANT_PHONE, password: E2E_MERCHANT_PASSWORD }),
+      })
+    ).json();
+    const token: string = loginData?.data?.token;
+    expect(token).toBeTruthy();
+
+    const menu = await (await fetch(`${GATEWAY}/app/product/product/getProductList`, { headers: { Shopid: '1' } })).json();
+    const onSale: MenuProduct[] = (menu?.data || [])
+      .flatMap((s: { list?: MenuProduct[] }) => s.list || [])
+      .filter((p: MenuProduct) => p.status === 1 && !(p.productSortAndOptions || []).some((g) => g.productSpecSort.required === 1));
+    expect(onSale.length).toBeGreaterThanOrEqual(3);
+    const [p, q, r] = onSale;
+    const vnd = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
+
+    // 1. Khách đặt 2x p + 1x q; bếp đánh dấu q đã lên
+    await placeOrderOnTable5(
+      [
+        { productId: p.id, name: p.name, price: p.price, quantity: 2, propsText: '' },
+        { productId: q.id, name: q.name, price: q.price, quantity: 1, propsText: '' },
+      ],
+      p.price * 2 + q.price
+    );
+    await expect
+      .poll(async () => (await api('GET', '/order/order/openOrders', token)).data?.some((o: { orderInfo: { tableId: number } }) => o.orderInfo.tableId === 5))
+      .toBe(true);
+    expect((await api('POST', '/order/order/setOrderItemStatus/5/1', token, { status: 2 })).code).toBe(200);
+
+    // 2. Admin mở bàn 5, vào chế độ sửa
+    const adminContext = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+    const adminPage = await adminContext.newPage();
+    await adminPage.goto('/admin/login');
+    await adminPage.fill('[data-testid="login-phone-input"]', E2E_MERCHANT_PHONE);
+    await adminPage.fill('[data-testid="login-password-input"]', E2E_MERCHANT_PASSWORD);
+    await adminPage.click('[data-testid="login-submit-btn"]');
+    await expect(adminPage.locator('[data-testid="admin-layout"]')).toBeVisible({ timeout: 10000 });
+    await adminPage.goto('/admin/orders');
+    await adminPage.locator('[data-testid="table-card-5"]').click();
+    await adminPage.click('[data-testid="edit-order-btn"]');
+    await expect(adminPage.locator('[data-testid="edit-item-0"]')).toBeVisible();
+    await expect(adminPage.locator('[data-testid="checkout-button"]')).toBeDisabled();
+
+    // 3. Tăng p 2 → 3
+    await adminPage.click('[data-testid="increase-item-btn-0"]');
+    await expect(adminPage.locator('[data-testid="edit-item-qty-0"]')).toHaveText('3');
+    await expect(adminPage.locator('[data-testid="detail-total-amount"]')).toContainText(vnd(p.price * 3 + q.price));
+
+    // 4. Xoá q (đã lên) – bắt buộc lý do
+    await adminPage.click('[data-testid="remove-item-btn-1"]');
+    const dialog = adminPage.locator('[data-testid="reduce-item-dialog"]');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator('[data-testid="reduce-item-confirm"]')).toBeDisabled();
+    await dialog.getByLabel('Khách đổi ý').check();
+    await dialog.locator('[data-testid="reduce-item-confirm"]').click();
+    await expect(dialog).toBeHidden();
+    await expect(adminPage.locator('[data-testid="edit-item-1"]')).toHaveCount(0);
+    await expect(adminPage.locator('[data-testid="detail-total-amount"]')).toContainText(vnd(p.price * 3));
+
+    // 5. Thêm r x1 qua hộp thoại chọn món
+    await adminPage.click('[data-testid="open-add-item-btn"]');
+    const addDialog = adminPage.locator('[data-testid="add-item-dialog"]');
+    await addDialog.locator('[data-testid="add-item-search"]').fill(r.name);
+    await addDialog.locator(`[data-testid="add-item-product-${r.id}"]`).click();
+    await addDialog.locator('[data-testid="add-item-submit"]').click();
+    await expect(addDialog).toBeHidden();
+    await expect(adminPage.locator('[data-testid="detail-total-amount"]')).toContainText(vnd(p.price * 3 + r.price));
+
+    // 6. Xong → mở khoá nút thu tiền; khách nhận đúng đơn mới (máy chủ là nguồn sự thật)
+    await adminPage.click('[data-testid="finish-edit-order-btn"]');
+    await expect(adminPage.locator('[data-testid="checkout-button"]')).toBeEnabled();
+    const guest = await (await fetch(`${GATEWAY}/app/order/order/GetCurrentOrderInfo/5`, { headers: { Shopid: '1' } })).json();
+    expect(Number(guest.data.orderInfo.payAmount)).toBe(p.price * 3 + r.price);
+    expect(guest.data.orderItems.map((i: { productId: number; quantity: number }) => [i.productId, i.quantity])).toEqual([
+      [p.id, 3],
+      [r.id, 1],
+    ]);
+
+    await adminContext.close();
+
+    // Dọn: xoá các dòng qua API (hoàn kho) để cleanTable5 không ghi doanh thu giả
+    for (;;) {
+      const open = (await api('GET', '/order/order/openOrders', token)).data?.find(
+        (o: { orderInfo: { tableId: number } }) => o.orderInfo.tableId === 5
+      );
+      if (!open || open.orderItems.length === 0) break;
+      await api('DELETE', '/order/order/openOrder/5/items/0', token, { version: open.orderInfo.version, reason: 'Dọn dữ liệu E2E' });
+    }
+    execFileSync('python3', ['-c', "import redis; redis.Redis(host='127.0.0.1', port=6379, db=2).delete('orderInfo:1:5', 'orderItem:1:5')"]);
+  });
+});

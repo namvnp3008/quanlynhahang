@@ -252,6 +252,25 @@ describe('OrderMonitor – sửa đơn đang mở (OE-4)', () => {
     await waitFor(() => expect(screen.queryByTestId('add-item-dialog')).toBeNull());
   });
 
+  it('thêm món: tải thực đơn theo trang 100 món (máy chủ giới hạn pageSize ≤ 100)', async () => {
+    const mk = (id: number) => ({ id, name: `Món ${id}`, price: 10000, status: 1, sortId: 1 });
+    vi.mocked(api.getProductPage).mockImplementation(async (params) =>
+      params?.pageNo === 1
+        ? { list: Array.from({ length: 100 }, (_, i) => mk(i + 1)), total: 130 }
+        : { list: Array.from({ length: 30 }, (_, i) => mk(i + 101)), total: 130 }
+    );
+    vi.mocked(api.getAdminProductSort).mockResolvedValue([]);
+    await enterEditMode();
+
+    fireEvent.click(screen.getByTestId('open-add-item-btn'));
+    const dialog = await screen.findByTestId('add-item-dialog');
+
+    expect(await within(dialog).findByTestId('add-item-product-130')).toBeDefined();
+    expect(api.getProductPage).toHaveBeenCalledWith({ pageNo: 1, pageSize: 100 });
+    expect(api.getProductPage).toHaveBeenCalledWith({ pageNo: 2, pageSize: 100 });
+    expect(api.getProductPage).toHaveBeenCalledTimes(2);
+  });
+
   it('nhận WS orderEdited thì tải lại đơn', async () => {
     render(<OrderMonitor />);
     await screen.findByTestId('edit-order-btn');
