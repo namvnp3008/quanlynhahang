@@ -45,4 +45,11 @@ public interface PayosPaymentService {
      * @return Kết quả đối soát
      */
     Result recheckTransaction(Long shopId, Long orderCode);
+
+    /**
+     * OE-2: Huỷ mọi link PayOS PENDING của bàn khi chủ quán sửa đơn (tổng tiền đổi)
+     *
+     * @return true nếu có ít nhất 1 link được huỷ trên cổng PayOS
+     */
+    boolean cancelPendingLinksForTable(Long shopId, Long tableId);
 }

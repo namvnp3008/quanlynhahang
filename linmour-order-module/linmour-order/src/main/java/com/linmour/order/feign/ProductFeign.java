@@ -1,5 +1,6 @@
 package com.linmour.order.feign;
 
+import com.linmour.product.pojo.Dto.PriceQuoteDto;
 import com.linmour.product.pojo.Dto.ReduceInventoryDto;
 import com.linmour.security.dtos.Result;
 import com.linmour.order.feign.fallback.ProductFeignFallback;
@@ -18,4 +19,10 @@ public interface ProductFeign {
 
     @PostMapping("/product/inventory/reduceInventories")
     Result reduceInventories(@RequestBody List<ReduceInventoryDto> list);
+
+    @PostMapping("/product/inventory/internal/restoreInventories")
+    Result restoreInventories(@RequestBody List<ReduceInventoryDto> list);
+
+    @PostMapping("/product/product/internal/priceQuote")
+    Result priceQuote(@RequestBody PriceQuoteDto dto);
 }

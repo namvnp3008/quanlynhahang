@@ -1,5 +1,13 @@
 package com.linmour.order.service;
 
+import static org.mockito.ArgumentMatchers.anyLong;
+
+import com.alibaba.fastjson.JSONObject;
+
+import java.util.Collections;
+
+import java.util.Arrays;
+
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.linmour.order.constants.OrderConstant;
@@ -1056,5 +1064,35 @@ public class PayosPaymentServiceTest {
         // P-8: Nhờ khoá Redisson, PayOS client chỉ được gọi tạo link đúng 1 lần duy nhất!
         verify(payosClient, times(1)).createPaymentLink(anyLong(), anyLong(), anyString(), anyString(), anyString(), anyLong(), any());
         assertEquals(1, dbTxs.size());
+    }
+
+    // ===== OE-2: huỷ link PENDING khi chủ quán sửa đơn =====
+    @Test
+    public void testCancelPendingLinksForTable_NoPending_ReturnsFalse() {
+        when(payosTransactionMapper.selectList(any())).thenReturn(Collections.emptyList());
+
+        assertFalse(payosPaymentService.cancelPendingLinksForTable(1L, 5L));
+        verify(payosClient, never()).cancelPaymentLink(anyLong(), anyString(), any());
+    }
+
+    @Test
+    public void testCancelPendingLinksForTable_CancelsAndMarksCancelled() {
+        PayosConfigDto config = PayosConfigDto.builder().enabled(true).clientId("c").apiKey("a").checksumKey("k").build();
+        when(systemFeign.getPayosConfig(1L)).thenReturn(Result.success(config));
+        PayosTransaction ok = new PayosTransaction();
+        ok.setOrderCode(111L);
+        ok.setStatus("PENDING");
+        PayosTransaction failed = new PayosTransaction();
+        failed.setOrderCode(222L);
+        failed.setStatus("PENDING");
+        when(payosTransactionMapper.selectList(any())).thenReturn(Arrays.asList(ok, failed));
+        when(payosClient.cancelPaymentLink(eq(111L), anyString(), eq(config))).thenReturn(new JSONObject());
+        when(payosClient.cancelPaymentLink(eq(222L), anyString(), eq(config))).thenThrow(new RuntimeException("timeout"));
+
+        assertTrue(payosPaymentService.cancelPendingLinksForTable(1L, 5L));
+        assertEquals("CANCELLED", ok.getStatus());
+        assertEquals("PENDING", failed.getStatus());
+        verify(payosTransactionMapper, times(1)).updateById(ok);
+        verify(redisCache).deleteObject("payos:table:1:5");
     }
 }

@@ -635,4 +635,56 @@ public class PayosPaymentServiceImpl implements PayosPaymentService {
             log.warn("Lỗi khi cập nhật trạng thái Redis cho orderCode {}: {}", orderCode, e.getMessage());
         }
     }
+
+    @Override
+    public boolean cancelPendingLinksForTable(Long shopId, Long tableId) {
+        if (shopId == null || tableId == null) {
+            return false;
+        }
+        RLock lock = redissonClient != null ? redissonClient.getLock("lock:payos:create:" + shopId + ":" + tableId) : null;
+        if (lock != null) {
+            lock.lock();
+        }
+        try {
+            List<PayosTransaction> pendingTxs = payosTransactionMapper.selectList(
+                    new LambdaQueryWrapper<PayosTransaction>()
+                            .eq(PayosTransaction::getShopId, shopId)
+                            .eq(PayosTransaction::getTableId, tableId)
+                            .eq(PayosTransaction::getStatus, "PENDING")
+            );
+            if (pendingTxs == null || pendingTxs.isEmpty()) {
+                return false;
+            }
+            Result<PayosConfigDto> configRes = systemFeign.getPayosConfig(shopId);
+            PayosConfigDto config = configRes != null ? configRes.getData() : null;
+            if (config == null) {
+                log.warn("Không lấy được cấu hình PayOS của quán {} để huỷ link khi sửa đơn bàn {}", shopId, tableId);
+                return false;
+            }
+            boolean cancelledAny = false;
+            for (PayosTransaction tx : pendingTxs) {
+                JSONObject cancelResult = null;
+                try {
+                    cancelResult = payosClient.cancelPaymentLink(tx.getOrderCode(), "Đơn hàng đã thay đổi", config);
+                } catch (Exception e) {
+                    log.warn("Lỗi gọi API hủy link PayOS cho orderCode {}: {}", tx.getOrderCode(), e.getMessage());
+                }
+                // Giống P-6: huỷ thất bại thì GIỮ PENDING, nếu khách vẫn trả theo link cũ sẽ thành PAID_MISMATCH
+                if (cancelResult != null) {
+                    tx.setStatus("CANCELLED");
+                    payosTransactionMapper.updateById(tx);
+                    updateRedisTransactionStatus(tx.getOrderCode(), "CANCELLED");
+                    cancelledAny = true;
+                }
+            }
+            if (cancelledAny) {
+                redisCache.deleteObject("payos:table:" + shopId + ":" + tableId);
+            }
+            return cancelledAny;
+        } finally {
+            if (lock != null && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+    }
 }

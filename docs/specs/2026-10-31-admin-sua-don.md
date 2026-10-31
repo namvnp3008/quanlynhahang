@@ -46,8 +46,8 @@ Lúc khách đổi ý, gọi nhầm, món lỗi hay hết món, chủ quán / th
 ## 5. Dữ liệu
 - Không đổi schema MySQL.
 - Redis `ORDERINFO:<shop>:<table>` thêm field `version` (số nguyên, tăng mỗi lần `createOrder` hoặc sửa). Đơn cũ chưa có field coi như `0`.
-- `OrderItem` thêm field (chỉ trong Redis, không lưu DB) `specOptionIds: Long[]` cho dòng admin thêm, để server tính giá.
-- Mọi thao tác chạy trong khoá Redisson `lock:checkout:<shop>:<table>` (dùng chung với checkout và `createOrder`).
+- `OrderInfo` có thêm `version` (`@TableField(exist = false)`, chỉ trong Redis) để `openOrders` trả về cho admin.
+- Mọi thao tác giữ 2 khoá Redisson theo thứ tự: `lock:order:<shop>:<table>` (dùng chung với đặt món qua WS) rồi `lock:checkout:<shop>:<table>` (dùng chung với thanh toán / webhook).
 
 ## 6. API (linmour-order, admin, cần JWT + `Shopid` thuộc merchant)
 Các API trả về `OrderAllDto` mới (orderInfo + orderItems) khi thành công.

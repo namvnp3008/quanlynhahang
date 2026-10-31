@@ -168,6 +168,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         result1.setData(seatOrderDto);
 //            producerMq.orderCreationCompleted(result1);
         redisCache.setCacheList(orderItemKey, orderItems);
+        // OE-2: tăng phiên bản đơn để màn sửa đơn của chủ quán phát hiện khách vừa đặt thêm
+        Object prevVersion = redisCache.getHashValue(orderInfoKey, "version");
+        long nextVersion = 1L;
+        try {
+            nextVersion = (prevVersion != null ? Long.parseLong(prevVersion.toString().trim()) : 0L) + 1L;
+        } catch (NumberFormatException ignored) {}
+        redisCache.setHashValue(orderInfoKey, "version", nextVersion);
 
         return result1;
 
