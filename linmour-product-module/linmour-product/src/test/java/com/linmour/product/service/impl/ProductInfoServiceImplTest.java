@@ -30,6 +30,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
@@ -300,5 +301,93 @@ public class ProductInfoServiceImplTest {
             assertEquals(400, e.getCode());
             assertTrue(e.getMessage().contains("quán ăn"));
         }
+    }
+
+    // ===== OE-1: priceQuote =====
+    private ProductInfo quoteProduct(Integer status) {
+        return ProductInfo.builder().id(7L).shopId(1L).name("Phở Bò").price(new BigDecimal("50000")).status(status).sortId(3L).build();
+    }
+
+    private ProductSpecSort group(Long id, String name, String type, int required) {
+        ProductSpecSort g = new ProductSpecSort();
+        g.setId(id);
+        g.setName(name);
+        g.setProductId(7L);
+        g.setSelectType(type);
+        g.setRequired(required);
+        return g;
+    }
+
+    private ProductSpecOption option(Long id, Long groupId, String name, String price) {
+        ProductSpecOption o = new ProductSpecOption();
+        o.setId(id);
+        o.setSpecSortId(groupId);
+        o.setName(name);
+        o.setPrice(price);
+        return o;
+    }
+
+    @Test
+    public void testPriceQuote_SumsOptionPricesFromDb() {
+        when(productInfoMapper.selectById(7L)).thenReturn(quoteProduct(1));
+        when(productSpecSortMapper.selectList(any(LambdaQueryWrapper.class)))
+                .thenReturn(Arrays.asList(group(1L, "Cỡ", "single", 1), group(2L, "Thêm", "multi", 0)));
+        when(productSpecOptionMapper.selectBatchIds(anyList()))
+                .thenReturn(new ArrayList<>(Arrays.asList(option(21L, 2L, "Trứng chần", "5000"), option(11L, 1L, "Tô lớn", "15000"))));
+
+        Result result = productInfoService.priceQuote(new PriceQuoteDto(1L, 7L, Arrays.asList(21L, 11L)));
+
+        assertEquals(200, result.getCode().intValue());
+        PriceQuoteVo vo = (PriceQuoteVo) result.getData();
+        assertEquals(0, new BigDecimal("70000").compareTo(vo.getPrice()));
+        assertEquals("Tô lớn, Trứng chần", vo.getPropsText());
+        assertEquals("Phở Bò", vo.getName());
+    }
+
+    @Test
+    public void testPriceQuote_RejectsOtherShopProduct() {
+        when(productInfoMapper.selectById(7L)).thenReturn(quoteProduct(1));
+        Result result = productInfoService.priceQuote(new PriceQuoteDto(2L, 7L, null));
+        assertEquals(404, result.getCode().intValue());
+    }
+
+    @Test
+    public void testPriceQuote_RejectsOffSaleProduct() {
+        when(productInfoMapper.selectById(7L)).thenReturn(quoteProduct(0));
+        Result result = productInfoService.priceQuote(new PriceQuoteDto(1L, 7L, null));
+        assertEquals(400, result.getCode().intValue());
+        assertTrue(result.getMsg().contains("ngừng bán"));
+    }
+
+    @Test
+    public void testPriceQuote_RejectsMissingRequiredGroup() {
+        when(productInfoMapper.selectById(7L)).thenReturn(quoteProduct(1));
+        when(productSpecSortMapper.selectList(any(LambdaQueryWrapper.class)))
+                .thenReturn(Collections.singletonList(group(1L, "Cỡ", "single", 1)));
+        Result result = productInfoService.priceQuote(new PriceQuoteDto(1L, 7L, Collections.emptyList()));
+        assertEquals(400, result.getCode().intValue());
+        assertEquals("Vui lòng chọn Cỡ", result.getMsg());
+    }
+
+    @Test
+    public void testPriceQuote_RejectsOptionOfAnotherProduct() {
+        when(productInfoMapper.selectById(7L)).thenReturn(quoteProduct(1));
+        when(productSpecSortMapper.selectList(any(LambdaQueryWrapper.class)))
+                .thenReturn(Collections.singletonList(group(1L, "Cỡ", "single", 0)));
+        when(productSpecOptionMapper.selectBatchIds(anyList()))
+                .thenReturn(new ArrayList<>(Collections.singletonList(option(99L, 55L, "Lạ", "1"))));
+        Result result = productInfoService.priceQuote(new PriceQuoteDto(1L, 7L, Collections.singletonList(99L)));
+        assertEquals(400, result.getCode().intValue());
+    }
+
+    @Test
+    public void testPriceQuote_RejectsTwoOptionsInSingleGroup() {
+        when(productInfoMapper.selectById(7L)).thenReturn(quoteProduct(1));
+        when(productSpecSortMapper.selectList(any(LambdaQueryWrapper.class)))
+                .thenReturn(Collections.singletonList(group(1L, "Cỡ", "single", 0)));
+        when(productSpecOptionMapper.selectBatchIds(anyList()))
+                .thenReturn(new ArrayList<>(Arrays.asList(option(11L, 1L, "Nhỏ", "0"), option(12L, 1L, "Lớn", "10000"))));
+        Result result = productInfoService.priceQuote(new PriceQuoteDto(1L, 7L, Arrays.asList(11L, 12L)));
+        assertEquals(400, result.getCode().intValue());
     }
 }

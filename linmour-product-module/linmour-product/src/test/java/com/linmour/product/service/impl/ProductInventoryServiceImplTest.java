@@ -365,4 +365,36 @@ public class ProductInventoryServiceImplTest {
             SecurityUtils.clearAll();
         }
     }
+
+    // OE-1: hoàn kho cộng lại định mức × số lượng, khoá theo kho
+    @Test
+    public void testRestoreInventories_AddsBackQuotaTimesQuantity() {
+        RProductInventoty recipe = new RProductInventoty();
+        recipe.setProductId(1L);
+        recipe.setInventoryId(10L);
+        recipe.setNum(100);
+        when(rProductInventotyMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(Collections.singletonList(recipe));
+        ProductInventory inv = new ProductInventory();
+        inv.setId(10L);
+        inv.setNum(50);
+        when(productInventoryMapper.selectBatchIds(anyList())).thenReturn(Collections.singletonList(inv));
+
+        Result result = productInventoryService.restoreInventories(Arrays.asList(new ReduceInventoryDto(1L, 2), new ReduceInventoryDto(1L, 1)));
+
+        assertEquals(200, result.getCode().intValue());
+        ArgumentCaptor<ProductInventory> captor = ArgumentCaptor.forClass(ProductInventory.class);
+        verify(productInventoryMapper).updateById(captor.capture());
+        assertEquals(Integer.valueOf(350), captor.getValue().getNum());
+        verify(redissonClient).getLock("lock:inventory:10");
+        verify(mockLock).unlock();
+        verify(productInfoMapper, never()).updateById(any(ProductInfo.class));
+    }
+
+    @Test
+    public void testRestoreInventories_IgnoresInvalidQuantity() {
+        Result result = productInventoryService.restoreInventories(Arrays.asList(new ReduceInventoryDto(1L, 0), new ReduceInventoryDto(null, 2)));
+        assertEquals(200, result.getCode().intValue());
+        verify(rProductInventotyMapper, never()).selectList(any(LambdaQueryWrapper.class));
+        verify(productInventoryMapper, never()).updateById(any(ProductInventory.class));
+    }
 }

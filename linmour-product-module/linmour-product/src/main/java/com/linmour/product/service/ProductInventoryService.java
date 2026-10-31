@@ -27,4 +27,6 @@ public interface ProductInventoryService extends IService<ProductInventory> {
     void updateInventory(ProductInventory productInventory);
 
     Result reduceInventories(List<ReduceInventoryDto> list);
+
+    Result restoreInventories(List<ReduceInventoryDto> list);
 }

@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -364,6 +365,85 @@ public class ProductInfoServiceImpl extends ServiceImpl<ProductInfoMapper, Produ
 
         });
         return sorts;
+    }
+
+    /**
+     * OE-1: Báo giá một món kèm tuỳ chọn, chỉ dùng dữ liệu DB:
+     * - món phải thuộc quán, chưa xoá, đang bán (status = 1)
+     * - mỗi tuỳ chọn phải thuộc một nhóm của chính món đó
+     * - nhóm bắt buộc phải chọn ít nhất 1, nhóm "single" chọn tối đa 1
+     * - đơn giá = giá món + Σ giá tuỳ chọn; propsText ghép tên tuỳ chọn theo thứ tự nhóm
+     */
+    @Override
+    public Result priceQuote(PriceQuoteDto dto) {
+        if (dto == null || dto.getProductId() == null || dto.getShopId() == null) {
+            return Result.error(400, "Thiếu thông tin món");
+        }
+        ProductInfo product = productInfoMapper.selectById(dto.getProductId());
+        if (product == null || !dto.getShopId().equals(product.getShopId())
+                || (product.getDeleted() != null && product.getDeleted() == 1)) {
+            return Result.error(404, "Không tìm thấy món");
+        }
+        if (product.getStatus() == null || product.getStatus() != 1) {
+            return Result.error(400, "Món " + product.getName() + " đang ngừng bán");
+        }
+
+        List<ProductSpecSort> groups = productSpecSortMapper.selectList(
+                new LambdaQueryWrapper<ProductSpecSort>().eq(ProductSpecSort::getProductId, product.getId()));
+        Map<Long, ProductSpecSort> groupMap = new HashMap<>();
+        if (groups != null) {
+            for (ProductSpecSort g : groups) {
+                if (g.getDeleted() == null || g.getDeleted() != 1) {
+                    groupMap.put(g.getId(), g);
+                }
+            }
+        }
+
+        List<Long> optionIds = dto.getSpecOptionIds() != null
+                ? dto.getSpecOptionIds().stream().filter(java.util.Objects::nonNull).distinct().collect(Collectors.toList())
+                : new ArrayList<>();
+        List<ProductSpecOption> options = optionIds.isEmpty() ? new ArrayList<>() : productSpecOptionMapper.selectBatchIds(optionIds);
+        if (options == null || options.size() != optionIds.size()) {
+            return Result.error(400, "Tuỳ chọn món không hợp lệ");
+        }
+        Map<Long, Integer> selectedPerGroup = new HashMap<>();
+        BigDecimal unitPrice = product.getPrice() != null ? product.getPrice() : BigDecimal.ZERO;
+        for (ProductSpecOption opt : options) {
+            if ((opt.getDeleted() != null && opt.getDeleted() == 1) || !groupMap.containsKey(opt.getSpecSortId())) {
+                return Result.error(400, "Tuỳ chọn món không hợp lệ");
+            }
+            selectedPerGroup.merge(opt.getSpecSortId(), 1, Integer::sum);
+            try {
+                if (StringUtils.isNotBlank(opt.getPrice())) {
+                    unitPrice = unitPrice.add(new BigDecimal(opt.getPrice().trim()));
+                }
+            } catch (NumberFormatException e) {
+                return Result.error(400, "Giá tuỳ chọn không hợp lệ");
+            }
+        }
+        for (ProductSpecSort g : groupMap.values()) {
+            int count = selectedPerGroup.getOrDefault(g.getId(), 0);
+            if (g.getRequired() != null && g.getRequired() == 1 && count == 0) {
+                return Result.error(400, "Vui lòng chọn " + g.getName());
+            }
+            if ("single".equals(g.getSelectType()) && count > 1) {
+                return Result.error(400, "Nhóm " + g.getName() + " chỉ được chọn 1");
+            }
+        }
+
+        options.sort(java.util.Comparator.comparing(ProductSpecOption::getSpecSortId).thenComparing(ProductSpecOption::getId));
+        String propsText = options.stream().map(o -> o.getName() != null ? o.getName().trim() : "")
+                .filter(StringUtils::isNotBlank).collect(Collectors.joining(", "));
+
+        return Result.success(PriceQuoteVo.builder()
+                .productId(product.getId())
+                .name(product.getName())
+                .sortId(product.getSortId())
+                .picture(product.getPicture())
+                .price(unitPrice)
+                .propsText(propsText)
+                .specOptionIds(options.stream().map(ProductSpecOption::getId).collect(Collectors.toList()))
+                .build());
     }
 
     @Override
