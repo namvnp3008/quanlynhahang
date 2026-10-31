@@ -328,11 +328,18 @@ public class OrderEditServiceImpl implements OrderEditService {
                     .detail(detail)
                     .result("SUCCESS")
                     .build();
+            // Luồng ForkJoinPool không có classloader của Spring Boot (fat jar): lần đầu khởi tạo Feign client
+            // trên luồng đó sẽ lỗi "Could not find class ...OnPropertyCondition", nên chuyển classloader của request sang
+            ClassLoader requestClassLoader = Thread.currentThread().getContextClassLoader();
             CompletableFuture.runAsync(() -> {
+                ClassLoader previous = Thread.currentThread().getContextClassLoader();
+                Thread.currentThread().setContextClassLoader(requestClassLoader);
                 try {
                     systemFeign.recordInternalAudit(auditDto);
                 } catch (Exception err) {
                     log.error("Lỗi gửi audit log ORDER_EDIT qua Feign: {}", err.getMessage());
+                } finally {
+                    Thread.currentThread().setContextClassLoader(previous);
                 }
             });
         } catch (Exception auditEx) {
