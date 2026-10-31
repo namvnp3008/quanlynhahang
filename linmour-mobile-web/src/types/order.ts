@@ -22,6 +22,23 @@ export interface OrderInfo {
   remark?: string;
   createTime?: string;
   shopId?: number;
+  version?: number; // OE-2: phiên bản đơn đang mở, gửi kèm khi chủ quán sửa đơn
+}
+
+/** OE-2: Yêu cầu chủ quán sửa đơn đang mở */
+export interface OrderEditRequest {
+  version: number;
+  productId?: number;
+  specOptionIds?: number[];
+  quantity?: number;
+  reason?: string;
+}
+
+/** OE-2: Đơn đang mở sau khi sửa */
+export interface OrderEditResult {
+  orderInfo: OrderInfo;
+  orderItems: OrderItem[];
+  payosCancelled?: boolean;
 }
 
 export interface CreateOrderDto {

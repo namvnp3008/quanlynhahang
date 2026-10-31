@@ -9,7 +9,13 @@ import {
   adminCheckout,
   getAdminShopId,
   getShopByIds,
+  addOpenOrderItem,
+  updateOpenOrderItemQuantity,
+  removeOpenOrderItem,
+  ApiError,
 } from '../../services/api';
+import { OrderEditResult } from '../../types/order';
+import { AddItemDialog, AddItemSelection, ReduceItemDialog } from './OrderEditDialogs';
 import { getOrCreateAdminWebSocket, WebSocketClient } from '../../services/websocket';
 import { WsIncomingMessage, WsNewOrderData, WsPayosMismatchData } from '../../types/websocket';
 import { formatVND } from '../../utils/currency';
@@ -27,6 +33,10 @@ import {
   CreditCard,
   Banknote,
   AlertTriangle,
+  Pencil,
+  Trash2,
+  Plus,
+  Minus,
 } from 'lucide-react';
 
 /**
@@ -136,6 +146,12 @@ export const OrderMonitor: React.FC = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedPayType, setSelectedPayType] = useState<number>(4); // 4 = Cash, 1 = VietQR
   const [isSubmittingCheckout, setIsSubmittingCheckout] = useState(false);
+
+  // OE-4: Sửa đơn đang mở
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [savingKey, setSavingKey] = useState<number | 'add' | null>(null);
+  const [reduceTarget, setReduceTarget] = useState<{ index: number; item: OrderItem; newQuantity: number | null } | null>(null);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   // Shop info for 80mm thermal receipt printing (PR-1)
   const [shopInfo, setShopInfo] = useState<{ name: string; position?: string; phone?: string }>({
@@ -299,6 +315,9 @@ export const OrderMonitor: React.FC = () => {
       } else if (msg.type === 'itemStatus') {
         // An item status changed
         refreshData(true);
+      } else if (msg.type === 'orderEdited') {
+        // OE-3: đơn của bàn vừa được sửa (tab / máy khác)
+        refreshData(true);
       }
     });
 
@@ -382,6 +401,102 @@ export const OrderMonitor: React.FC = () => {
   }, [tablesWithStatus, selectedTableId]);
 
   const selectedOrder = selectedTable?.order || null;
+
+  // OE-4: đổi bàn hoặc bàn hết đơn thì thoát chế độ sửa
+  useEffect(() => {
+    setIsEditMode(false);
+    setReduceTarget(null);
+    setIsAddDialogOpen(false);
+  }, [selectedTableId]);
+
+  useEffect(() => {
+    if (isEditMode && !selectedOrder) setIsEditMode(false);
+  }, [isEditMode, selectedOrder]);
+
+  const applyEditResult = (result: OrderEditResult) => {
+    setOpenOrders((prev) =>
+      prev.map((ord) =>
+        String(ord.orderInfo?.tableId) === String(selectedTableId)
+          ? { ...ord, orderInfo: result.orderInfo, orderItems: result.orderItems || [] }
+          : ord
+      )
+    );
+  };
+
+  const PAYOS_CANCELLED_NOTE = 'Đã huỷ mã PayOS cũ của bàn vì tổng tiền thay đổi.';
+
+  const runOrderEdit = async (
+    key: number | 'add',
+    action: (version: number) => Promise<OrderEditResult>,
+    successMessage?: string
+  ) => {
+    if (!selectedTableId || !selectedOrder) return false;
+    setSavingKey(key);
+    try {
+      const result = await action(Number(selectedOrder.orderInfo?.version ?? 0));
+      applyEditResult(result);
+      const parts = [successMessage, result.payosCancelled ? PAYOS_CANCELLED_NOTE : undefined].filter(Boolean);
+      if (parts.length > 0) setFeedbackToast(parts.join(' '));
+      return true;
+    } catch (err) {
+      const code = err instanceof ApiError ? err.code : 0;
+      if (code === 409) {
+        setFeedbackToast('Đơn vừa thay đổi (khách gọi thêm món), đã tải lại. Vui lòng thao tác lại.');
+      } else if (code === 404) {
+        setFeedbackToast('Bàn này không còn đơn đang mở (đã thanh toán).');
+        setIsEditMode(false);
+      } else {
+        setFeedbackToast(err instanceof Error && err.message ? err.message : 'Lỗi sửa đơn, vui lòng thử lại');
+      }
+      refreshData(true);
+      return false;
+    } finally {
+      setSavingKey(null);
+    }
+  };
+
+  // Món đang làm (1) hoặc đã lên (2) thì giảm / xoá phải chọn lý do
+  const itemNeedsReason = (item: OrderItem) => item.status === 1 || item.status === 2;
+
+  const handleChangeQuantity = (index: number, item: OrderItem, nextQuantity: number) => {
+    if (!selectedTableId) return;
+    const current = item.quantity || 1;
+    if (nextQuantity < 1) {
+      setReduceTarget({ index, item, newQuantity: null });
+      return;
+    }
+    if (nextQuantity < current && itemNeedsReason(item)) {
+      setReduceTarget({ index, item, newQuantity: nextQuantity });
+      return;
+    }
+    runOrderEdit(index, (version) =>
+      updateOpenOrderItemQuantity(selectedTableId, index, { version, quantity: nextQuantity })
+    );
+  };
+
+  const handleConfirmReduce = async (reason?: string) => {
+    if (!selectedTableId || !reduceTarget) return;
+    const { index, newQuantity, item } = reduceTarget;
+    await runOrderEdit(
+      index,
+      (version) =>
+        newQuantity === null
+          ? removeOpenOrderItem(selectedTableId, index, { version, reason })
+          : updateOpenOrderItemQuantity(selectedTableId, index, { version, quantity: newQuantity, reason }),
+      newQuantity === null ? `Đã xoá ${item.name} khỏi đơn.` : `Đã giảm ${item.name}.`
+    );
+    setReduceTarget(null);
+  };
+
+  const handleAddItem = async (selection: AddItemSelection) => {
+    if (!selectedTableId) return;
+    const ok = await runOrderEdit(
+      'add',
+      (version) => addOpenOrderItem(selectedTableId, { version, ...selection }),
+      'Đã thêm món vào đơn.'
+    );
+    if (ok) setIsAddDialogOpen(false);
+  };
 
   // Toggle order item status: 0/1 (Chờ lên) <-> 2 (Đã lên)
   const handleToggleItemStatus = async (index: number, currentStatus?: number) => {
@@ -793,12 +908,16 @@ export const OrderMonitor: React.FC = () => {
           ) : (
             <>
               {/* Detail Header */}
-              <div className="p-4 border-b border-slate-100 bg-slate-50/70 flex-shrink-0">
+              <div
+                className={`p-4 border-b flex-shrink-0 ${
+                  isEditMode ? 'border-blue-100 bg-blue-50' : 'border-slate-100 bg-slate-50/70'
+                }`}
+              >
                 <div className="flex items-center justify-between">
                   <div className="min-w-0 pr-2">
                     <div className="flex items-center gap-2">
                       <h2 className="text-lg font-bold text-slate-900 truncate">
-                        Chi Tiết {selectedTable.name || `Bàn ${selectedTable.id}`}
+                        {isEditMode ? 'Sửa đơn –' : 'Chi Tiết'} {selectedTable.name || `Bàn ${selectedTable.id}`}
                       </h2>
                       <span
                         className={`text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0 ${
@@ -816,8 +935,10 @@ export const OrderMonitor: React.FC = () => {
                           : 'Bàn trống'}
                       </span>
                     </div>
-                    <div className="text-xs text-slate-500 mt-0.5 truncate">
-                      {selectedOrder?.orderInfo ? (
+                    <div className={`text-xs mt-0.5 truncate ${isEditMode ? 'text-blue-700' : 'text-slate-500'}`}>
+                      {isEditMode ? (
+                        'Mỗi thay đổi được lưu ngay, bếp và khách thấy liền.'
+                      ) : selectedOrder?.orderInfo ? (
                         <>
                           Mã đơn: <strong>#ORD-{selectedOrder.orderInfo.id}</strong> •{' '}
                           {formatTime(selectedOrder.orderInfo.createTime)}
@@ -827,6 +948,30 @@ export const OrderMonitor: React.FC = () => {
                       )}
                     </div>
                   </div>
+
+                  {/* OE-4: Sửa đơn / Xong */}
+                  {selectedOrder && (
+                    <button
+                      type="button"
+                      data-testid={isEditMode ? 'finish-edit-order-btn' : 'edit-order-btn'}
+                      onClick={() => setIsEditMode((v) => !v)}
+                      disabled={savingKey !== null}
+                      className={`shrink-0 min-h-[44px] px-3 rounded-xl text-xs font-bold flex items-center gap-1.5 transition disabled:opacity-50 ${
+                        isEditMode
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white px-4'
+                          : 'border border-slate-300 bg-white hover:bg-slate-100 text-slate-700'
+                      }`}
+                    >
+                      {isEditMode ? (
+                        'Xong'
+                      ) : (
+                        <>
+                          <Pencil className="w-3.5 h-3.5" />
+                          <span>Sửa đơn</span>
+                        </>
+                      )}
+                    </button>
+                  )}
 
                   {/* More Actions Dropdown Menu (•••) */}
                   <div className="relative shrink-0">
@@ -867,8 +1012,76 @@ export const OrderMonitor: React.FC = () => {
 
                 {!selectedOrder || !selectedOrder.orderItems || selectedOrder.orderItems.length === 0 ? (
                   <div className="py-12 text-center text-xs text-slate-400">
-                    Bàn hiện đang trống. Sẵn sàng đón khách.
+                    {selectedOrder ? 'Đơn chưa có món nào.' : 'Bàn hiện đang trống. Sẵn sàng đón khách.'}
                   </div>
+                ) : isEditMode ? (
+                  selectedOrder.orderItems.map((item: OrderItem, idx: number) => {
+                    const qty = item.quantity || 1;
+                    const isSaving = savingKey === idx;
+                    const busy = savingKey !== null;
+                    const statusText =
+                      item.status === 2 ? 'Đã lên – giảm/xoá cần lý do' : item.status === 1 ? 'Đang làm – giảm/xoá cần lý do' : 'Chờ làm';
+                    return (
+                      <div
+                        key={`edit-${item.id || idx}-${item.productId}`}
+                        data-testid={`edit-item-${idx}`}
+                        className={`p-3 rounded-xl border border-slate-200 bg-white ${isSaving ? 'opacity-60' : ''}`}
+                      >
+                        <div className="flex justify-between gap-2">
+                          <div className="min-w-0">
+                            <div className="font-bold text-sm text-slate-900 truncate">{item.name}</div>
+                            <div className="text-xs text-slate-500">
+                              {item.propsText ? `${item.propsText} · ` : ''}
+                              {formatVnd(item.price)} / phần ·{' '}
+                              <span className={item.status === 2 ? 'text-[#15803D]' : 'text-[#C2410C]'}>{statusText}</span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            data-testid={`remove-item-btn-${idx}`}
+                            aria-label={`Xoá ${item.name}`}
+                            disabled={busy}
+                            onClick={() => setReduceTarget({ index: idx, item, newQuantity: null })}
+                            className="w-11 h-11 shrink-0 rounded-xl border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 flex items-center justify-center disabled:opacity-40"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              data-testid={`decrease-item-btn-${idx}`}
+                              aria-label={`Giảm 1 ${item.name}`}
+                              disabled={busy}
+                              onClick={() => handleChangeQuantity(idx, item, qty - 1)}
+                              className="w-11 h-11 rounded-xl border border-slate-300 font-bold flex items-center justify-center disabled:opacity-40"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </button>
+                            <span data-testid={`edit-item-qty-${idx}`} className="w-8 text-center font-bold">
+                              {qty}
+                            </span>
+                            <button
+                              type="button"
+                              data-testid={`increase-item-btn-${idx}`}
+                              aria-label={`Tăng 1 ${item.name}`}
+                              disabled={busy || qty >= 99}
+                              onClick={() => handleChangeQuantity(idx, item, qty + 1)}
+                              className="w-11 h-11 rounded-xl border border-slate-300 font-bold flex items-center justify-center disabled:opacity-40"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </div>
+                          {isSaving ? (
+                            <span className="text-xs text-slate-500">Đang lưu…</span>
+                          ) : (
+                            <span className="text-sm font-bold text-red-600">{formatVnd(Number(item.price) * qty)}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
                 ) : (
                   selectedOrder.orderItems.map((item: OrderItem, idx: number) => {
                     const isServed = item.status === 2;
@@ -930,12 +1143,26 @@ export const OrderMonitor: React.FC = () => {
                     );
                   })
                 )}
+
+                {isEditMode && selectedOrder && (
+                  <button
+                    type="button"
+                    data-testid="open-add-item-btn"
+                    disabled={savingKey !== null}
+                    onClick={() => setIsAddDialogOpen(true)}
+                    className="w-full min-h-[44px] rounded-xl border-2 border-dashed border-blue-300 text-blue-700 text-sm font-bold bg-blue-50/50 hover:bg-blue-50 disabled:opacity-50"
+                  >
+                    + Thêm món
+                  </button>
+                )}
               </div>
 
               {/* Footer Actions & Total */}
               <div className="p-4 border-t border-slate-200 bg-slate-50 flex-shrink-0 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-500">Tổng tiền bàn cần thu:</span>
+                  <span className="text-xs font-medium text-slate-500">
+                    {isEditMode ? 'Tổng tiền (tính lại ở máy chủ):' : 'Tổng tiền bàn cần thu:'}
+                  </span>
                   <span
                     data-testid="detail-total-amount"
                     className="text-xl font-extrabold text-red-600"
@@ -962,11 +1189,17 @@ export const OrderMonitor: React.FC = () => {
                     type="button"
                     data-testid="checkout-button"
                     onClick={() => setIsPaymentModalOpen(true)}
-                    disabled={!selectedOrder}
+                    disabled={!selectedOrder || isEditMode || Number(selectedOrder?.orderInfo?.payAmount || 0) <= 0}
                     className="col-span-2 min-h-[44px] py-2.5 px-4 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 active:scale-95"
                   >
-                    <Check className="w-4 h-4 shrink-0" />
-                    <span className="whitespace-nowrap">Xác Nhận Đã Thu Tiền</span>
+                    {isEditMode ? (
+                      <span className="whitespace-nowrap">Bấm "Xong" để thu tiền</span>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4 shrink-0" />
+                        <span className="whitespace-nowrap">Xác Nhận Đã Thu Tiền</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -1117,6 +1350,31 @@ export const OrderMonitor: React.FC = () => {
             ✕
           </button>
         </div>
+      )}
+
+      {/* OE-4: Hộp thoại giảm / xoá món và thêm món */}
+      {reduceTarget && (
+        <ReduceItemDialog
+          title={
+            reduceTarget.newQuantity === null
+              ? `Xoá ${reduceTarget.item.quantity || 1}x ${reduceTarget.item.name} khỏi đơn?`
+              : `Giảm ${reduceTarget.item.name} từ ${reduceTarget.item.quantity || 1} xuống ${reduceTarget.newQuantity}?`
+          }
+          needsReason={itemNeedsReason(reduceTarget.item)}
+          statusLabel={reduceTarget.item.status === 2 ? 'đã lên' : 'đang làm'}
+          confirmLabel={reduceTarget.newQuantity === null ? 'Xoá món' : 'Giảm số lượng'}
+          isSubmitting={savingKey !== null}
+          onCancel={() => setReduceTarget(null)}
+          onConfirm={handleConfirmReduce}
+        />
+      )}
+      {isAddDialogOpen && selectedTable && (
+        <AddItemDialog
+          tableName={selectedTable.name || `Bàn ${selectedTable.id}`}
+          isSubmitting={savingKey === 'add'}
+          onClose={() => setIsAddDialogOpen(false)}
+          onSubmit={handleAddItem}
+        />
       )}
 
       {/* 5. Payment Modal (Modal 1: Xác Nhận Thu Tiền) */}

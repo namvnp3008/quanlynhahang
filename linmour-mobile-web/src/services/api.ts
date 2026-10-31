@@ -13,6 +13,8 @@ import {
   OrderItem,
   OrderAllDto,
   CurrentOrderInfoDto,
+  OrderEditRequest,
+  OrderEditResult,
   PayosTransactionDto,
   PayosTransactionStatus,
 } from '../types/order';
@@ -39,6 +41,8 @@ export type {
   CurrentOrderInfoDto,
   OrderInfo,
   OrderItem,
+  OrderEditRequest,
+  OrderEditResult,
   RestaurantTable,
   CreateTableDto,
   AppShopInfo,
@@ -785,6 +789,35 @@ export async function adminSetOrderItemStatus(
     { status },
     { scope: 'admin' }
   );
+}
+
+/**
+ * OE-2: Chủ quán thêm món vào đơn đang mở của bàn (giá do máy chủ tính)
+ */
+export async function addOpenOrderItem(tableId: string | number, req: OrderEditRequest): Promise<OrderEditResult> {
+  return request<OrderEditResult>('POST', `/order/order/openOrder/${tableId}/items`, req, { scope: 'admin' });
+}
+
+/**
+ * OE-2: Chủ quán đổi số lượng một dòng món (theo vị trí trong đơn)
+ */
+export async function updateOpenOrderItemQuantity(
+  tableId: string | number,
+  index: number,
+  req: OrderEditRequest
+): Promise<OrderEditResult> {
+  return request<OrderEditResult>('PUT', `/order/order/openOrder/${tableId}/items/${index}`, req, { scope: 'admin' });
+}
+
+/**
+ * OE-2: Chủ quán xoá một dòng món khỏi đơn đang mở
+ */
+export async function removeOpenOrderItem(
+  tableId: string | number,
+  index: number,
+  req: OrderEditRequest
+): Promise<OrderEditResult> {
+  return request<OrderEditResult>('DELETE', `/order/order/openOrder/${tableId}/items/${index}`, req, { scope: 'admin' });
 }
 
 /**

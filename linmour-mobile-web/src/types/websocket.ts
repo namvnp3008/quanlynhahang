@@ -81,6 +81,15 @@ export interface WsItemStatusData {
   tableId?: number | string;
 }
 
+/** OE-3: chủ quán vừa sửa đơn đang mở của bàn */
+export interface WsOrderEditedData {
+  tableId: number | string;
+  orderId?: string;
+  version?: number;
+  payAmount?: number | string;
+  payosCancelled?: boolean;
+}
+
 export interface WsPayosMismatchData {
   tableId: number | string;
   orderCode?: number | string;
@@ -128,6 +137,7 @@ export type WsIncomingMessage =
   | { type: 'paid'; data: WsPaidData | unknown }
   | { type: 'payosMismatch'; data: WsPayosMismatchData }
   | { type: 'itemStatus'; data: WsItemStatusData }
+  | { type: 'orderEdited'; data: WsOrderEditedData }
   | { type: 'tokenRevoked'; message?: string; raw?: unknown }
   | { type: 'permissionDenied'; message?: string; raw?: unknown }
   | { type: 'unknown'; raw: unknown };
