@@ -123,6 +123,9 @@ export const KitchenDisplay: React.FC = () => {
       if (msg.type === 'newOrder') {
         if (soundEnabled) playKitchenChime();
         loadData(true);
+      } else if (msg.type === 'orderEdited') {
+        // OE-5: chủ quán sửa đơn → vị trí món thay đổi, tải lại toàn bộ
+        loadData(true);
       } else if (msg.type === 'itemStatus') {
         const itemData = msg.data as {
           tableId?: string | number;

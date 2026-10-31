@@ -27,6 +27,8 @@ export interface PaymentViewProps {
   payosEnabled?: boolean;
   cancelBanner?: boolean;
   onDismissCancelBanner?: () => void;
+  /** OE-5: tăng khi quán sửa đơn của bàn; mã PayOS đang hiện sẽ bị bỏ */
+  orderEditedVersion?: number;
   initialMethod?: 'payos' | 'vietqr' | 'cash';
   onBack: () => void;
   onRequestPayment: (method: 'payos' | 'vietqr' | 'cash') => void;
@@ -41,6 +43,7 @@ export const PaymentView: React.FC<PaymentViewProps> = ({
   payosEnabled = false,
   cancelBanner = false,
   onDismissCancelBanner,
+  orderEditedVersion = 0,
   initialMethod,
   onBack,
   onRequestPayment,
@@ -165,6 +168,19 @@ export const PaymentView: React.FC<PaymentViewProps> = ({
     }
   }, [tableId]);
 
+  // OE-5: quán sửa đơn → mã PayOS cũ đã bị huỷ, chờ khách bấm tạo mã mới
+  const [orderEditedNotice, setOrderEditedNotice] = useState(false);
+  const lastEditedVersionRef = useRef(orderEditedVersion);
+  useEffect(() => {
+    if (orderEditedVersion === lastEditedVersionRef.current) return;
+    lastEditedVersionRef.current = orderEditedVersion;
+    if (payosData) {
+      setPayosData(null);
+      setIsExpired(false);
+      setOrderEditedNotice(true);
+    }
+  }, [orderEditedVersion, payosData]);
+
   // Automatically request PayOS link when PayOS method is active and no data yet
   useEffect(() => {
     if (
@@ -277,6 +293,30 @@ export const PaymentView: React.FC<PaymentViewProps> = ({
                 ✕
               </button>
             )}
+          </div>
+        )}
+
+        {orderEditedNotice && (
+          <div
+            data-testid="payos-order-edited-notice"
+            className="bg-white border border-slate-200 rounded-2xl p-4 text-center space-y-3"
+          >
+            <div className="font-bold text-slate-900">Đơn của bàn vừa được quán cập nhật</div>
+            <div className="text-sm text-slate-600">
+              Tổng mới: <strong className="text-red-600">{formatVND(totalAmount)}</strong>. Mã QR cũ đã hết hiệu lực.
+            </div>
+            <button
+              type="button"
+              data-testid="payos-recreate-after-edit-btn"
+              onClick={() => {
+                setOrderEditedNotice(false);
+                setMethod('payos');
+                handleCreatePayosLink();
+              }}
+              className="w-full min-h-[44px] rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm"
+            >
+              Tạo mã QR mới
+            </button>
           </div>
         )}
 

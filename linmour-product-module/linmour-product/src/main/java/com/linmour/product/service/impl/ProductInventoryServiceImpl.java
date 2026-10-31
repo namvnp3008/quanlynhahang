@@ -276,4 +276,68 @@ public class ProductInventoryServiceImpl extends ServiceImpl<ProductInventoryMap
             }
         }
     }
+
+    /**
+     * OE-1: Hoàn kho khi chủ quán giảm / xoá món trong đơn đang mở:
+     * - Nhận [{productId, quantity}], cộng lại định mức × quantity
+     * - Cùng khoá Redisson theo kho với reduceInventories, trong 1 transaction
+     * - Không tự mở bán lại món đã bị hạ kệ (chủ quán tự bật lại)
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result restoreInventories(List<ReduceInventoryDto> list) {
+        if (list == null || list.isEmpty()) {
+            return Result.success();
+        }
+        Map<Long, Integer> productQtyMap = new HashMap<>();
+        for (ReduceInventoryDto item : list) {
+            if (item != null && item.getProductId() != null && item.getQuantity() != null && item.getQuantity() > 0) {
+                productQtyMap.merge(item.getProductId(), item.getQuantity(), Integer::sum);
+            }
+        }
+        if (productQtyMap.isEmpty()) {
+            return Result.success();
+        }
+
+        List<RProductInventoty> rels = rProductInventotyMapper.selectList(
+                new LambdaQueryWrapper<RProductInventoty>().in(RProductInventoty::getProductId, new ArrayList<>(productQtyMap.keySet()))
+        );
+        if (rels == null || rels.isEmpty()) {
+            return Result.success();
+        }
+
+        Map<Long, Integer> inventoryReturnMap = new HashMap<>();
+        for (RProductInventoty rel : rels) {
+            int quota = (rel.getNum() != null && rel.getNum() > 0) ? rel.getNum() : 1;
+            int qty = productQtyMap.getOrDefault(rel.getProductId(), 0);
+            if (qty > 0) {
+                inventoryReturnMap.merge(rel.getInventoryId(), quota * qty, Integer::sum);
+            }
+        }
+        List<Long> sortedInvIds = inventoryReturnMap.keySet().stream().sorted().collect(Collectors.toList());
+
+        List<RLock> acquiredLocks = new ArrayList<>();
+        try {
+            for (Long invId : sortedInvIds) {
+                RLock lock = redissonClient.getLock("lock:inventory:" + invId);
+                lock.lock();
+                acquiredLocks.add(lock);
+            }
+            List<ProductInventory> inventories = productInventoryMapper.selectBatchIds(sortedInvIds);
+            if (inventories != null) {
+                for (ProductInventory inv : inventories) {
+                    int current = inv.getNum() != null ? inv.getNum() : 0;
+                    inv.setNum(current + inventoryReturnMap.get(inv.getId()));
+                    productInventoryMapper.updateById(inv);
+                }
+            }
+            return Result.success();
+        } finally {
+            for (int i = acquiredLocks.size() - 1; i >= 0; i--) {
+                try {
+                    acquiredLocks.get(i).unlock();
+                } catch (Exception ignored) {}
+            }
+        }
+    }
 }

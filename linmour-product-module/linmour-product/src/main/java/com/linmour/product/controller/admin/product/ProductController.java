@@ -2,8 +2,10 @@ package com.linmour.product.controller.admin.product;
 
 import com.linmour.security.dtos.Result;
 import com.linmour.product.pojo.Dto.AddProductDto;
+import com.linmour.product.pojo.Dto.PriceQuoteDto;
 import com.linmour.product.pojo.Dto.ProductInfoPageDto;
 import com.linmour.product.service.ProductInfoService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -17,6 +19,9 @@ public class ProductController {
 
     @Resource
     private ProductInfoService productInfoService;
+
+    @Value("${security.internal-token:}")
+    private String internalToken;
 
     @GetMapping("/getProductPage")
     public Result getProductPage(@Valid ProductInfoPageDto dto) {
@@ -40,6 +45,19 @@ public class ProductController {
     public Result getProductDetails(@RequestParam("productIds") List<Long> productIds) {
         productIds.removeIf(id -> id == 0);
         return Result.success(productInfoService.getProductDetails(productIds));
+    }
+
+    /**
+     * OE-1: Báo giá món + tuỳ chọn (chỉ gọi nội bộ từ linmour-order, gateway chặn /internal/**)
+     */
+    @PostMapping("/internal/priceQuote")
+    public Result priceQuote(@RequestBody PriceQuoteDto dto,
+                             @RequestHeader(value = "X-Internal-Token", required = false) String token) {
+        String configuredToken = internalToken != null ? internalToken.trim() : "";
+        if (configuredToken.isEmpty() || token == null || !configuredToken.equals(token.trim())) {
+            return Result.error(403, "Từ chối truy cập nội bộ");
+        }
+        return productInfoService.priceQuote(dto);
     }
 
     @PostMapping("/saveOrUpdateProduct")

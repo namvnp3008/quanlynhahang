@@ -116,6 +116,12 @@ public class OrderInfo implements Serializable {
 //    @Column(value = "deleted")
     private Integer deleted;
 
+    /**
+     * OE-2: Phiên bản đơn đang mở (chỉ trong Redis), tăng mỗi lần khách đặt thêm hoặc chủ quán sửa đơn
+     */
+    @TableField(exist = false)
+    private Long version;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

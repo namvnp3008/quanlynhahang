@@ -5,6 +5,7 @@ import com.linmour.product.pojo.Dto.ProductInventoryAllDto;
 import com.linmour.product.pojo.Dto.ReduceInventoryDto;
 import com.linmour.product.service.ProductInventoryService;
 import com.linmour.security.dtos.Result;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -17,6 +18,9 @@ public class InventoryController {
 
     @Resource
     private ProductInventoryService productInventoryService;
+
+    @Value("${security.internal-token:}")
+    private String internalToken;
 
     @GetMapping("/getProductInventory")
     public Result getProductPage(@Valid ProductInventoryAllDto dto) {
@@ -51,5 +55,18 @@ public class InventoryController {
     @PostMapping("/reduceInventories")
     public Result reduceInventories(@RequestBody List<ReduceInventoryDto> list) {
         return productInventoryService.reduceInventories(list);
+    }
+
+    /**
+     * OE-1: Hoàn kho (chỉ gọi nội bộ từ linmour-order, gateway chặn /internal/**)
+     */
+    @PostMapping("/internal/restoreInventories")
+    public Result restoreInventories(@RequestBody List<ReduceInventoryDto> list,
+                                     @RequestHeader(value = "X-Internal-Token", required = false) String token) {
+        String configuredToken = internalToken != null ? internalToken.trim() : "";
+        if (configuredToken.isEmpty() || token == null || !configuredToken.equals(token.trim())) {
+            return Result.error(403, "Từ chối truy cập nội bộ");
+        }
+        return productInventoryService.restoreInventories(list);
     }
 }

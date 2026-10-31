@@ -4,6 +4,7 @@ import {
   WsOutgoingPayload,
   WsNewOrderData,
   WsPayosMismatchData,
+  WsOrderEditedData,
 } from '../types/websocket';
 import { OrderItem } from '../types/order';
 import {
@@ -170,6 +171,14 @@ export function parseWsMessage(raw: unknown, isPendingSync = false, isPendingOrd
         type: 'payosMismatch',
         data: (parsed as { data: WsPayosMismatchData }).data,
       };
+    }
+
+    // OE-3: chủ quán sửa đơn đang mở
+    if ((parsed as { msg?: string }).msg === 'orderEdited') {
+      const data = (parsed as { data?: WsOrderEditedData }).data;
+      if (data && data.tableId !== undefined && data.tableId !== null) {
+        return { type: 'orderEdited', data };
+      }
     }
 
     // Item status notification (Q3 / F1)

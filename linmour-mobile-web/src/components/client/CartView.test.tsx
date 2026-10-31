@@ -1,8 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { CartView } from './CartView';
-import { CartProvider } from '../../context/CartContext';
+import { CartProvider, useCart } from '../../context/CartContext';
 import { CartLine } from '../../types/websocket';
+import { setDeviceId } from '../../utils/deviceIdentity';
 
 describe('Story C4: CartView Component', () => {
   const sampleItems: CartLine[] = [
@@ -55,7 +56,8 @@ describe('Story C4: CartView Component', () => {
 
     expect(screen.getByText('Giỏ Hàng Bàn 03')).toBeInTheDocument();
     expect(screen.getByText('Phở Bò Tái Nạm')).toBeInTheDocument();
-    expect(screen.getByText('Khách 2 vừa thêm')).toBeInTheDocument();
+    // Stored addedBy alone is not a recent peer add: no badge
+    expect(screen.queryByTestId('peer-badge-line-1')).toBeNull();
     expect(screen.getByText('Bún Chả Hà Nội')).toBeInTheDocument();
 
     // Total: 72.000 + 50.000 = 122.000 đ
@@ -73,6 +75,36 @@ describe('Story C4: CartView Component', () => {
     fireEvent.click(decBtn);
 
     expect(screen.queryByText('Bún Chả Hà Nội')).toBeNull();
+  });
+
+  it('shows peer badge only for 3 seconds after a peer add (C5)', () => {
+    vi.useFakeTimers();
+    setDeviceId('my-device');
+    let pushPeerCart: (items: CartLine[]) => void = () => {};
+    const PeerFeed = () => {
+      const { setCart } = useCart();
+      pushPeerCart = (items) => setCart(items, 'peer');
+      return null;
+    };
+
+    render(
+      <CartProvider initialState={{ items: [sampleItems[1]], remark: '' }}>
+        <PeerFeed />
+        <CartView tableName="Bàn 03" onBack={vi.fn()} />
+      </CartProvider>
+    );
+
+    act(() => {
+      pushPeerCart([{ ...sampleItems[0], deviceId: 'peer-device' }, sampleItems[1]]);
+    });
+    expect(screen.getByTestId('peer-badge-line-1')).toHaveTextContent('Khách 2 vừa thêm');
+    expect(screen.queryByTestId('peer-badge-line-2')).toBeNull();
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+    expect(screen.queryByTestId('peer-badge-line-1')).toBeNull();
+    vi.useRealTimers();
   });
 
   it('removes item directly when clicking remove X button', () => {

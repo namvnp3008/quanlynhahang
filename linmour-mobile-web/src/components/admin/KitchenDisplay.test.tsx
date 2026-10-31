@@ -300,6 +300,20 @@ describe('Story F4: KitchenDisplay Component (mockup a06-kitchen)', () => {
     });
   });
 
+  it('re-fetches open orders when the owner edits an order (orderEdited – OE-5)', async () => {
+    const getOpenOrdersSpy = vi.spyOn(api, 'getOpenOrders');
+    render(
+      <MemoryRouter>
+        <KitchenDisplay />
+      </MemoryRouter>
+    );
+    await waitFor(() => expect(getOpenOrdersSpy).toHaveBeenCalledTimes(1));
+
+    wsListeners.forEach((listener) => listener({ type: 'orderEdited', data: { tableId: 5, version: 4 } }));
+
+    await waitFor(() => expect(getOpenOrdersSpy).toHaveBeenCalledTimes(2));
+  });
+
   it('handles realtime WebSocket event itemStatus and updates item status in place', async () => {
     render(
       <MemoryRouter>

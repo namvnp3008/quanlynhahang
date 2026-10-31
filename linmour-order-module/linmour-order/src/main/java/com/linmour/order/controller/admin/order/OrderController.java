@@ -2,7 +2,9 @@ package com.linmour.order.controller.admin.order;
 
 import com.linmour.order.pojo.Dto.CheckoutDto;
 import com.linmour.order.pojo.Dto.OrderInfoPage;
+import com.linmour.order.pojo.Dto.OrderEditReqDto;
 import com.linmour.order.pojo.Dto.OrderInfoDto;
+import com.linmour.order.service.OrderEditService;
 import com.linmour.order.service.OrderInfoService;
 import com.linmour.order.service.PayosPaymentService;
 import com.linmour.security.dtos.Result;
@@ -23,6 +25,9 @@ public class OrderController {
     @Resource
     private PayosPaymentService payosPaymentService;
 
+    @Resource
+    private OrderEditService orderEditService;
+
     @GetMapping("/openOrders")
     public Result openOrders() {
         return Result.success(orderInfoService.getOpenOrders());
@@ -31,6 +36,30 @@ public class OrderController {
     @PostMapping("/checkout")
     public Result checkout(@RequestBody CheckoutDto checkoutDto) {
         return orderInfoService.checkout(checkoutDto);
+    }
+
+    /**
+     * OE-2: Chủ quán thêm món vào đơn đang mở của bàn
+     */
+    @PostMapping("/openOrder/{tableId}/items")
+    public Result addOpenOrderItem(@PathVariable Long tableId, @RequestBody OrderEditReqDto req) {
+        return orderEditService.addItem(tableId, req);
+    }
+
+    /**
+     * OE-2: Chủ quán đổi số lượng một dòng món (theo vị trí trong đơn)
+     */
+    @PutMapping("/openOrder/{tableId}/items/{index}")
+    public Result updateOpenOrderItem(@PathVariable Long tableId, @PathVariable int index, @RequestBody OrderEditReqDto req) {
+        return orderEditService.updateItemQuantity(tableId, index, req);
+    }
+
+    /**
+     * OE-2: Chủ quán xoá một dòng món khỏi đơn đang mở
+     */
+    @DeleteMapping("/openOrder/{tableId}/items/{index}")
+    public Result removeOpenOrderItem(@PathVariable Long tableId, @PathVariable int index, @RequestBody OrderEditReqDto req) {
+        return orderEditService.removeItem(tableId, index, req);
     }
 
     @PostMapping("/updateOrderItemStatus/{tableId}/{index}")

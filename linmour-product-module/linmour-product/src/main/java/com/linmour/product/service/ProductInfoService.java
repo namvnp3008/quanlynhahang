@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.linmour.product.pojo.Dto.AddProductDto;
 import com.linmour.product.pojo.Dto.AppProductSort;
 import com.linmour.product.pojo.Dto.ProductDetailDto;
+import com.linmour.product.pojo.Dto.PriceQuoteDto;
 import com.linmour.product.pojo.Dto.ProductInfoPageDto;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,4 +34,6 @@ public interface ProductInfoService extends IService<ProductInfo> {
     List<AppProductSort> getProductList();
 
     void deletedProduct(Long id);
+
+    Result priceQuote(PriceQuoteDto dto);
 }
