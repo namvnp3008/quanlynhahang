@@ -99,10 +99,12 @@ export const TableManage: React.FC = () => {
       const activeIds = new Set<string | number>();
       if (Array.isArray(openOrders)) {
         openOrders.forEach((o) => {
-          if (o.tableId !== undefined && o.tableId !== null) {
-            activeIds.add(o.tableId);
-            activeIds.add(String(o.tableId));
-            activeIds.add(Number(o.tableId));
+          // API trả về { orderInfo, orderItems }: tableId nằm trong orderInfo
+          const tableId = o.orderInfo?.tableId ?? o.tableId;
+          if (tableId !== undefined && tableId !== null) {
+            activeIds.add(tableId);
+            activeIds.add(String(tableId));
+            activeIds.add(Number(tableId));
           }
         });
       }

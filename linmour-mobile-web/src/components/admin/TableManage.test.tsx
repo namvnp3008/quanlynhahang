@@ -12,15 +12,22 @@ describe('Story A6: TableManage Component (mockup a10)', () => {
     { id: 4, name: 'Bàn 04', shopId: 1, qrCodeUrl: 'http://cdn/qr4.png' },
   ];
 
-  const mockOpenOrders = [
-    { orderId: 'ord-1', tableId: 1, payAmount: 150000 },
-    { orderId: 'ord-2', tableId: 3, payAmount: 85000 },
+  // Đúng dạng API /order/order/openOrders trả về: { orderInfo, orderItems }
+  const mockOpenOrders: api.OrderAllDto[] = [
+    {
+      orderInfo: { id: 'ord-1', tableId: 1, payAmount: 150000, orderStatus: 0, payStatus: 0, payType: 0 },
+      orderItems: [],
+    },
+    {
+      orderInfo: { id: 'ord-2', tableId: '3', payAmount: 85000, orderStatus: 0, payStatus: 0, payType: 0 },
+      orderItems: [],
+    },
   ];
 
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(api, 'getTables').mockResolvedValue([...mockTables]);
-    vi.spyOn(api, 'getOpenOrders').mockResolvedValue(mockOpenOrders as unknown as api.OrderAllDto[]);
+    vi.spyOn(api, 'getOpenOrders').mockResolvedValue(mockOpenOrders);
     vi.spyOn(api, 'getShopList').mockResolvedValue({
       list: [{ id: 1, name: 'Nhà Hàng Bếp Việt' } as Shop],
       total: 1,
