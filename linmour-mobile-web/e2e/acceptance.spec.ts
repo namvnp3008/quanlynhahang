@@ -785,9 +785,16 @@ test.describe('Kịch bản 7 – Chủ quán sửa đơn đang mở (OE-6)', ()
       ],
       p.price * 2 + q.price
     );
+    // createOrder writes orderInfo before the item list (after the inventory Feign call),
+    // so wait for both lines, not just for the order to appear
     await expect
-      .poll(async () => (await api('GET', '/order/order/openOrders', token)).data?.some((o: { orderInfo: { tableId: number } }) => o.orderInfo.tableId === 5))
-      .toBe(true);
+      .poll(async () => {
+        const open = (await api('GET', '/order/order/openOrders', token)).data?.find(
+          (o: { orderInfo: { tableId: number } }) => o.orderInfo.tableId === 5
+        );
+        return open?.orderItems?.length ?? 0;
+      })
+      .toBe(2);
     expect((await api('POST', '/order/order/setOrderItemStatus/5/1', token, { status: 2 })).code).toBe(200);
 
     // 2. Admin mở bàn 5, vào chế độ sửa
