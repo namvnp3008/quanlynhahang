@@ -46,6 +46,7 @@ dist/
 # Local tooling
 .claude/
 .vscode/
+.codegraph/
 
 # Secrets
 .secrets/
