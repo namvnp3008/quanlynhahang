@@ -414,13 +414,17 @@ export const OrderMonitor: React.FC = () => {
   }, [isEditMode, selectedOrder]);
 
   const applyEditResult = (result: OrderEditResult) => {
-    setOpenOrders((prev) =>
-      prev.map((ord) =>
+    setOpenOrders((prev) => {
+      const exists = prev.some((ord) => String(ord.orderInfo?.tableId) === String(selectedTableId));
+      if (!exists) {
+        return [...prev, { orderInfo: result.orderInfo, orderItems: result.orderItems || [] }];
+      }
+      return prev.map((ord) =>
         String(ord.orderInfo?.tableId) === String(selectedTableId)
           ? { ...ord, orderInfo: result.orderInfo, orderItems: result.orderItems || [] }
           : ord
-      )
-    );
+      );
+    });
   };
 
   const PAYOS_CANCELLED_NOTE = 'Đã huỷ mã PayOS cũ của bàn vì tổng tiền thay đổi.';
@@ -430,10 +434,11 @@ export const OrderMonitor: React.FC = () => {
     action: (version: number) => Promise<OrderEditResult>,
     successMessage?: string
   ) => {
-    if (!selectedTableId || !selectedOrder) return false;
+    if (!selectedTableId) return false;
+    const opening = !selectedOrder;
     setSavingKey(key);
     try {
-      const result = await action(Number(selectedOrder.orderInfo?.version ?? 0));
+      const result = await action(opening ? 0 : Number(selectedOrder.orderInfo?.version ?? 0));
       applyEditResult(result);
       const parts = [successMessage, result.payosCancelled ? PAYOS_CANCELLED_NOTE : undefined].filter(Boolean);
       if (parts.length > 0) setFeedbackToast(parts.join(' '));
@@ -441,7 +446,11 @@ export const OrderMonitor: React.FC = () => {
     } catch (err) {
       const code = err instanceof ApiError ? err.code : 0;
       if (code === 409) {
-        setFeedbackToast('Đơn vừa thay đổi (khách gọi thêm món), đã tải lại. Vui lòng thao tác lại.');
+        setFeedbackToast(
+          opening
+            ? 'Bàn vừa có đơn (khách vừa đặt món), đã tải lại. Vui lòng thao tác lại.'
+            : 'Đơn vừa thay đổi (khách gọi thêm món), đã tải lại. Vui lòng thao tác lại.'
+        );
       } else if (code === 404) {
         setFeedbackToast('Bàn này không còn đơn đang mở (đã thanh toán).');
         setIsEditMode(false);
@@ -490,12 +499,16 @@ export const OrderMonitor: React.FC = () => {
 
   const handleAddItem = async (selection: AddItemSelection) => {
     if (!selectedTableId) return;
+    const opening = !selectedOrder;
     const ok = await runOrderEdit(
       'add',
       (version) => addOpenOrderItem(selectedTableId, { version, ...selection }),
-      'Đã thêm món vào đơn.'
+      opening ? 'Đã mở đơn cho bàn.' : 'Đã thêm món vào đơn.'
     );
-    if (ok) setIsAddDialogOpen(false);
+    if (ok) {
+      setIsAddDialogOpen(false);
+      if (opening) setIsEditMode(true);
+    }
   };
 
   // Toggle order item status: 0/1 (Chờ lên) <-> 2 (Đã lên)
@@ -948,6 +961,20 @@ export const OrderMonitor: React.FC = () => {
                       )}
                     </div>
                   </div>
+
+                  {/* AO-3: Mở đơn cho bàn trống */}
+                  {!selectedOrder && (
+                    <button
+                      type="button"
+                      data-testid="open-order-btn"
+                      onClick={() => setIsAddDialogOpen(true)}
+                      disabled={savingKey !== null}
+                      className="shrink-0 min-h-[44px] px-3 rounded-xl text-xs font-bold flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white transition disabled:opacity-50"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                      <span>Mở đơn</span>
+                    </button>
+                  )}
 
                   {/* OE-4: Sửa đơn / Xong */}
                   {selectedOrder && (
