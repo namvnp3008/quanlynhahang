@@ -969,10 +969,9 @@ export const OrderMonitor: React.FC = () => {
                       data-testid="open-order-btn"
                       onClick={() => setIsAddDialogOpen(true)}
                       disabled={savingKey !== null}
-                      className="shrink-0 min-h-[44px] px-3 rounded-xl text-xs font-bold flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white transition disabled:opacity-50"
+                      className="shrink-0 min-h-[44px] px-4 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition disabled:opacity-50"
                     >
-                      <Pencil className="w-3.5 h-3.5" />
-                      <span>Mở đơn</span>
+                      Mở đơn
                     </button>
                   )}
 
