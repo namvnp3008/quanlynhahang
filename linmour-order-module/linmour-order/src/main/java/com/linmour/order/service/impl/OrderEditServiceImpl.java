@@ -87,7 +87,10 @@ public class OrderEditServiceImpl implements OrderEditService {
         if (shopId == null || shopId <= 0) {
             return Result.error(400, "Thiếu shopId");
         }
-        if (tableId == null || tableId <= 0) {
+        if (tableId != null && tableId < 0) {
+            return Result.error(400, "Đơn mang về đã thanh toán, không sửa được");
+        }
+        if (tableId == null || tableId == 0) {
             return Result.error(400, "Thiếu tableId");
         }
         if (req == null || req.getVersion() == null) {

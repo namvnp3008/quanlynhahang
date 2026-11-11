@@ -356,4 +356,15 @@ public class OrderEditServiceTest {
         Result result = orderEditService.updateItemQuantity(5L, 0, req(0L, 2, null));
         assertEquals(404, result.getCode().intValue());
     }
+
+    @Test
+    public void editTakeawayTicket_Rejected() {
+        OrderEditReqDto r = req(1L, 1, null);
+        r.setProductId(12L);
+        Result result = orderEditService.addItem(-12L, r);
+        assertEquals(400, result.getCode().intValue());
+        assertEquals("Đơn mang về đã thanh toán, không sửa được", result.getMsg());
+        assertEquals(400, orderEditService.removeItem(-12L, 0, req(1L, null, null)).getCode().intValue());
+        verifyNoInteractions(productFeign);
+    }
 }
