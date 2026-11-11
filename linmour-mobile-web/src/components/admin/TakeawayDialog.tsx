@@ -15,7 +15,7 @@ interface TakeawayDialogProps {
 }
 
 const payTypeClass = (active: boolean) =>
-  `min-h-[44px] rounded-xl text-sm font-bold ${
+  `min-h-[44px] rounded-xl text-sm font-bold disabled:opacity-50 ${
     active ? 'border-2 border-blue-600 bg-blue-50 text-blue-700' : 'border border-slate-300 bg-white text-slate-700'
   }`;
 
@@ -31,6 +31,9 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
   const [result, setResult] = useState<TakeawayResult | null>(null);
   const [isPicking, setIsPicking] = useState(false);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
+  // Lỗi mạng khi thu tiền: chưa biết máy chủ đã nhận chưa, khoá đơn để thử lại đúng nội dung cũ
+  const [uncertain, setUncertain] = useState(false);
+  const submittingRef = useRef(false);
   // Giữ nguyên khi thử lại để máy chủ không tạo phiếu thứ hai
   const requestIdRef = useRef<string>(generateUUID());
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -50,7 +53,7 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
       .catch((err) => {
         if (!cancelled) {
           setQuote(null);
-          setError(err instanceof Error && err.message ? err.message : 'Không lấy được giá, vui lòng thử lại');
+          setError(err instanceof ApiError ? err.message : 'Không lấy được giá, vui lòng thử lại');
         }
       })
       .finally(() => {
@@ -61,7 +64,10 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
     };
   }, [lines]);
 
+  const locked = isSubmitting || uncertain;
+
   const changeQty = (index: number, next: number) => {
+    if (locked) return;
     if (next < 1) {
       setLines((prev) => prev.filter((_, i) => i !== index));
       return;
@@ -75,7 +81,8 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
   };
 
   const handleSubmit = async () => {
-    if (lines.length === 0 || isSubmitting) return;
+    if (lines.length === 0 || submittingRef.current) return;
+    submittingRef.current = true;
     setIsSubmitting(true);
     setError(null);
     try {
@@ -85,21 +92,30 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
         payType,
         remark: remark.trim() || undefined,
       });
+      setUncertain(false);
       setResult(created);
     } catch (err) {
       if (err instanceof ApiError) {
+        // Máy chủ đã trả lời dứt khoát và xoá khoá requestId, được sửa đơn lại
+        setUncertain(false);
         setError(err.message);
       } else {
-        setError('Lỗi mạng, chưa chắc đã thu tiền. Bấm lại "Thu tiền & báo bếp" để thử lại (không tạo phiếu trùng).');
+        setUncertain(true);
       }
     } finally {
+      submittingRef.current = false;
       setIsSubmitting(false);
     }
   };
 
   const handleClose = () => {
+    if (isSubmitting) return;
     if (result) {
       onCreated(result);
+      return;
+    }
+    if (confirmDiscard) {
+      setConfirmDiscard(false);
       return;
     }
     if (lines.length > 0) {
@@ -152,7 +168,8 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
                 data-testid="takeaway-close-btn"
                 aria-label="Đóng"
                 onClick={handleClose}
-                className="w-11 h-11 rounded-xl border border-slate-300 font-bold"
+                disabled={isSubmitting}
+                className="w-11 h-11 rounded-xl border border-slate-300 font-bold disabled:opacity-50"
               >
                 ✕
               </button>
@@ -160,7 +177,8 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
             <div className="flex-1 p-4 flex flex-col min-h-0">
               <div className="flex-1 overflow-y-auto space-y-3">
                 {lines.map((line, i) => {
-                  const q = quote?.lines[i];
+                  const candidate = quote?.lines[i];
+                  const q = candidate && candidate.productId === line.productId ? candidate : undefined;
                   const name = q?.name ?? `Món #${line.productId}`;
                   return (
                     <div key={`${line.productId}-${i}`} data-testid={`takeaway-line-${i}`} className="p-3 rounded-xl border border-slate-200">
@@ -173,7 +191,8 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
                           type="button"
                           aria-label={`Xoá ${name}`}
                           onClick={() => changeQty(i, 0)}
-                          className="w-11 h-11 rounded-xl border border-red-200 text-red-600 bg-red-50 shrink-0"
+                          disabled={locked}
+                          className="w-11 h-11 rounded-xl border border-red-200 text-red-600 bg-red-50 shrink-0 disabled:opacity-50"
                         >
                           🗑
                         </button>
@@ -184,7 +203,8 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
                             type="button"
                             aria-label={`Giảm 1 ${name}`}
                             onClick={() => changeQty(i, line.quantity - 1)}
-                            className="w-11 h-11 rounded-xl border border-slate-300 font-bold"
+                            disabled={locked}
+                            className="w-11 h-11 rounded-xl border border-slate-300 font-bold disabled:opacity-50"
                           >
                             −
                           </button>
@@ -193,7 +213,7 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
                             type="button"
                             aria-label={`Tăng 1 ${name}`}
                             onClick={() => changeQty(i, line.quantity + 1)}
-                            disabled={line.quantity >= MAX_QTY}
+                            disabled={locked || line.quantity >= MAX_QTY}
                             className="w-11 h-11 rounded-xl border border-slate-300 font-bold disabled:opacity-50"
                           >
                             +
@@ -208,7 +228,8 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
                   type="button"
                   data-testid="takeaway-add-item-btn"
                   onClick={() => setIsPicking(true)}
-                  className="w-full min-h-[44px] rounded-xl border-2 border-dashed border-slate-300 text-sm font-bold text-slate-600"
+                  disabled={locked}
+                  className="w-full min-h-[44px] rounded-xl border-2 border-dashed border-slate-300 text-sm font-bold text-slate-600 disabled:opacity-50"
                 >
                   + Thêm món
                 </button>
@@ -221,10 +242,10 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <button type="button" data-testid="takeaway-paytype-4" aria-pressed={payType === 4} onClick={() => setPayType(4)} className={payTypeClass(payType === 4)}>
+                  <button type="button" data-testid="takeaway-paytype-4" aria-pressed={payType === 4} onClick={() => setPayType(4)} disabled={locked} className={payTypeClass(payType === 4)}>
                     Tiền mặt
                   </button>
-                  <button type="button" data-testid="takeaway-paytype-1" aria-pressed={payType === 1} onClick={() => setPayType(1)} className={payTypeClass(payType === 1)}>
+                  <button type="button" data-testid="takeaway-paytype-1" aria-pressed={payType === 1} onClick={() => setPayType(1)} disabled={locked} className={payTypeClass(payType === 1)}>
                     Chuyển khoản
                   </button>
                 </div>
@@ -232,6 +253,7 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
                   data-testid="takeaway-remark"
                   value={remark}
                   maxLength={MAX_REMARK}
+                  disabled={locked}
                   onChange={(e) => setRemark(e.target.value)}
                   placeholder="Ghi chú (ví dụ: ít cay, tên khách)"
                   className="w-full min-h-[44px] px-3 rounded-xl border border-slate-300 text-sm"
@@ -241,7 +263,12 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
                     {error}
                   </p>
                 )}
-                {confirmDiscard ? (
+                {uncertain && (
+                  <p role="alert" className="text-sm text-red-600">
+                    Lỗi mạng, chưa chắc đã thu tiền. Bấm lại "Thu tiền & báo bếp" để thử lại (không tạo phiếu trùng).
+                  </p>
+                )}
+                {confirmDiscard && !isSubmitting ? (
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-bold">Bỏ đơn mang về đang chọn?</span>
                     <button type="button" onClick={() => setConfirmDiscard(false)} className="min-h-[44px] px-4 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700">

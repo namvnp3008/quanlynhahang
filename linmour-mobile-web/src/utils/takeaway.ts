@@ -9,6 +9,7 @@ export function takeawayTicketNo(tableId: string | number): number {
   return -Number(tableId);
 }
 
+/** Người gọi phải kiểm tra isTakeawayTableId trước; id không hợp lệ cho ra "MV-NaN". */
 export function takeawayLabel(tableId: string | number): string {
   return `MV-${takeawayTicketNo(tableId)}`;
 }

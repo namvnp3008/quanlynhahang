@@ -111,4 +111,54 @@ describe('TakeawayDialog (AO-4)', () => {
     fireEvent.click(await screen.findByTestId('takeaway-discard-confirm'));
     expect(onClose).toHaveBeenCalled();
   });
+
+  it('lỗi mạng → khoá sửa đơn, thử lại gửi đúng requestId và món cũ, giữ cảnh báo', async () => {
+    vi.mocked(api.createTakeaway)
+      .mockRejectedValueOnce(new Error('Failed to fetch'))
+      .mockResolvedValueOnce({ ticketNo: 12, orderId: '9001', payAmount: 5000 });
+    render(<TakeawayDialog onClose={vi.fn()} onCreated={vi.fn()} />);
+    await addProduct();
+    fireEvent.click(await screen.findByTestId('takeaway-submit'));
+    expect(await screen.findByText(/Lỗi mạng/)).toBeDefined();
+    for (const el of [
+      screen.getByLabelText('Tăng 1 Trà Đá'),
+      screen.getByLabelText('Giảm 1 Trà Đá'),
+      screen.getByLabelText('Xoá Trà Đá'),
+      screen.getByTestId('takeaway-add-item-btn'),
+      screen.getByTestId('takeaway-paytype-1'),
+      screen.getByTestId('takeaway-remark'),
+    ]) {
+      expect((el as HTMLButtonElement).disabled).toBe(true);
+    }
+    fireEvent.click(screen.getByTestId('takeaway-submit'));
+    await screen.findByTestId('takeaway-ticket');
+    const calls = vi.mocked(api.createTakeaway).mock.calls.map((c) => c[0]);
+    expect(calls[1].requestId).toBe(calls[0].requestId);
+    expect(calls[1].items).toEqual(calls[0].items);
+  });
+
+  it('đang gửi thì nút đóng bị khoá', async () => {
+    let resolve: (v: { ticketNo: number; orderId: string; payAmount: number }) => void = () => {};
+    vi.mocked(api.createTakeaway).mockReturnValue(new Promise((res) => { resolve = res; }));
+    const onClose = vi.fn();
+    render(<TakeawayDialog onClose={onClose} onCreated={vi.fn()} />);
+    await addProduct();
+    fireEvent.click(await screen.findByTestId('takeaway-submit'));
+    await waitFor(() => expect((screen.getByTestId('takeaway-close-btn') as HTMLButtonElement).disabled).toBe(true));
+    fireEvent.click(screen.getByTestId('takeaway-close-btn'));
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByTestId('takeaway-discard-confirm')).toBeNull();
+    expect(onClose).not.toHaveBeenCalled();
+    resolve({ ticketNo: 12, orderId: '9001', payAmount: 5000 });
+    await screen.findByTestId('takeaway-ticket');
+  });
+
+  it('Esc lần hai khi đang hỏi bỏ đơn thì quay lại chọn món', async () => {
+    render(<TakeawayDialog onClose={vi.fn()} onCreated={vi.fn()} />);
+    await addProduct();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    await screen.findByTestId('takeaway-discard-confirm');
+    fireEvent.keyDown(document, { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByTestId('takeaway-discard-confirm')).toBeNull());
+  });
 });
