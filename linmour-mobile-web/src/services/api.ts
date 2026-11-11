@@ -15,6 +15,9 @@ import {
   CurrentOrderInfoDto,
   OrderEditRequest,
   OrderEditResult,
+  TakeawayItemReq,
+  TakeawayQuote,
+  TakeawayResult,
   PayosTransactionDto,
   PayosTransactionStatus,
 } from '../types/order';
@@ -818,6 +821,32 @@ export async function removeOpenOrderItem(
   req: OrderEditRequest
 ): Promise<OrderEditResult> {
   return request<OrderEditResult>('DELETE', `/order/order/openOrder/${tableId}/items/${index}`, req, { scope: 'admin' });
+}
+
+/**
+ * AO-2: Báo giá đơn mang về (máy chủ tính, không trừ kho)
+ */
+export async function quoteTakeaway(items: TakeawayItemReq[]): Promise<TakeawayQuote> {
+  return request<TakeawayQuote>('POST', '/order/order/takeaway/quote', { items }, { scope: 'admin' });
+}
+
+/**
+ * AO-2: Thu tiền & báo bếp cho đơn mang về; gửi lại cùng requestId khi thử lại
+ */
+export async function createTakeaway(req: {
+  requestId: string;
+  items: TakeawayItemReq[];
+  payType: 1 | 4;
+  remark?: string;
+}): Promise<TakeawayResult> {
+  return request<TakeawayResult>('POST', '/order/order/takeaway', req, { scope: 'admin' });
+}
+
+/**
+ * AO-2: Đã giao phiếu mang về
+ */
+export async function handoverTakeaway(ticketNo: number): Promise<unknown> {
+  return request<unknown>('POST', `/order/order/takeaway/${ticketNo}/handover`, undefined, { scope: 'admin' });
 }
 
 /**
