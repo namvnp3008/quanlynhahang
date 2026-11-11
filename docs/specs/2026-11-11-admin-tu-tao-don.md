@@ -49,7 +49,7 @@
 | Lỗi mạng chung | Toast tiếng Việt + "Thử lại"; không cập nhật lạc quan |
 
 ## 5. Dữ liệu
-**MySQL** – migration `sql/migrations/V10__order_type_ticket_no.sql` (chạy lại an toàn):
+**MySQL** – migration `sql/migrations/V15__order_type_ticket_no.sql` (chạy lại an toàn):
 - `order_info.order_type` `TINYINT NOT NULL DEFAULT 0` (0 = tại bàn, 1 = mang về).
 - `order_info.ticket_no` `INT NULL` (số phiếu trong ngày, chỉ đơn mang về).
 - Đơn mang về: `table_id = NULL`, `pay_status` = đã thanh toán, `order_status` như đơn đã thu tiền hiện nay.
@@ -94,7 +94,7 @@
 |---|---|---|
 | AO-0 | Mockup `a16-admin-order.html`: nút "Mở đơn", hộp "Đơn mang về", dải "Mang về đang làm", thẻ bếp MV-n – **chủ dự án duyệt trước khi code UI** | – |
 | AO-1 | Order: mở đơn bàn trống qua API thêm món OE (`version = 0`), audit `OPEN`, publish `order_edited` + test | – |
-| AO-2 | Order: migration `V10`; `takeaway/quote`, `takeaway` (báo giá, trừ kho, MySQL, Kafka, Redis `-n`, idempotency, hoàn kho khi lỗi); số phiếu theo ngày; `handover`; chặn sửa / thu tiền phiếu mang về + test | – |
+| AO-2 | Order: migration `V15`; `takeaway/quote`, `takeaway` (báo giá, trừ kho, MySQL, Kafka, Redis `-n`, idempotency, hoàn kho khi lỗi); số phiếu theo ngày; `handover`; chặn sửa / thu tiền phiếu mang về + test | – |
 | AO-3 | Frontend: "Mở đơn" cho bàn trống + test | AO-0, AO-1 |
 | AO-4 | Frontend: hộp "Đơn mang về", dải phiếu, "Đã giao"; bếp "MV-n"; lưới bàn bỏ id âm + test | AO-0, AO-2 |
 | AO-5 | E2E kịch bản 8 + chạy thật | AO-3, AO-4 |
