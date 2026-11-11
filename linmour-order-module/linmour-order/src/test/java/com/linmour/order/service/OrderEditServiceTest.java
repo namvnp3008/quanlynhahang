@@ -62,6 +62,9 @@ public class OrderEditServiceTest {
     @Mock
     private PayosPaymentService payosPaymentService;
 
+    @Mock
+    private com.linmour.order.feign.RestaurantFeign restaurantFeign;
+
     private final Map<String, Object> hash = new HashMap<>();
 
     @Before
@@ -282,5 +285,75 @@ public class OrderEditServiceTest {
         Result result = orderEditService.removeItem(5L, 0, req(3L, null, null));
 
         assertTrue(((OrderEditRespDto) result.getData()).getPayosCancelled());
+    }
+
+    private void emptyTable() {
+        when(redisCache.getAllHash(INFO_KEY)).thenReturn(new HashMap<>());
+        when(redisCache.getCacheList(ITEM_KEY)).thenReturn(new ArrayList<>());
+        when(restaurantFeign.getTable(5L, 1L)).thenReturn(Result.success(JSON.parseObject("{\"id\":5,\"name\":\"Bàn 05\",\"shopId\":1}")));
+        PriceQuoteVo quote = PriceQuoteVo.builder().productId(12L).name("Trà Đá").price(new BigDecimal("5000")).build();
+        when(productFeign.priceQuote(any(PriceQuoteDto.class))).thenReturn(Result.success(JSON.parseObject(JSON.toJSONString(quote))));
+    }
+
+    @Test
+    public void addItem_EmptyTableVersion0_OpensOrder() {
+        emptyTable();
+        OrderEditReqDto r = req(0L, 2, null);
+        r.setProductId(12L);
+
+        Result result = orderEditService.addItem(5L, r);
+
+        assertEquals(200, result.getCode().intValue());
+        ArgumentCaptor<Map> hashCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(redisCache).setHashValues(eq(INFO_KEY), hashCaptor.capture());
+        Map<String, Object> created = hashCaptor.getValue();
+        assertNotNull(created.get("id"));
+        assertEquals(5L, ((Number) created.get("tableId")).longValue());
+        assertEquals(1L, ((Number) created.get("shopId")).longValue());
+        verify(productFeign).reduceInventories(Collections.singletonList(new ReduceInventoryDto(12L, 2)));
+        assertEquals(1, savedItems().size());
+        verify(redisCache).setHashValue(INFO_KEY, "payAmount", new BigDecimal("10000"));
+        verify(redisCache).setHashValue(INFO_KEY, "version", 1L);
+        verify(redisCache).convertAndSend(eq("order_edited"), anyString());
+    }
+
+    @Test
+    public void addItem_TableHasOrderButVersion0_Returns409() {
+        OrderEditReqDto r = req(0L, 1, null);
+        r.setProductId(12L);
+        Result result = orderEditService.addItem(5L, r);
+        assertEquals(409, result.getCode().intValue());
+        verify(redisCache, never()).setHashValues(anyString(), anyMap());
+    }
+
+    @Test
+    public void addItem_EmptyTableOfOtherShop_Returns404_NoStockChange() {
+        emptyTable();
+        when(restaurantFeign.getTable(5L, 1L)).thenReturn(Result.error("Không tìm thấy bàn"));
+        OrderEditReqDto r = req(0L, 1, null);
+        r.setProductId(12L);
+        Result result = orderEditService.addItem(5L, r);
+        assertEquals(404, result.getCode().intValue());
+        assertEquals("Không tìm thấy bàn", result.getMsg());
+        verify(productFeign, never()).reduceInventories(anyList());
+    }
+
+    @Test
+    public void addItem_EmptyTableOutOfStock_LeavesTableEmpty() {
+        emptyTable();
+        when(productFeign.reduceInventories(anyList())).thenReturn(Result.error(400, "Món Trà Đá đã hết hàng"));
+        OrderEditReqDto r = req(0L, 1, null);
+        r.setProductId(12L);
+        Result result = orderEditService.addItem(5L, r);
+        assertEquals(400, result.getCode().intValue());
+        verify(redisCache, never()).setHashValues(anyString(), anyMap());
+        verify(redisCache, never()).setCacheList(anyString(), anyList());
+    }
+
+    @Test
+    public void quantityOnEmptyTable_StillReturns404() {
+        emptyTable();
+        Result result = orderEditService.updateItemQuantity(5L, 0, req(0L, 2, null));
+        assertEquals(404, result.getCode().intValue());
     }
 }
