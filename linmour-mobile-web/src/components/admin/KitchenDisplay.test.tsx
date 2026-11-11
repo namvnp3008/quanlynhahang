@@ -342,3 +342,31 @@ describe('Story F4: KitchenDisplay Component (mockup a06-kitchen)', () => {
     });
   });
 });
+
+describe('KitchenDisplay – phiếu mang về (AO-4)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('phiếu tableId âm hiện nhãn MV-n · Mang về', async () => {
+    vi.spyOn(api, 'getAdminShopId').mockReturnValue('1');
+    vi.spyOn(api, 'getTables').mockResolvedValue([{ id: 1, name: 'BÀN 01', shopId: 1 }]);
+    vi.spyOn(api, 'getOpenOrders').mockResolvedValue([
+      {
+        orderInfo: { id: '9200', tableId: -12, payAmount: 10000, orderStatus: 1, payStatus: 1, payType: 4, shopId: 1, orderType: 1, ticketNo: 12, createTime: new Date().toISOString() },
+        orderItems: [{ productId: 12, name: 'Trà Đá', price: 5000, quantity: 2, status: 0 }],
+      },
+    ]);
+    vi.spyOn(websocket, 'getOrCreateAdminWebSocket').mockReturnValue({
+      subscribe: vi.fn(() => () => {}),
+      send: vi.fn(),
+      close: vi.fn(),
+    } as unknown as websocket.WebSocketClient);
+    render(
+      <MemoryRouter>
+        <KitchenDisplay />
+      </MemoryRouter>
+    );
+    expect(await screen.findByText('MV-12 · Mang về')).toBeInTheDocument();
+  });
+});

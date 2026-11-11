@@ -11,6 +11,7 @@ import {
 } from '../../services/api';
 import { getOrCreateAdminWebSocket } from '../../services/websocket';
 import { WsIncomingMessage } from '../../types/websocket';
+import { isTakeawayTableId, takeawayLabel } from '../../utils/takeaway';
 import {
   Volume2,
   VolumeX,
@@ -516,9 +517,10 @@ export const KitchenDisplay: React.FC = () => {
         ) : (
           filteredOrders.map((order) => {
             const tableId = order.orderInfo.tableId;
-            const tableName =
-              tableNameMap.get(String(tableId)) ||
-              (tableId ? `BÀN ${String(tableId).padStart(2, '0')}` : 'Mang về');
+            const tableName = isTakeawayTableId(tableId)
+              ? `${takeawayLabel(tableId)} · Mang về`
+              : tableNameMap.get(String(tableId)) ||
+                (tableId ? `BÀN ${String(tableId).padStart(2, '0')}` : 'Mang về');
 
             const elapsedMinutes = getElapsedMinutes(order.orderInfo.createTime);
             const isUrgent = elapsedMinutes >= 12;

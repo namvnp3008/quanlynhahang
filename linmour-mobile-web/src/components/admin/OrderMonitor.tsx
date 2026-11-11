@@ -12,10 +12,14 @@ import {
   addOpenOrderItem,
   updateOpenOrderItemQuantity,
   removeOpenOrderItem,
+  handoverTakeaway,
   ApiError,
 } from '../../services/api';
-import { OrderEditResult } from '../../types/order';
+import { OrderEditResult, TakeawayResult } from '../../types/order';
 import { AddItemDialog, AddItemSelection, ReduceItemDialog } from './OrderEditDialogs';
+import { TakeawayDialog } from './TakeawayDialog';
+import { TakeawayStrip } from './TakeawayStrip';
+import { isTakeawayTableId } from '../../utils/takeaway';
 import { getOrCreateAdminWebSocket, WebSocketClient } from '../../services/websocket';
 import { WsIncomingMessage, WsNewOrderData, WsPayosMismatchData } from '../../types/websocket';
 import { formatVND } from '../../utils/currency';
@@ -152,6 +156,9 @@ export const OrderMonitor: React.FC = () => {
   const [savingKey, setSavingKey] = useState<number | 'add' | null>(null);
   const [reduceTarget, setReduceTarget] = useState<{ index: number; item: OrderItem; newQuantity: number | null } | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  // AO-4: đơn mang về
+  const [isTakeawayOpen, setIsTakeawayOpen] = useState(false);
+  const [handoverBusy, setHandoverBusy] = useState<number | null>(null);
 
   // Shop info for 80mm thermal receipt printing (PR-1)
   const [shopInfo, setShopInfo] = useState<{ name: string; position?: string; phone?: string }>({
@@ -211,7 +218,9 @@ export const OrderMonitor: React.FC = () => {
           return prev;
         }
         // Prefer first table with open orders
-        const occupiedOrder = (fetchedOrders || []).find((o) => o?.orderInfo?.tableId);
+        const occupiedOrder = (fetchedOrders || []).find(
+          (o) => o?.orderInfo?.tableId && !isTakeawayTableId(o.orderInfo.tableId)
+        );
         if (occupiedOrder) {
           return occupiedOrder.orderInfo.tableId;
         }
@@ -326,11 +335,39 @@ export const OrderMonitor: React.FC = () => {
     };
   }, [activeShopId, refreshData]);
 
+  // AO-4: phiếu mang về (tableId âm) chỉ hiện ở dải, không là bàn
+  const takeawayOrders = useMemo(
+    () =>
+      openOrders
+        .filter((o) => isTakeawayTableId(o?.orderInfo?.tableId))
+        .sort((a, b) => Number(b.orderInfo.tableId) - Number(a.orderInfo.tableId)),
+    [openOrders]
+  );
+
+  const handleHandover = async (ticketNo: number) => {
+    setHandoverBusy(ticketNo);
+    try {
+      await handoverTakeaway(ticketNo);
+      setFeedbackToast(`Đã giao phiếu MV-${ticketNo}.`);
+    } catch (err) {
+      setFeedbackToast(err instanceof Error && err.message ? err.message : 'Không cập nhật được phiếu, vui lòng thử lại');
+    } finally {
+      setHandoverBusy(null);
+      refreshData(true);
+    }
+  };
+
+  const handleTakeawayCreated = (result: TakeawayResult) => {
+    setIsTakeawayOpen(false);
+    setFeedbackToast(`Đã tạo phiếu MV-${result.ticketNo} và báo bếp.`);
+    refreshData(true);
+  };
+
   // Helper: map open order by tableId
   const orderMap = useMemo(() => {
     const map = new Map<string, OrderAllDto>();
     for (const order of openOrders) {
-      if (order && order.orderInfo && order.orderInfo.tableId !== undefined) {
+      if (order && order.orderInfo && order.orderInfo.tableId !== undefined && !isTakeawayTableId(order.orderInfo.tableId)) {
         map.set(String(order.orderInfo.tableId), order);
       }
     }
@@ -599,6 +636,14 @@ export const OrderMonitor: React.FC = () => {
             <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse"></span>
             Trực Tuyến
           </span>
+          <button
+            type="button"
+            data-testid="open-takeaway-btn"
+            onClick={() => setIsTakeawayOpen(true)}
+            className="min-h-[44px] px-5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold shrink-0"
+          >
+            + Mang về
+          </button>
         </div>
 
         {/* Service Call Bar (Story A8 / A7) */}
@@ -723,6 +768,8 @@ export const OrderMonitor: React.FC = () => {
           )}
         </div>
       </header>
+
+      <TakeawayStrip orders={takeawayOrders} busyTicket={handoverBusy} onHandover={handleHandover} />
 
       {/* 2. Main Dual-Pane Workspace */}
       <div className="flex-1 flex overflow-hidden p-5 gap-5">
@@ -1401,6 +1448,10 @@ export const OrderMonitor: React.FC = () => {
           onClose={() => setIsAddDialogOpen(false)}
           onSubmit={handleAddItem}
         />
+      )}
+
+      {isTakeawayOpen && (
+        <TakeawayDialog onClose={() => setIsTakeawayOpen(false)} onCreated={handleTakeawayCreated} />
       )}
 
       {/* 5. Payment Modal (Modal 1: Xác Nhận Thu Tiền) */}

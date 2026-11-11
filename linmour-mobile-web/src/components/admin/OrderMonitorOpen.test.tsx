@@ -20,6 +20,9 @@ vi.mock('../../services/api', async () => {
     getProductPage: vi.fn(),
     getAdminProductSort: vi.fn(),
     getProductDetails: vi.fn(),
+    handoverTakeaway: vi.fn(),
+    quoteTakeaway: vi.fn(),
+    createTakeaway: vi.fn(),
   };
 });
 
@@ -78,6 +81,43 @@ describe('OrderMonitor – mở đơn cho bàn trống (AO-3)', () => {
     await waitFor(() => expect((within(dialog).getByTestId('add-item-submit') as HTMLButtonElement).disabled).toBe(false));
     fireEvent.click(within(dialog).getByTestId('add-item-submit'));
     expect(await screen.findByText('Bàn vừa có đơn (khách vừa đặt món), đã tải lại. Vui lòng thao tác lại.')).toBeDefined();
+    await waitFor(() => expect(api.getOpenOrders).toHaveBeenCalled());
+  });
+
+  it('phiếu mang về không chiếm ô bàn; hiện ở dải và Đã giao gọi API rồi tải lại', async () => {
+    vi.mocked(api.getOpenOrders).mockResolvedValue([
+      {
+        orderInfo: { id: '9200', tableId: -12, payAmount: 10000, orderStatus: 1, payStatus: 1, payType: 4, shopId: 1, orderType: 1, ticketNo: 12 },
+        orderItems: [{ productId: 12, name: 'Trà Đá', price: 5000, quantity: 2, status: 2 }],
+      },
+    ]);
+    vi.mocked(api.handoverTakeaway).mockResolvedValue(undefined);
+    render(<OrderMonitor />);
+    expect((await screen.findByTestId('takeaway-chip-12')).textContent).toContain('MV-12');
+    fireEvent.click((await screen.findAllByTestId('table-card-5'))[0]);
+    expect(await screen.findByTestId('open-order-btn')).toBeDefined();
+    vi.mocked(api.getOpenOrders).mockClear();
+    fireEvent.click(screen.getByTestId('takeaway-handover-12'));
+    await waitFor(() => expect(api.handoverTakeaway).toHaveBeenCalledWith(12));
+    await waitFor(() => expect(api.getOpenOrders).toHaveBeenCalled());
+  });
+
+  it('nút + Mang về mở hộp đơn mang về', async () => {
+    render(<OrderMonitor />);
+    fireEvent.click(await screen.findByTestId('open-takeaway-btn'));
+    expect(await screen.findByTestId('takeaway-dialog')).toBeDefined();
+  });
+
+  it('sự kiện orderEdited của phiếu mang về tải lại danh sách', async () => {
+    let listener: ((m: unknown) => void) | undefined;
+    mockSubscribe.mockImplementation((l: (m: unknown) => void) => {
+      listener = l;
+      return () => {};
+    });
+    render(<OrderMonitor />);
+    await screen.findByTestId('open-takeaway-btn');
+    vi.mocked(api.getOpenOrders).mockClear();
+    listener!({ type: 'orderEdited', data: { tableId: -12, op: 'HANDOVER' } });
     await waitFor(() => expect(api.getOpenOrders).toHaveBeenCalled());
   });
 });
