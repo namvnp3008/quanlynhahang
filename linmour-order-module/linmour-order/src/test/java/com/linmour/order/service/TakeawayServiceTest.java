@@ -125,6 +125,39 @@ public class TakeawayServiceTest {
         verify(redisCache).setCacheList(eq("orderItem:1:-12"), items.capture());
         assertEquals(Integer.valueOf(0), ((OrderItem) items.getValue().get(0)).getStatus());
         verify(redisCache).convertAndSend(eq("order_edited"), contains("\"tableId\":\"-12\""));
+        verify(redisCache).convertAndSend(eq("order_edited"), contains("\"op\":\"TAKEAWAY\""));
+        assertEquals(1, ((Number) hash.getValue().get("paid")).intValue());
+    }
+
+    @Test
+    public void create_KitchenCopyFails_AfterCommit_StillPaid_NoRestore() {
+        doThrow(new RuntimeException("redis down")).when(redisCache).setHashValues(anyString(), anyMap());
+        Result r = takeawayService.create(req("r1", 4));
+        assertEquals(200, r.getCode().intValue());
+        assertEquals(Integer.valueOf(12), ((TakeawayRespDto) r.getData()).getTicketNo());
+        verify(productFeign, never()).restoreInventories(anyList());
+        verify(redisCache, never()).deleteObject("TAKEAWAY_REQ:1:r1");
+        verify(redisCache).setCacheObject(eq("TAKEAWAY_REQ:1:r1"), anyString(), eq(24), eq(TimeUnit.HOURS));
+    }
+
+    @Test
+    public void create_SkipsTicketNumberStillInUse() {
+        when(redisCache.increment(startsWith("TAKEAWAY_SEQ:1:"))).thenReturn(12L, 13L);
+        when(redisCache.hasKey("orderInfo:1:-12")).thenReturn(true);
+        when(redisCache.hasKey("orderInfo:1:-13")).thenReturn(false);
+        Result r = takeawayService.create(req("r1", 4));
+        assertEquals(Integer.valueOf(13), ((TakeawayRespDto) r.getData()).getTicketNo());
+        verify(redisCache).setHashValues(eq("orderInfo:1:-13"), anyMap());
+    }
+
+    @Test
+    public void create_DbFails_RestoreRejected_IsLogged_Still500() {
+        when(orderInfoMapper.insert(any(OrderInfo.class))).thenThrow(new RuntimeException("db down"));
+        when(productFeign.restoreInventories(anyList())).thenReturn(Result.error(500, "x"));
+        Result r = takeawayService.create(req("r1", 4));
+        assertEquals(500, r.getCode().intValue());
+        assertEquals("Không tạo được đơn, chưa thu tiền", r.getMsg());
+        verify(redisCache).deleteObject("TAKEAWAY_REQ:1:r1");
     }
 
     @Test
@@ -202,6 +235,7 @@ public class TakeawayServiceTest {
         verify(redisCache).deleteObject("orderInfo:1:-12");
         verify(redisCache).deleteObject("orderItem:1:-12");
         verify(redisCache).convertAndSend(eq("order_edited"), contains("\"tableId\":\"-12\""));
+        verify(redisCache).convertAndSend(eq("order_edited"), contains("\"op\":\"HANDOVER\""));
     }
 
     @Test

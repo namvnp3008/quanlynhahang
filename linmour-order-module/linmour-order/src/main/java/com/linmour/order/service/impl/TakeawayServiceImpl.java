@@ -50,6 +50,7 @@ public class TakeawayServiceImpl implements TakeawayService {
 
     static final int MAX_QUANTITY = 99;
     static final int MAX_REMARK = 100;
+    static final int MAX_TICKET_ATTEMPTS = 50;
     private static final ZoneId VN = ZoneId.of("Asia/Ho_Chi_Minh");
     private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("yyyyMMdd");
     /** Giá trị TAKEAWAY_REQ khi phiếu đang tạo (khác hằng PENDING = 3 của OrderConstant) */
@@ -110,6 +111,7 @@ public class TakeawayServiceImpl implements TakeawayService {
         }
 
         boolean stockReduced = false;
+        boolean committed = false;
         List<ReduceInventoryDto> stock = null;
         try {
             Result quoteRes = priceLines(shopId, req.getItems());
@@ -128,8 +130,18 @@ public class TakeawayServiceImpl implements TakeawayService {
             }
             stockReduced = true;
 
-            int ticketNo = redisCache.increment(ticketSeqKey(shopId, Instant.now())).intValue();
-            redisCache.expire(ticketSeqKey(shopId, Instant.now()), 2L, TimeUnit.DAYS);
+            String seqKey = ticketSeqKey(shopId, Instant.now());
+            int ticketNo = 0;
+            for (int attempt = 0; attempt < MAX_TICKET_ATTEMPTS && ticketNo == 0; attempt++) {
+                int candidate = redisCache.increment(seqKey).intValue();
+                if (!redisCache.hasKey(ORDERINFO + ":" + shopId + ":-" + candidate)) {
+                    ticketNo = candidate;
+                }
+            }
+            redisCache.expire(seqKey, 2L, TimeUnit.DAYS);
+            if (ticketNo == 0) {
+                throw new IllegalStateException("Không cấp được số phiếu, vui lòng thử lại");
+            }
             String orderId = String.valueOf(IdGenerateUtil.get().nextId());
             LocalDateTime now = LocalDateTime.now(VN);
 
@@ -153,8 +165,14 @@ public class TakeawayServiceImpl implements TakeawayService {
                 return null;
             });
 
+            committed = true;
+
             TakeawayRespDto resp = new TakeawayRespDto(ticketNo, orderId, quote.getTotal());
-            redisCache.setCacheObject(reqKey, JSON.toJSONString(resp), 24, TimeUnit.HOURS);
+            try {
+                redisCache.setCacheObject(reqKey, JSON.toJSONString(resp), 24, TimeUnit.HOURS);
+            } catch (Exception e) {
+                log.error("Phiếu MV-{} đã thu tiền nhưng không lưu được khoá chống trùng: {}", ticketNo, e.getMessage());
+            }
 
             try {
                 kafkaProducer.originalOrder(new OrderAllDto(info, dbItems));
@@ -162,34 +180,49 @@ public class TakeawayServiceImpl implements TakeawayService {
                 log.warn("Không gửi được Kafka cho phiếu mang về MV-{}: {}", ticketNo, e.getMessage());
             }
 
-            long tableKey = -ticketNo;
-            Map<String, Object> hash = new HashMap<>();
-            hash.put("id", orderId);
-            hash.put("tableId", tableKey);
-            hash.put("shopId", shopId);
-            hash.put("payAmount", quote.getTotal());
-            hash.put("payType", req.getPayType());
-            hash.put("payStatus", PAYMENT);
-            hash.put("orderType", ORDER_TYPE_TAKEAWAY);
-            hash.put("ticketNo", ticketNo);
-            hash.put("remark", info.getRemark());
-            hash.put("version", 1L);
-            hash.put("createTime", now);
-            redisCache.setHashValues(ORDERINFO + ":" + shopId + ":" + tableKey, hash);
-            redisCache.setCacheList(ORDER_ITEM + ":" + shopId + ":" + tableKey, toItems(quote, shopId, orderId, 0));
-            publish(shopId, tableKey, orderId, quote.getTotal());
+            try {
+                long tableKey = -ticketNo;
+                Map<String, Object> hash = new HashMap<>();
+                hash.put("id", orderId);
+                hash.put("tableId", tableKey);
+                hash.put("shopId", shopId);
+                hash.put("payAmount", quote.getTotal());
+                hash.put("payType", req.getPayType());
+                hash.put("payStatus", PAYMENT);
+                hash.put("paid", 1);
+                hash.put("orderType", ORDER_TYPE_TAKEAWAY);
+                hash.put("ticketNo", ticketNo);
+                hash.put("remark", info.getRemark());
+                hash.put("version", 1L);
+                hash.put("createTime", now);
+                redisCache.setHashValues(ORDERINFO + ":" + shopId + ":" + tableKey, hash);
+                redisCache.setCacheList(ORDER_ITEM + ":" + shopId + ":" + tableKey, toItems(quote, shopId, orderId, 0));
+                publish(shopId, tableKey, orderId, quote.getTotal(), "TAKEAWAY");
+            } catch (Exception e) {
+                log.error("Phiếu MV-{} đã thu tiền nhưng không tạo được bản bếp: {}", ticketNo, e.getMessage());
+            }
             audit(shopId, orderId, "TAKEAWAY_CREATE", ticketNo, quote.getTotal());
             return Result.success(resp);
         } catch (Exception e) {
             log.error("Lỗi tạo phiếu mang về: ", e);
+            if (committed) {
+                // đã commit MySQL: không hoàn kho, không xoá khoá, không báo lỗi "chưa thu tiền"
+                return Result.error(500, "Đơn đã tạo nhưng có lỗi sau khi lưu, vui lòng kiểm tra lại");
+            }
             if (stockReduced) {
                 try {
-                    productFeign.restoreInventories(stock);
+                    Result restoreRes = productFeign.restoreInventories(stock);
+                    if (restoreRes == null || restoreRes.getCode() == null || restoreRes.getCode() != 200) {
+                        log.error("Hoàn kho thất bại cho {}: {}", stock, restoreRes);
+                    }
                 } catch (Exception restoreErr) {
                     log.error("Không hoàn được kho sau khi tạo phiếu mang về lỗi: {}", restoreErr.getMessage());
                 }
             }
             redisCache.deleteObject(reqKey);
+            if (e instanceof IllegalStateException) {
+                return Result.error(500, e.getMessage());
+            }
             return Result.error(500, "Không tạo được đơn, chưa thu tiền");
         }
     }
@@ -212,7 +245,7 @@ public class TakeawayServiceImpl implements TakeawayService {
         redisCache.deleteObject(infoKey);
         redisCache.deleteObject(ORDER_ITEM + ":" + shopId + ":" + tableKey);
         String orderId = map.get("id").toString();
-        publish(shopId, tableKey, orderId, BigDecimal.ZERO);
+        publish(shopId, tableKey, orderId, BigDecimal.ZERO, "HANDOVER");
         audit(shopId, orderId, "TAKEAWAY_HANDOVER", ticketNo, null);
         return Result.success();
     }
@@ -271,11 +304,12 @@ public class TakeawayServiceImpl implements TakeawayService {
         return list;
     }
 
-    private void publish(Long shopId, long tableKey, String orderId, BigDecimal payAmount) {
+    private void publish(Long shopId, long tableKey, String orderId, BigDecimal payAmount, String op) {
         JSONObject msg = new JSONObject();
         msg.put("shopId", shopId);
         msg.put("tableId", String.valueOf(tableKey));
         msg.put("orderId", orderId);
+        msg.put("op", op);
         msg.put("version", 1L);
         msg.put("payAmount", payAmount);
         msg.put("payosCancelled", false);
