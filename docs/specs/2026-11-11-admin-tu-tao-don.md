@@ -1,6 +1,6 @@
 # Spec: chủ quán tự tạo đơn – mở đơn cho bàn trống và bán mang về
 
-> Ngày: 11/11/2026 · Trạng thái: **chờ chủ dự án duyệt bản viết** (thiết kế đã duyệt từng phần trong chat 11/11/2026)
+> Ngày: 11/11/2026 · Trạng thái: **đã duyệt** 11/11/2026; cập nhật 12/11/2026 cho khớp bản cài đặt (mục 6, 8)
 > Nhánh: `feat/admin-order` · Nối tiếp spec OE: `docs/specs/2026-10-31-admin-sua-don.md`
 > Mockup: `docs/design/mockups/admin/a16-admin-order.html` (story AO-0, chưa có)
 
@@ -65,11 +65,11 @@
 | Method | Path | Body | Ghi chú |
 |---|---|---|---|
 | POST | `/order/order/openOrder/{tableId}/items` | `{version, productId, specOptionIds[], quantity}` | **Đổi:** bàn chưa có đơn + `version = 0` → tạo đơn (`orderId` mới, `version = 1`), trừ kho, giá từ `priceQuote`. Bàn có đơn + `version = 0` → 409. Bàn chưa có đơn + `version ≠ 0` → 404 như cũ. `tableId` âm → 400 |
-| POST | `/order/order/takeaway/quote` | `{items: [{productId, specOptionIds[], quantity}]}` | Chỉ báo giá (không trừ kho, không lưu): từng dòng `{name, price, propsText, available}` + `total` |
+| POST | `/order/order/takeaway/quote` | `{items: [{productId, specOptionIds[], quantity}]}` | Chỉ báo giá (không trừ kho, không lưu): từng dòng `{productId, name, price, propsText, quantity, lineTotal}` + `total`. Món ngừng bán / hết hàng → lỗi từ product (mã ≠ 200, thông điệp tiếng Việt), không trả cờ `available` từng dòng |
 | POST | `/order/order/takeaway` | `{requestId, items[], payType, remark}` | Báo giá → trừ kho → MySQL (`order_type = 1`, `ticket_no`) + Kafka → Redis `-n` → publish `order_edited` (`op: TAKEAWAY`). Trả `{ticketNo, orderId, payAmount}` |
 | POST | `/order/order/takeaway/{ticketNo}/handover` | – | Xoá `ORDERINFO`/`ORDER_ITEM` `-n` → publish `order_edited` (`op: HANDOVER`) |
 
-- Khoá: mở đơn bàn trống giữ `lock:order:<shop>:<table>` rồi `lock:checkout:<shop>:<table>` như OE; tạo phiếu mang về giữ `lock:takeaway:<shop>:<requestId>`.
+- Khoá: mở đơn bàn trống giữ `lock:order:<shop>:<table>` rồi `lock:checkout:<shop>:<table>` như OE; tạo phiếu mang về chặn trùng bằng `SET NX TAKEAWAY_REQ:<shop>:<requestId>` (giá trị `PENDING` rồi kết quả JSON), không dùng khoá Redisson riêng. Gửi lại khi còn `PENDING` → 409; client coi 409/5xx là "chưa chắc đã thu tiền" và giữ nguyên `requestId`.
 - `payType` chỉ nhận 4 (Tiền mặt) hoặc 1 (Chuyển khoản) cho mang về.
 - Audit qua `systemFeign.recordInternalAudit`: mở đơn → `ORDER_EDIT` với `op = OPEN`; mang về → `TAKEAWAY_CREATE`, `TAKEAWAY_HANDOVER`.
 - WS: dùng lại kênh Redis `order_edited` → `{"msg":"orderEdited",...}` tới admin và bàn; bếp tải lại danh sách (đã có từ OE-5). Với id âm, websocket không cần gửi cho bàn.
@@ -86,7 +86,7 @@
 |---|---|
 | Unit backend | bàn trống + `version = 0` tạo đơn; bàn có đơn + `version = 0` → 409; bàn quán khác → 403; `tableId` âm vào API OE → 400; mang về lấy giá server (bỏ qua giá client); số phiếu tăng theo ngày; `requestId` trùng trả cùng phiếu, trừ kho 1 lần; hết hàng không ghi gì; MySQL lỗi → hoàn kho; "Đã giao" xoá Redis; sửa / `checkout` phiếu mang về bị chặn |
 | Unit frontend | "Mở đơn" trên bàn trống; hộp "Đơn mang về" (tổng từ server, thu tiền, số phiếu, gửi lại cùng `requestId`); dải phiếu + "Đã giao"; lưới bàn bỏ qua id âm; bếp hiện "MV-n" |
-| E2E kịch bản 8 (bàn 5 + 1 phiếu) | Mở đơn bàn 5 trống → 2 món → bếp thấy → thu tiền. Phiếu mang về 2 món tiền mặt → MV-n ở bếp → bếp "Đã lên" → "Đã giao" → phiếu biến mất. Doanh thu hôm nay tăng đúng tổng 2 đơn, kho giảm đúng |
+| E2E kịch bản 8 (bàn 5 + 1 phiếu) | Mở đơn bàn 5 trống → 2 món → bếp thấy → thu tiền. Phiếu mang về 2 món tiền mặt → MV-n ở bếp → bếp "Đã lên" → "Đã giao" → phiếu biến mất. Doanh thu hôm nay tăng đúng tổng 2 đơn, kho giảm đúng. *Bản cài đặt hiện tại:* bàn 5 thêm 1 món, bếp "Đã lên" qua API, chưa kiểm kho (hoãn, xem ledger M6) |
 | Chạy thật | Stack local, dán log / curl làm bằng chứng |
 
 ## 9. Story
