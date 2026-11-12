@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import QRCode from 'qrcode';
+import { isTakeawayTableId } from '../../utils/takeaway';
 import {
   Plus,
   Edit2,
@@ -101,7 +102,7 @@ export const TableManage: React.FC = () => {
         openOrders.forEach((o) => {
           // API trả về { orderInfo, orderItems }: tableId nằm trong orderInfo
           const tableId = o.orderInfo?.tableId ?? o.tableId;
-          if (tableId !== undefined && tableId !== null) {
+          if (tableId !== undefined && tableId !== null && !isTakeawayTableId(tableId)) {
             activeIds.add(tableId);
             activeIds.add(String(tableId));
             activeIds.add(Number(tableId));

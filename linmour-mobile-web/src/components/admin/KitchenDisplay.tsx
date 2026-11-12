@@ -536,6 +536,8 @@ export const KitchenDisplay: React.FC = () => {
                 className={`w-[310px] bg-slate-950 rounded-2xl shadow-xl flex flex-col shrink-0 h-full overflow-hidden transition ${
                   allDone
                     ? 'border border-slate-800 opacity-70 hover:opacity-100'
+                    : isTakeawayTableId(tableId)
+                    ? 'border border-amber-300'
                     : isUrgent
                     ? 'border-2 border-red-500/80'
                     : 'border border-slate-700'
@@ -546,12 +548,20 @@ export const KitchenDisplay: React.FC = () => {
                   className={`p-3.5 border-b flex items-center justify-between ${
                     isUrgent && !allDone
                       ? 'bg-red-950/40 border-red-900/50'
+                      : isTakeawayTableId(tableId)
+                      ? 'bg-amber-50 border-amber-200'
                       : 'bg-slate-900 border-slate-800'
                   }`}
                 >
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-black text-white">{tableName}</span>
+                      <span
+                        className={`text-lg font-black ${
+                          isTakeawayTableId(tableId) && !(isUrgent && !allDone) ? 'text-slate-900' : 'text-white'
+                        }`}
+                      >
+                        {tableName}
+                      </span>
                       {allDone ? (
                         <span className="px-2 py-0.5 bg-green-950 text-green-400 border border-green-800 font-bold text-xs rounded-md">
                           Đã phục vụ
@@ -568,7 +578,11 @@ export const KitchenDisplay: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-slate-400 mt-0.5">
+                    <div
+                      className={`text-xs mt-0.5 ${
+                        isTakeawayTableId(tableId) && !(isUrgent && !allDone) ? 'text-slate-500' : 'text-slate-400'
+                      }`}
+                    >
                       Đơn #{order.orderInfo.id?.slice(-8) || 'ORD'} •{' '}
                       {order.orderInfo.createTime
                         ? new Date(order.orderInfo.createTime).toLocaleTimeString('vi-VN', {

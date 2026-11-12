@@ -158,7 +158,7 @@ export const OrderMonitor: React.FC = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   // AO-4: đơn mang về
   const [isTakeawayOpen, setIsTakeawayOpen] = useState(false);
-  const [handoverBusy, setHandoverBusy] = useState<number | null>(null);
+  const [handoverBusy, setHandoverBusy] = useState<Set<number>>(new Set());
 
   // Shop info for 80mm thermal receipt printing (PR-1)
   const [shopInfo, setShopInfo] = useState<{ name: string; position?: string; phone?: string }>({
@@ -345,15 +345,21 @@ export const OrderMonitor: React.FC = () => {
   );
 
   const handleHandover = async (ticketNo: number) => {
-    setHandoverBusy(ticketNo);
+    setHandoverBusy((prev) => new Set(prev).add(ticketNo));
     try {
       await handoverTakeaway(ticketNo);
+      // Bỏ chip ngay để không bấm lại trong lúc tải lại danh sách
+      setOpenOrders((prev) => prev.filter((o) => Number(o?.orderInfo?.tableId) !== -ticketNo));
       setFeedbackToast(`Đã giao phiếu MV-${ticketNo}.`);
     } catch (err) {
       setFeedbackToast(err instanceof Error && err.message ? err.message : 'Không cập nhật được phiếu, vui lòng thử lại');
     } finally {
-      setHandoverBusy(null);
-      refreshData(true);
+      await refreshData(true);
+      setHandoverBusy((prev) => {
+        const next = new Set(prev);
+        next.delete(ticketNo);
+        return next;
+      });
     }
   };
 
@@ -769,7 +775,7 @@ export const OrderMonitor: React.FC = () => {
         </div>
       </header>
 
-      <TakeawayStrip orders={takeawayOrders} busyTicket={handoverBusy} onHandover={handleHandover} />
+      <TakeawayStrip orders={takeawayOrders} busyTickets={handoverBusy} onHandover={handleHandover} />
 
       {/* 2. Main Dual-Pane Workspace */}
       <div className="flex-1 flex overflow-hidden p-5 gap-5">

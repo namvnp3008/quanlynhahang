@@ -4,12 +4,12 @@ import { takeawayLabel, takeawayTicketNo } from '../../utils/takeaway';
 
 interface TakeawayStripProps {
   orders: OrderAllDto[];
-  busyTicket: number | null;
+  busyTickets: Set<number>;
   onHandover: (ticketNo: number) => void;
 }
 
 /** AO-4: Phiếu mang về đã trả tiền, bếp đang làm */
-export const TakeawayStrip: React.FC<TakeawayStripProps> = ({ orders, busyTicket, onHandover }) => {
+export const TakeawayStrip: React.FC<TakeawayStripProps> = ({ orders, busyTickets, onHandover }) => {
   const [confirming, setConfirming] = useState<number | null>(null);
   if (orders.length === 0) return null;
 
@@ -70,7 +70,7 @@ export const TakeawayStrip: React.FC<TakeawayStripProps> = ({ orders, busyTicket
                   <button
                     type="button"
                     data-testid={`takeaway-handover-${n}`}
-                    disabled={busyTicket === n}
+                    disabled={busyTickets.has(n)}
                     onClick={() => (allServed ? onHandover(n) : setConfirming(n))}
                     className="min-h-[44px] px-4 rounded-lg bg-slate-900 text-white text-xs font-bold disabled:opacity-50"
                   >

@@ -368,5 +368,6 @@ describe('KitchenDisplay – phiếu mang về (AO-4)', () => {
       </MemoryRouter>
     );
     expect(await screen.findByText('MV-12 · Mang về')).toBeInTheDocument();
+    expect(screen.getByTestId('kitchen-ticket--12').className).toContain('border-amber-300');
   });
 });

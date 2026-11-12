@@ -102,6 +102,22 @@ describe('OrderMonitor – mở đơn cho bàn trống (AO-3)', () => {
     await waitFor(() => expect(api.getOpenOrders).toHaveBeenCalled());
   });
 
+  it('Đã giao lỗi 404: hiện thông báo của máy chủ và tải lại danh sách', async () => {
+    vi.mocked(api.getOpenOrders).mockResolvedValue([
+      {
+        orderInfo: { id: '9200', tableId: -12, payAmount: 10000, orderStatus: 1, payStatus: 1, payType: 4, shopId: 1, orderType: 1, ticketNo: 12 },
+        orderItems: [{ productId: 12, name: 'Trà Đá', price: 5000, quantity: 2, status: 2 }],
+      },
+    ]);
+    vi.mocked(api.handoverTakeaway).mockRejectedValue(new ApiError(404, 'Phiếu MV-12 không còn'));
+    render(<OrderMonitor />);
+    await screen.findByTestId('takeaway-chip-12');
+    vi.mocked(api.getOpenOrders).mockClear();
+    fireEvent.click(screen.getByTestId('takeaway-handover-12'));
+    expect(await screen.findByText('Phiếu MV-12 không còn')).toBeDefined();
+    await waitFor(() => expect(api.getOpenOrders).toHaveBeenCalled());
+  });
+
   it('nút + Mang về mở hộp đơn mang về', async () => {
     render(<OrderMonitor />);
     fireEvent.click(await screen.findByTestId('open-takeaway-btn'));
