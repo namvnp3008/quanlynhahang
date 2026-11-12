@@ -859,3 +859,104 @@ test.describe('Kịch bản 7 – Chủ quán sửa đơn đang mở (OE-6)', ()
     execFileSync('python3', ['-c', "import redis; redis.Redis(host='127.0.0.1', port=6379, db=2).delete('orderInfo:1:5', 'orderItem:1:5')"]);
   });
 });
+
+test.describe('Kịch bản 8 – Chủ quán tự tạo đơn: bàn trống và mang về (AO-5)', () => {
+  const GATEWAY = 'http://127.0.0.1:12800';
+  type MenuProduct = { id: number; name: string; price: number; status: number; productSortAndOptions?: { productSpecSort: { required?: number } }[] };
+  const api = async (method: string, urlPath: string, token: string, body?: unknown) =>
+    (await fetch(`${GATEWAY}${urlPath}`, {
+      method,
+      headers: { 'Content-Type': 'application/json', token, Shopid: '1' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    })).json();
+  const today = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
+  test.beforeEach(async () => {
+    await cleanTable5();
+  });
+  test.afterEach(async () => {
+    await cleanTable5();
+  });
+
+  test('mở đơn bàn 5 trống rồi thu tiền; phiếu mang về MV-n lên bếp, giao xong biến mất; doanh thu đúng', async ({ browser }) => {
+    test.setTimeout(150000);
+    const token: string = (await (await fetch(`${GATEWAY}/system/merchant/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: E2E_MERCHANT_PHONE, password: E2E_MERCHANT_PASSWORD }),
+    })).json())?.data?.token;
+    expect(token).toBeTruthy();
+    const menu = await (await fetch(`${GATEWAY}/app/product/product/getProductList`, { headers: { Shopid: '1' } })).json();
+    const [p, q] = (menu?.data || [])
+      .flatMap((s: { list?: MenuProduct[] }) => s.list || [])
+      .filter((x: MenuProduct) => x.status === 1 && !(x.productSortAndOptions || []).some((g) => g.productSpecSort.required === 1));
+    const vnd = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
+    const report = async () => (await api('GET', `/dataAnaly/analysis/shopReport?startDate=${today()}&endDate=${today()}`, token)).data.summary;
+    const before = await report();
+
+    const adminContext = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+    const admin = await adminContext.newPage();
+    await admin.goto('/admin/login');
+    await admin.fill('[data-testid="login-phone-input"]', E2E_MERCHANT_PHONE);
+    await admin.fill('[data-testid="login-password-input"]', E2E_MERCHANT_PASSWORD);
+    await admin.click('[data-testid="login-submit-btn"]');
+    await expect(admin.locator('[data-testid="admin-layout"]')).toBeVisible({ timeout: 10000 });
+    await admin.goto('/admin/orders');
+
+    // A. Bàn 5 trống → Mở đơn → thêm p → Xong → thu tiền mặt
+    await admin.locator('[data-testid="table-card-5"]').first().click();
+    await admin.click('[data-testid="open-order-btn"]');
+    const addDialog = admin.locator('[data-testid="add-item-dialog"]');
+    await addDialog.locator('[data-testid="add-item-search"]').fill(p.name);
+    await addDialog.locator(`[data-testid="add-item-product-${p.id}"]`).click();
+    await addDialog.locator('[data-testid="add-item-submit"]').click();
+    await expect(admin.locator('[data-testid="edit-item-0"]')).toBeVisible();
+    await expect(admin.locator('[data-testid="detail-total-amount"]')).toContainText(vnd(p.price));
+    await admin.click('[data-testid="finish-edit-order-btn"]');
+    await admin.click('[data-testid="checkout-button"]');
+    await admin.click('[data-testid="confirm-checkout-btn"]');
+    await expect
+      .poll(async () => (await api('GET', '/order/order/openOrders', token)).data?.some((o: { orderInfo: { tableId: number } }) => o.orderInfo.tableId === 5))
+      .toBe(false);
+
+    // B. + Mang về: q × 2, tiền mặt → MV-n
+    await admin.click('[data-testid="open-takeaway-btn"]');
+    const tw = admin.locator('[data-testid="takeaway-dialog"]');
+    await tw.locator('[data-testid="takeaway-add-item-btn"]').click();
+    await addDialog.locator('[data-testid="add-item-search"]').fill(q.name);
+    await addDialog.locator(`[data-testid="add-item-product-${q.id}"]`).click();
+    await addDialog.locator('[data-testid="add-item-submit"]').click();
+    await tw.getByLabel(`Tăng 1 ${q.name}`).click();
+    await expect(tw.locator('[data-testid="takeaway-total"]')).toContainText(vnd(q.price * 2));
+    await tw.locator('[data-testid="takeaway-remark"]').fill('E2E AO-5');
+    await tw.locator('[data-testid="takeaway-submit"]').click();
+    const ticketText = (await tw.locator('[data-testid="takeaway-ticket"]').textContent()) || '';
+    const n = Number(ticketText.replace('MV-', ''));
+    expect(n).toBeGreaterThan(0);
+    await tw.locator('[data-testid="takeaway-done-btn"]').click();
+    await expect(admin.locator(`[data-testid="takeaway-chip-${n}"]`)).toContainText('0/1 đã lên');
+
+    // C. Bếp thấy MV-n · Mang về; đánh dấu đã lên
+    const kitchen = await adminContext.newPage();
+    await kitchen.goto('/admin/kitchen');
+    await expect(kitchen.getByText(`MV-${n} · Mang về`)).toBeVisible({ timeout: 10000 });
+    expect((await api('POST', `/order/order/setOrderItemStatus/-${n}/0`, token, { status: 2 })).code).toBe(200);
+
+    // D. Đã giao → phiếu rời dải và bếp
+    // itemStatus chỉ phát tới khách ở bàn; trang admin tự tải lại mỗi 20 giây
+    await expect(admin.locator(`[data-testid="takeaway-chip-${n}"]`)).toContainText('1/1 đã lên', { timeout: 25000 });
+    await admin.click(`[data-testid="takeaway-handover-${n}"]`);
+    await expect(admin.locator(`[data-testid="takeaway-chip-${n}"]`)).toHaveCount(0);
+    await kitchen.reload();
+    await expect(kitchen.getByText(`MV-${n} · Mang về`)).toHaveCount(0);
+
+    // E. Doanh thu hôm nay tăng đúng 2 đơn và đúng tổng tiền (Kafka có độ trễ)
+    await expect.poll(async () => (await report()).orderCount, { timeout: 30000 }).toBe(before.orderCount + 2);
+    expect(Number((await report()).revenue)).toBe(Number(before.revenue) + p.price + q.price * 2);
+
+    await adminContext.close();
+  });
+});
