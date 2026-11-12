@@ -299,9 +299,23 @@ export const KitchenDisplay: React.FC = () => {
   };
 
   // Filter tickets according to current status tab
+  // Phiếu mang về: cũ nhất lên trước (FIFO); bàn giữ nguyên thứ tự máy chủ
+  const sortedOrders = useMemo(() => {
+    const takeaways = openOrders
+      .filter((o) => isTakeawayTableId(o.orderInfo.tableId))
+      .sort((a, b) => {
+        const ta = a.orderInfo.createTime ? Date.parse(a.orderInfo.createTime) : NaN;
+        const tb = b.orderInfo.createTime ? Date.parse(b.orderInfo.createTime) : NaN;
+        if (Number.isFinite(ta) && Number.isFinite(tb) && ta !== tb) return ta - tb;
+        return (a.orderInfo.ticketNo ?? -Number(a.orderInfo.tableId)) - (b.orderInfo.ticketNo ?? -Number(b.orderInfo.tableId));
+      });
+    let next = 0;
+    return openOrders.map((o) => (isTakeawayTableId(o.orderInfo.tableId) ? takeaways[next++] : o));
+  }, [openOrders]);
+
   const filteredOrders = useMemo(() => {
-    if (filter === 'ALL') return openOrders;
-    return openOrders
+    if (filter === 'ALL') return sortedOrders;
+    return sortedOrders
       .map((ord) => {
         const matchingItems = (ord.orderItems || []).filter(
           (it) => (it.status ?? 0) === filter
@@ -312,7 +326,7 @@ export const KitchenDisplay: React.FC = () => {
         };
       })
       .filter((ord) => ord.orderItems.length > 0);
-  }, [openOrders, filter]);
+  }, [sortedOrders, filter]);
 
   return (
     <div

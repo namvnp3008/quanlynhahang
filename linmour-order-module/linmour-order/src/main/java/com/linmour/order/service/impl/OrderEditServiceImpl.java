@@ -128,7 +128,8 @@ public class OrderEditServiceImpl implements OrderEditService {
             String orderId = map.get("id").toString();
             BigDecimal amountBefore = parseAmount(map.get("payAmount"));
 
-            List<Object> cacheList = redisCache.getCacheList(orderItemKey);
+            // Bàn trống mở đơn mới: không gộp danh sách món cũ còn sót trong Redis
+            List<Object> cacheList = opening ? null : redisCache.getCacheList(orderItemKey);
             List<OrderItem> items = cacheList != null
                     ? new ArrayList<>(JSONObject.parseArray(JSONObject.toJSONString(cacheList), OrderItem.class))
                     : new ArrayList<>();

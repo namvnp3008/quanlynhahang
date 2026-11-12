@@ -44,6 +44,9 @@ public class OrderEditedSubscriber implements MessageListener {
             data.put("version", json.getLong("version"));
             data.put("payAmount", json.getBigDecimal("payAmount"));
             data.put("payosCancelled", json.getBooleanValue("payosCancelled"));
+            if (StringUtils.isNotBlank(json.getString("op"))) {
+                data.put("op", json.getString("op"));
+            }
             JSONObject wsMsg = new JSONObject();
             wsMsg.put("msg", "orderEdited");
             wsMsg.put("data", data);

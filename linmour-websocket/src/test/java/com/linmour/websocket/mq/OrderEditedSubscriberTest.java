@@ -89,6 +89,21 @@ public class OrderEditedSubscriberTest {
     }
 
     @Test
+    public void forwardsOpWhenPresent() throws Exception {
+        WebSocketServer adminWs = new WebSocketServer();
+        adminWs.setShopId("1");
+        RemoteEndpoint.Basic adminRemote = mockSession(adminWs, "admin-sess");
+        WebSocketServer.getWebSocketMap().put("1", adminWs);
+
+        subscriber.onMessage(new DefaultMessage("order_edited".getBytes(StandardCharsets.UTF_8),
+                "{\"shopId\":1,\"tableId\":\"-12\",\"op\":\"TAKEAWAY\"}".getBytes(StandardCharsets.UTF_8)), null);
+
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        verify(adminRemote).sendObject(captor.capture());
+        assertEquals("TAKEAWAY", ((JSONObject) captor.getValue()).getJSONObject("data").getString("op"));
+    }
+
+    @Test
     public void ignoresPayloadWithoutTable() throws Exception {
         WebSocketServer adminWs = new WebSocketServer();
         adminWs.setShopId("1");

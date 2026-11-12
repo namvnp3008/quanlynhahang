@@ -318,6 +318,20 @@ public class OrderEditServiceTest {
     }
 
     @Test
+    public void addItem_EmptyTable_IgnoresStaleItemList() {
+        emptyTable();
+        when(redisCache.getCacheList(ITEM_KEY)).thenReturn(new ArrayList<>(Collections.singletonList(item(8L, "Bún Chả", "55000", 2, 2))));
+        OrderEditReqDto r = req(0L, 2, null);
+        r.setProductId(12L);
+
+        Result result = orderEditService.addItem(5L, r);
+
+        assertEquals(200, result.getCode().intValue());
+        assertEquals(1, savedItems().size());
+        verify(redisCache).setHashValue(INFO_KEY, "payAmount", new BigDecimal("10000"));
+    }
+
+    @Test
     public void addItem_TableHasOrderButVersion0_Returns409() {
         OrderEditReqDto r = req(0L, 1, null);
         r.setProductId(12L);

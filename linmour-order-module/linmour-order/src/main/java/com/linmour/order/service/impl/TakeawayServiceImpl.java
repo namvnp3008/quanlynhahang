@@ -196,6 +196,8 @@ public class TakeawayServiceImpl implements TakeawayService {
                 hash.put("version", 1L);
                 hash.put("createTime", now);
                 redisCache.setHashValues(ORDERINFO + ":" + shopId + ":" + tableKey, hash);
+                // Xoá danh sách món sót lại của phiếu cùng số trước khi ghi (RPUSH sẽ nối vào)
+                redisCache.deleteObject(ORDER_ITEM + ":" + shopId + ":" + tableKey);
                 redisCache.setCacheList(ORDER_ITEM + ":" + shopId + ":" + tableKey, toItems(quote, shopId, orderId, 0));
                 publish(shopId, tableKey, orderId, quote.getTotal(), "TAKEAWAY");
             } catch (Exception e) {

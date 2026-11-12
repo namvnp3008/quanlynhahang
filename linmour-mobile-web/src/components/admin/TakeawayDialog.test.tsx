@@ -161,4 +161,36 @@ describe('TakeawayDialog (AO-4)', () => {
     fireEvent.keyDown(document, { key: 'Escape' });
     await waitFor(() => expect(screen.queryByTestId('takeaway-discard-confirm')).toBeNull());
   });
+
+  it.each([
+    ['409 đang xử lý', new ApiError(409, 'Đơn đang được xử lý, vui lòng đợi')],
+    ['502 không phải JSON', new ApiError(502, 'Lỗi mạng HTTP 502: Bad Gateway')],
+  ])('%s sau lỗi mạng → vẫn khoá, giữ requestId, ✕ cảnh báo chưa chắc đã thu', async (_n, apiErr) => {
+    vi.mocked(api.createTakeaway)
+      .mockRejectedValueOnce(new Error('Failed to fetch'))
+      .mockRejectedValueOnce(apiErr);
+    const onClose = vi.fn();
+    render(<TakeawayDialog onClose={onClose} onCreated={vi.fn()} />);
+    await addProduct();
+    fireEvent.click(await screen.findByTestId('takeaway-submit'));
+    await screen.findByText(/Lỗi mạng, chưa chắc/);
+    fireEvent.click(screen.getByTestId('takeaway-submit'));
+    await waitFor(() => expect(api.createTakeaway).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText(/Lỗi mạng, chưa chắc/)).toBeDefined();
+    expect((screen.getByLabelText('Tăng 1 Trà Đá') as HTMLButtonElement).disabled).toBe(true);
+    const [a, b] = vi.mocked(api.createTakeaway).mock.calls.map((c) => c[0].requestId);
+    expect(b).toBe(a);
+    fireEvent.click(screen.getByTestId('takeaway-close-btn'));
+    expect(await screen.findByText(/Chưa chắc đã thu tiền/)).toBeDefined();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('lỗi 500 "chưa thu tiền" là dứt khoát → mở khoá', async () => {
+    vi.mocked(api.createTakeaway).mockRejectedValue(new ApiError(500, 'Không tạo được đơn, chưa thu tiền'));
+    render(<TakeawayDialog onClose={vi.fn()} onCreated={vi.fn()} />);
+    await addProduct();
+    fireEvent.click(await screen.findByTestId('takeaway-submit'));
+    await screen.findByText('Không tạo được đơn, chưa thu tiền');
+    expect((screen.getByLabelText('Tăng 1 Trà Đá') as HTMLButtonElement).disabled).toBe(false);
+  });
 });

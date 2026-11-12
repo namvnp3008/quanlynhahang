@@ -19,6 +19,16 @@ const payTypeClass = (active: boolean) =>
     active ? 'border-2 border-blue-600 bg-blue-50 text-blue-700' : 'border border-slate-300 bg-white text-slate-700'
   }`;
 
+/**
+ * 409 (phiếu đang xử lý) và 5xx / lỗi không phải JSON: máy chủ có thể vẫn tạo phiếu → coi là chưa chắc.
+ * Chỉ lỗi nghiệp vụ 4xx và câu "chưa thu tiền" mới chắc chắn là chưa thu.
+ */
+const isDefiniteFailure = (err: ApiError): boolean => {
+  if (err.code === 409) return false;
+  if (err.code >= 500) return err.message.includes('chưa thu tiền');
+  return true;
+};
+
 /** AO-4: Đơn mang về – chọn món, thu tiền trước rồi báo bếp */
 export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreated }) => {
   const [lines, setLines] = useState<AddItemSelection[]>([]);
@@ -95,8 +105,8 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
       setUncertain(false);
       setResult(created);
     } catch (err) {
-      if (err instanceof ApiError) {
-        // Máy chủ đã trả lời dứt khoát và xoá khoá requestId, được sửa đơn lại
+      if (err instanceof ApiError && isDefiniteFailure(err)) {
+        // Máy chủ đã trả lời dứt khoát (lỗi nghiệp vụ 4xx / chưa thu tiền), được sửa đơn lại
         setUncertain(false);
         setError(err.message);
       } else {
@@ -270,7 +280,9 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
                 )}
                 {confirmDiscard && !isSubmitting ? (
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold">Bỏ đơn mang về đang chọn?</span>
+                    <span className="text-sm font-bold">
+                      {uncertain ? 'Chưa chắc đã thu tiền, bỏ đơn có thể bỏ sót phiếu đã thu. Vẫn bỏ?' : 'Bỏ đơn mang về đang chọn?'}
+                    </span>
                     <button type="button" onClick={() => setConfirmDiscard(false)} className="min-h-[44px] px-4 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700">
                       Tiếp tục chọn
                     </button>

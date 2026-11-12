@@ -370,4 +370,32 @@ describe('KitchenDisplay – phiếu mang về (AO-4)', () => {
     expect(await screen.findByText('MV-12 · Mang về')).toBeInTheDocument();
     expect(screen.getByTestId('kitchen-ticket--12').className).toContain('border-amber-300');
   });
+
+  it('phiếu mang về xếp cũ nhất trước, bàn giữ nguyên thứ tự', async () => {
+    vi.spyOn(api, 'getAdminShopId').mockReturnValue('1');
+    vi.spyOn(api, 'getTables').mockResolvedValue([{ id: 1, name: 'BÀN 01', shopId: 1 }]);
+    const mk = (id: string, tableId: number, ticketNo: number | undefined, createTime: string) => ({
+      orderInfo: { id, tableId, payAmount: 1, orderStatus: 1, payStatus: tableId < 0 ? 1 : 0, payType: 4, shopId: 1, orderType: tableId < 0 ? 1 : 0, ticketNo, createTime },
+      orderItems: [{ productId: 12, name: 'Trà Đá', price: 5000, quantity: 1, status: 0 }],
+    });
+    vi.spyOn(api, 'getOpenOrders').mockResolvedValue([
+      mk('3', -3, 3, '2026-11-12T10:03:00'),
+      mk('2', -2, 2, '2026-11-12T10:02:00'),
+      mk('1', -1, 1, '2026-11-12T10:01:00'),
+      mk('9', 1, undefined, '2026-11-12T09:00:00'),
+    ] as never);
+    vi.spyOn(websocket, 'getOrCreateAdminWebSocket').mockReturnValue({
+      subscribe: vi.fn(() => () => {}),
+      send: vi.fn(),
+      close: vi.fn(),
+    } as unknown as websocket.WebSocketClient);
+    render(
+      <MemoryRouter>
+        <KitchenDisplay />
+      </MemoryRouter>
+    );
+    await screen.findByText('MV-1 · Mang về');
+    const ids = screen.getAllByTestId(/^kitchen-ticket-/).map((e) => e.getAttribute('data-testid'));
+    expect(ids).toEqual(['kitchen-ticket--1', 'kitchen-ticket--2', 'kitchen-ticket--3', 'kitchen-ticket-1']);
+  });
 });

@@ -130,6 +130,15 @@ public class TakeawayServiceTest {
     }
 
     @Test
+    public void create_ClearsLeftoverItemListBeforeWriting() {
+        takeawayService.create(req("r1", 4));
+
+        org.mockito.InOrder order = org.mockito.Mockito.inOrder(redisCache);
+        order.verify(redisCache).deleteObject("orderItem:1:-12");
+        order.verify(redisCache).setCacheList(eq("orderItem:1:-12"), anyList());
+    }
+
+    @Test
     public void create_KitchenCopyFails_AfterCommit_StillPaid_NoRestore() {
         doThrow(new RuntimeException("redis down")).when(redisCache).setHashValues(anyString(), anyMap());
         Result r = takeawayService.create(req("r1", 4));
