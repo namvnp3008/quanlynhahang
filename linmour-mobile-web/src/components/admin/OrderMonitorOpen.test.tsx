@@ -98,7 +98,7 @@ describe('OrderMonitor – mở đơn cho bàn trống (AO-3)', () => {
     expect(await screen.findByTestId('open-order-btn')).toBeDefined();
     vi.mocked(api.getOpenOrders).mockClear();
     fireEvent.click(screen.getByTestId('takeaway-handover-12'));
-    await waitFor(() => expect(api.handoverTakeaway).toHaveBeenCalledWith(12));
+    await waitFor(() => expect(api.handoverTakeaway).toHaveBeenCalledWith(12, '9200'));
     await waitFor(() => expect(api.getOpenOrders).toHaveBeenCalled());
   });
 

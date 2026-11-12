@@ -81,8 +81,9 @@ public class OrderController {
 
     /** AO-2: Đã giao phiếu mang về → rời màn bếp */
     @PostMapping("/takeaway/{ticketNo}/handover")
-    public Result handoverTakeaway(@PathVariable Integer ticketNo) {
-        return takeawayService.handover(ticketNo);
+    public Result handoverTakeaway(@PathVariable Integer ticketNo, @RequestBody(required = false) Map<String, Object> body) {
+        Object orderId = body != null ? body.get("orderId") : null;
+        return takeawayService.handover(ticketNo, orderId != null ? orderId.toString() : null);
     }
 
     @PostMapping("/updateOrderItemStatus/{tableId}/{index}")

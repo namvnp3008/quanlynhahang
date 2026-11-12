@@ -21,7 +21,7 @@ describe('TakeawayStrip (AO-4)', () => {
     expect(screen.getByTestId('takeaway-chip-11').textContent).toContain('2/2 đã lên');
     expect(screen.getByTestId('takeaway-chip-12').textContent).toContain('1/3 đã lên');
     fireEvent.click(screen.getByTestId('takeaway-handover-11'));
-    expect(onHandover).toHaveBeenCalledWith(11);
+    expect(onHandover).toHaveBeenCalledWith(11, '9011');
   });
 
   it('còn món chưa lên thì hỏi xác nhận trước khi giao', () => {
@@ -30,7 +30,7 @@ describe('TakeawayStrip (AO-4)', () => {
     fireEvent.click(screen.getByTestId('takeaway-handover-12'));
     expect(onHandover).not.toHaveBeenCalled();
     fireEvent.click(screen.getByTestId('takeaway-handover-confirm-12'));
-    expect(onHandover).toHaveBeenCalledWith(12);
+    expect(onHandover).toHaveBeenCalledWith(12, '9012');
   });
 
   it('Huỷ đóng xác nhận mà không giao', () => {

@@ -239,7 +239,7 @@ public class TakeawayServiceTest {
         hash.put("id", "9001");
         hash.put("orderType", 1);
         when(redisCache.getAllHash("orderInfo:1:-12")).thenReturn(hash);
-        Result r = takeawayService.handover(12);
+        Result r = takeawayService.handover(12, "9001");
         assertEquals(200, r.getCode().intValue());
         verify(redisCache).deleteObject("orderInfo:1:-12");
         verify(redisCache).deleteObject("orderItem:1:-12");
@@ -250,8 +250,27 @@ public class TakeawayServiceTest {
     @Test
     public void handover_UnknownTicket_Returns404() {
         when(redisCache.getAllHash("orderInfo:1:-99")).thenReturn(new HashMap<>());
-        assertEquals(404, takeawayService.handover(99).getCode().intValue());
+        assertEquals(404, takeawayService.handover(99, "9001").getCode().intValue());
         verify(redisCache, never()).deleteObject(anyString());
+    }
+
+    @Test
+    public void handover_OrderIdMismatch_Returns409_KeepsTicket() {
+        // MV-12 trên màn hình là phiếu cũ; key -12 giờ thuộc phiếu khác
+        Map<String, Object> hash = new HashMap<>();
+        hash.put("id", "9002");
+        when(redisCache.getAllHash("orderInfo:1:-12")).thenReturn(hash);
+        Result r = takeawayService.handover(12, "9001");
+        assertEquals(409, r.getCode().intValue());
+        verify(redisCache, never()).deleteObject(anyString());
+        verify(redisCache, never()).convertAndSend(anyString(), any());
+    }
+
+    @Test
+    public void handover_MissingOrderId_Returns400() {
+        assertEquals(400, takeawayService.handover(12, null).getCode().intValue());
+        assertEquals(400, takeawayService.handover(12, " ").getCode().intValue());
+        verify(redisCache, never()).getAllHash(anyString());
     }
 
     @Test

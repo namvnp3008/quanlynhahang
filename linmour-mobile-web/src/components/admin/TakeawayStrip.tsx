@@ -5,7 +5,7 @@ import { takeawayLabel, takeawayTicketNo } from '../../utils/takeaway';
 interface TakeawayStripProps {
   orders: OrderAllDto[];
   busyTickets: Set<number>;
-  onHandover: (ticketNo: number) => void;
+  onHandover: (ticketNo: number, orderId: string) => void;
 }
 
 /** AO-4: Phiếu mang về đã trả tiền, bếp đang làm */
@@ -51,7 +51,7 @@ export const TakeawayStrip: React.FC<TakeawayStripProps> = ({ orders, busyTicket
                     data-testid={`takeaway-handover-confirm-${n}`}
                     onClick={() => {
                       setConfirming(null);
-                      onHandover(n);
+                      onHandover(n, String(ord.orderInfo.id));
                     }}
                     className="min-h-[44px] px-4 rounded-lg bg-red-600 text-white text-xs font-bold"
                   >
@@ -71,7 +71,7 @@ export const TakeawayStrip: React.FC<TakeawayStripProps> = ({ orders, busyTicket
                     type="button"
                     data-testid={`takeaway-handover-${n}`}
                     disabled={busyTickets.has(n)}
-                    onClick={() => (allServed ? onHandover(n) : setConfirming(n))}
+                    onClick={() => (allServed ? onHandover(n, String(ord.orderInfo.id)) : setConfirming(n))}
                     className="min-h-[44px] px-4 rounded-lg bg-slate-900 text-white text-xs font-bold disabled:opacity-50"
                   >
                     Đã giao

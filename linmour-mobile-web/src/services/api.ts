@@ -845,8 +845,9 @@ export async function createTakeaway(req: {
 /**
  * AO-2: Đã giao phiếu mang về
  */
-export async function handoverTakeaway(ticketNo: number): Promise<unknown> {
-  return request<unknown>('POST', `/order/order/takeaway/${ticketNo}/handover`, undefined, { scope: 'admin' });
+export async function handoverTakeaway(ticketNo: number, orderId: string): Promise<unknown> {
+  // orderId để máy chủ chỉ giao đúng phiếu đang hiện (số phiếu có thể lặp lại qua ngày)
+  return request<unknown>('POST', `/order/order/takeaway/${ticketNo}/handover`, { orderId }, { scope: 'admin' });
 }
 
 /**

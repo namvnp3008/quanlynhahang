@@ -230,7 +230,7 @@ public class TakeawayServiceImpl implements TakeawayService {
     }
 
     @Override
-    public Result handover(Integer ticketNo) {
+    public Result handover(Integer ticketNo, String orderId) {
         Long shopId = getShopId();
         if (shopId == null || shopId <= 0) {
             return Result.error(400, "Thiếu shopId");
@@ -238,15 +238,21 @@ public class TakeawayServiceImpl implements TakeawayService {
         if (ticketNo == null || ticketNo <= 0) {
             return Result.error(400, "Số phiếu không hợp lệ");
         }
+        if (StringUtils.isBlank(orderId)) {
+            return Result.error(400, "Thiếu mã đơn, vui lòng tải lại");
+        }
         long tableKey = -ticketNo;
         String infoKey = ORDERINFO + ":" + shopId + ":" + tableKey;
         Map<String, Object> map = redisCache.getAllHash(infoKey);
         if (map == null || map.isEmpty() || map.get("id") == null) {
             return Result.error(404, "Phiếu MV-" + ticketNo + " không còn");
         }
+        if (!orderId.trim().equals(map.get("id").toString())) {
+            // số phiếu đã thuộc về đơn khác (vd. màn hình còn phiếu cũ qua ngày) → không xoá
+            return Result.error(409, "Phiếu MV-" + ticketNo + " đã thay đổi, vui lòng tải lại");
+        }
         redisCache.deleteObject(infoKey);
         redisCache.deleteObject(ORDER_ITEM + ":" + shopId + ":" + tableKey);
-        String orderId = map.get("id").toString();
         publish(shopId, tableKey, orderId, BigDecimal.ZERO, "HANDOVER");
         audit(shopId, orderId, "TAKEAWAY_HANDOVER", ticketNo, null);
         return Result.success();

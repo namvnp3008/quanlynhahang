@@ -344,10 +344,10 @@ export const OrderMonitor: React.FC = () => {
     [openOrders]
   );
 
-  const handleHandover = async (ticketNo: number) => {
+  const handleHandover = async (ticketNo: number, orderId: string) => {
     setHandoverBusy((prev) => new Set(prev).add(ticketNo));
     try {
-      await handoverTakeaway(ticketNo);
+      await handoverTakeaway(ticketNo, orderId);
       // Bỏ chip ngay để không bấm lại trong lúc tải lại danh sách
       setOpenOrders((prev) => prev.filter((o) => Number(o?.orderInfo?.tableId) !== -ticketNo));
       setFeedbackToast(`Đã giao phiếu MV-${ticketNo}.`);

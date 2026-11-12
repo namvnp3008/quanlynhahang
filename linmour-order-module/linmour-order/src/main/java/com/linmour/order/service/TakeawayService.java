@@ -12,5 +12,6 @@ public interface TakeawayService {
 
     Result create(TakeawayReqDto req);
 
-    Result handover(Integer ticketNo);
+    /** orderId phải khớp phiếu đang giữ số ticketNo, tránh giao nhầm phiếu cùng số */
+    Result handover(Integer ticketNo, String orderId);
 }

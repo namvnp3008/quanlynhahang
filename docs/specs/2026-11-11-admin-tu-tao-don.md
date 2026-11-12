@@ -67,7 +67,7 @@
 | POST | `/order/order/openOrder/{tableId}/items` | `{version, productId, specOptionIds[], quantity}` | **Đổi:** bàn chưa có đơn + `version = 0` → tạo đơn (`orderId` mới, `version = 1`), trừ kho, giá từ `priceQuote`. Bàn có đơn + `version = 0` → 409. Bàn chưa có đơn + `version ≠ 0` → 404 như cũ. `tableId` âm → 400 |
 | POST | `/order/order/takeaway/quote` | `{items: [{productId, specOptionIds[], quantity}]}` | Chỉ báo giá (không trừ kho, không lưu): từng dòng `{productId, name, price, propsText, quantity, lineTotal}` + `total`. Món ngừng bán / hết hàng → lỗi từ product (mã ≠ 200, thông điệp tiếng Việt), không trả cờ `available` từng dòng |
 | POST | `/order/order/takeaway` | `{requestId, items[], payType, remark}` | Báo giá → trừ kho → MySQL (`order_type = 1`, `ticket_no`) + Kafka → Redis `-n` → publish `order_edited` (`op: TAKEAWAY`). Trả `{ticketNo, orderId, payAmount}` |
-| POST | `/order/order/takeaway/{ticketNo}/handover` | – | Xoá `ORDERINFO`/`ORDER_ITEM` `-n` → publish `order_edited` (`op: HANDOVER`) |
+| POST | `/order/order/takeaway/{ticketNo}/handover` | `{ orderId }` | `orderId` thiếu → 400; không khớp phiếu đang giữ số `n` → 409, không xoá. Khớp: xoá `ORDERINFO`/`ORDER_ITEM` `-n` → publish `order_edited` (`op: HANDOVER`) |
 
 - Khoá: mở đơn bàn trống giữ `lock:order:<shop>:<table>` rồi `lock:checkout:<shop>:<table>` như OE; tạo phiếu mang về chặn trùng bằng `SET NX TAKEAWAY_REQ:<shop>:<requestId>` (giá trị `PENDING` rồi kết quả JSON), không dùng khoá Redisson riêng. Gửi lại khi còn `PENDING` → 409; client coi 409/5xx là "chưa chắc đã thu tiền" và giữ nguyên `requestId`.
 - `payType` chỉ nhận 4 (Tiền mặt) hoặc 1 (Chuyển khoản) cho mang về.
