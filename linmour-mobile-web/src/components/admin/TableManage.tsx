@@ -139,7 +139,7 @@ export const TableManage: React.FC = () => {
         return window.location.origin;
       }
     }
-    return 'https://linked-descriptions-nitrogen-rough.trycloudflare.com';
+    return 'https://cohen-navy-music-sale.trycloudflare.com';
   });
 
   const [tableQrUrls, setTableQrUrls] = useState<Record<string | number, string>>({});
@@ -420,9 +420,9 @@ export const TableManage: React.FC = () => {
             <span className="text-xs font-semibold text-slate-400 hidden sm:inline">Chuyển miền:</span>
             <button
               type="button"
-              onClick={() => setQrBaseUrl('https://linked-descriptions-nitrogen-rough.trycloudflare.com')}
+              onClick={() => setQrBaseUrl('https://cohen-navy-music-sale.trycloudflare.com')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                qrBaseUrl === 'https://linked-descriptions-nitrogen-rough.trycloudflare.com'
+                qrBaseUrl === 'https://cohen-navy-music-sale.trycloudflare.com'
                   ? 'bg-red-600 text-white shadow-xs'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
@@ -431,9 +431,9 @@ export const TableManage: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => setQrBaseUrl('http://172.20.10.9:5173')}
+              onClick={() => setQrBaseUrl('http://192.168.1.49:5173')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                qrBaseUrl === 'http://172.20.10.9:5173'
+                qrBaseUrl === 'http://192.168.1.49:5173'
                   ? 'bg-red-600 text-white shadow-xs'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
