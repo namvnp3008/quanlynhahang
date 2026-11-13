@@ -425,6 +425,11 @@ public class RedisCache {
         return redisTemplate.opsForValue().increment(key);
     }
 
+    /** SET NX kèm thời hạn; true nếu key chưa có và đã được đặt */
+    public Boolean setIfAbsent(final String key, final Object value, final long timeout, final TimeUnit unit) {
+        return redisTemplate.opsForValue().setIfAbsent(key, value, timeout, unit);
+    }
+
     public Long getExpire(final String key, final TimeUnit timeUnit) {
         return redisTemplate.getExpire(key, timeUnit);
     }

@@ -116,6 +116,16 @@ describe('Story A6: TableManage Component (mockup a10)', () => {
     });
   });
 
+  it('AO-4: phiếu mang về (tableId âm) không làm bàn nào thành Đang ăn', async () => {
+    vi.spyOn(api, 'getOpenOrders').mockResolvedValue([
+      { orderInfo: { id: 'tk-1', tableId: -2, payAmount: 10000, orderStatus: 1, payStatus: 1, payType: 4 }, orderItems: [] },
+    ]);
+    render(<TableManage />);
+    await waitFor(() => expect(screen.getByText('Bàn 02')).toBeInTheDocument());
+    expect(screen.getByTestId('table-status-empty-2')).toHaveTextContent('Bàn trống');
+    expect(screen.queryByTestId('table-status-occupied-2')).not.toBeInTheDocument();
+  });
+
   it('blocks deletion of occupied table with error toast', async () => {
     render(<TableManage />);
 

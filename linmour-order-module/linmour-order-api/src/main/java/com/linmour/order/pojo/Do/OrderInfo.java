@@ -116,6 +116,13 @@ public class OrderInfo implements Serializable {
 //    @Column(value = "deleted")
     private Integer deleted;
 
+    /** AO-2: 0 tại bàn, 1 mang về */
+    @TableField(value = "order_type")
+    private Integer orderType;
+    /** AO-2: số phiếu mang về trong ngày (MV-n) */
+    @TableField(value = "ticket_no")
+    private Integer ticketNo;
+
     /**
      * OE-2: Phiên bản đơn đang mở (chỉ trong Redis), tăng mỗi lần khách đặt thêm hoặc chủ quán sửa đơn
      */
