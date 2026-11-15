@@ -46,26 +46,24 @@ export function linesFromOrderItems(items: OrderItem[] | undefined | null): Prin
   });
 }
 
-const Slip: React.FC<{ testId: string; children: React.ReactNode }> = ({ testId, children }) => (
-  <div data-testid={testId} data-paper="80mm" className="slip80">
+const Slip: React.FC<{ testId: string; className?: string; children: React.ReactNode }> = ({
+  testId,
+  className,
+  children,
+}) => (
+  <div data-testid={testId} data-paper="80mm" className={className ? `slip80 ${className}` : 'slip80'}>
     {children}
   </div>
 );
 
-const Divider: React.FC = () => <div className="border-t border-dashed border-black my-1.5" />;
+const Divider: React.FC<{ thick?: boolean }> = ({ thick }) => (
+  <div className={`${thick ? 'border-t-2' : 'border-t'} border-dashed border-black my-1.5`} />
+);
 
 const MetaRow: React.FC<{ label: string; value: React.ReactNode; strong?: boolean }> = ({ label, value, strong }) => (
   <div className={`flex justify-between gap-2 ${strong ? 'font-bold' : ''}`}>
     <span className="shrink-0">{label}</span>
     <span className="text-right break-words min-w-0">{value}</span>
-  </div>
-);
-
-const ShopHeader: React.FC<{ shop: PrintShop }> = ({ shop }) => (
-  <div className="text-center">
-    {shop.name && <div className="text-[16px] font-black uppercase leading-snug">{shop.name}</div>}
-    {shop.address && <div>{shop.address}</div>}
-    {shop.phone && <div>ĐT: {shop.phone}</div>}
   </div>
 );
 
@@ -99,45 +97,49 @@ export const BillSlip: React.FC<BillSlipProps> = ({
   total,
   footer,
 }) => (
-  <Slip testId="print-bill-slip">
-    <ShopHeader shop={shop} />
-    <Divider />
-    <div className="text-center text-[15px] font-black uppercase">{title}</div>
-    {badge && <div className="text-center text-[34px] font-black leading-tight">{badge}</div>}
+  <Slip testId="print-bill-slip" className="slip80-bill">
+    <div className="text-center">
+      {shop.name && <div className="text-[20px] font-black uppercase leading-snug">{shop.name}</div>}
+      {shop.address && <div>{shop.address}</div>}
+      {shop.phone && <div>ĐT: {shop.phone}</div>}
+    </div>
+    <Divider thick />
+    <div className="text-center text-[19px] font-black uppercase">{title}</div>
+    {badge && <div className="text-center text-[40px] font-black leading-tight">{badge}</div>}
     <div className="mt-1 space-y-0.5">
       {tableLabel && <MetaRow label="Bàn:" value={tableLabel} strong />}
       {orderCode && <MetaRow label="Mã đơn:" value={`#${orderCode}`} />}
       <MetaRow label="Giờ in:" value={printTime} />
       {payTypeName && <MetaRow label="Thanh toán:" value={payTypeName} strong />}
     </div>
-    {remark && <div className="mt-1 font-bold break-words">Ghi chú: {remark}</div>}
-    <Divider />
-    <div className="flex font-bold">
+    {remark && <div className="mt-1 font-extrabold break-words">Ghi chú: {remark}</div>}
+    <Divider thick />
+    <div className="flex font-extrabold">
       <span className="flex-1">Món</span>
-      <span className="w-9 text-center">SL</span>
-      <span className="w-[84px] text-right">Thành tiền</span>
+      <span className="w-8 text-center">SL</span>
+      <span className="w-[104px] text-right">Thành tiền</span>
     </div>
-    <div className="space-y-1 mt-0.5">
+    <div className="space-y-1.5 mt-1">
       {lines.map((line, i) => (
         <div key={i} data-testid="print-bill-line" className="flex items-start">
           <div className="flex-1 min-w-0 pr-1">
-            <div className="font-semibold break-words">{line.name}</div>
-            {line.propsText && <div className="italic break-words">({line.propsText})</div>}
+            <div className="text-[16px] font-extrabold break-words leading-snug">{line.name}</div>
+            {line.propsText && <div className="break-words">({line.propsText})</div>}
           </div>
-          <span className="w-9 text-center font-bold">{line.quantity}</span>
-          <span className="w-[84px] text-right">{formatVND(line.lineTotal)}</span>
+          <span className="w-8 text-center text-[16px] font-extrabold">{line.quantity}</span>
+          <span className="w-[104px] text-right text-[16px] font-extrabold">{formatVND(line.lineTotal)}</span>
         </div>
       ))}
     </div>
-    <Divider />
+    <Divider thick />
     <div className="flex justify-between items-baseline font-black">
-      <span className="text-[14px]">TỔNG CỘNG:</span>
-      <span data-testid="print-bill-total" className="text-[17px]">
+      <span className="text-[18px]">TỔNG CỘNG:</span>
+      <span data-testid="print-bill-total" className="text-[24px]">
         {formatVND(total)}
       </span>
     </div>
-    <Divider />
-    <div className="text-center italic">{footer}</div>
+    <Divider thick />
+    <div className="text-center">{footer}</div>
   </Slip>
 );
 

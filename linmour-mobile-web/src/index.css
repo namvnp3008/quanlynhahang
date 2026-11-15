@@ -36,6 +36,13 @@ html, body {
   line-height: 1.35;
 }
 
+/* Hoá đơn thanh toán: chữ to và đậm hơn để máy nhiệt in rõ nét (chủ quán yêu cầu 15/11/2026) */
+.slip80-bill {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 @media print {
   body.printing-80mm {
     background: #ffffff !important;
