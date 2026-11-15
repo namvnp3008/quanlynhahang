@@ -52,20 +52,10 @@ describe('Story C8: ThankYouView Component (mockup c09)', () => {
     expect(screen.getByTestId('receipt-total-amount').textContent).toContain('25.000');
   });
 
-  it('triggers window.print when clicking Lưu biên nhận', () => {
-    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
-
-    render(
-      <ThankYouView
-        tableName="Bàn 03"
-        onBackToMenu={vi.fn()}
-      />
-    );
-
-    fireEvent.click(screen.getByTestId('print-receipt-btn'));
-    expect(printSpy).toHaveBeenCalled();
-
-    printSpy.mockRestore();
+  it('không còn nút in biên lai trên điện thoại khách', () => {
+    render(<ThankYouView tableName="Bàn 03" onBackToMenu={vi.fn()} />);
+    expect(screen.queryByTestId('print-receipt-btn')).toBeNull();
+    expect(screen.queryByText('Lưu biên nhận')).toBeNull();
   });
 
   it('calls onBackToMenu when clicking Về menu', () => {
@@ -93,28 +83,5 @@ describe('Story C8: ThankYouView Component (mockup c09)', () => {
     expect(screen.getByTestId('receipt-total-amount').textContent).toContain('0');
     expect(screen.queryByText(/#ORD-102938/i)).toBeNull();
     expect(screen.queryByText(/145\.000/i)).toBeNull();
-  });
-
-  it('BUG-TY-1: renders item list with options in customer receipt print portal', () => {
-    render(
-      <ThankYouView
-        tableName="Bàn 08"
-        orderNumber="2113884307347996672"
-        totalAmount={75000}
-        payType={4}
-        shopName="Nhà Hàng Bếp Việt"
-        orderItems={[
-          { name: 'Bún Chả Hà Nội', quantity: 1, price: 50000, propsText: 'Thêm chả nướng' },
-          { name: 'Cà Phê Sữa Đá Sài Gòn', quantity: 1, price: 25000, propsText: 'Ít đá' },
-        ]}
-        onBackToMenu={vi.fn()}
-      />
-    );
-
-    expect(screen.getByText('#2113884307347996672')).toBeInTheDocument();
-    expect(screen.getByTestId('receipt-total-amount').textContent).toContain('75.000');
-    expect(screen.getByText('Bún Chả Hà Nội')).toBeInTheDocument();
-    expect(screen.getByText('(Thêm chả nướng)')).toBeInTheDocument();
-    expect(screen.getByText('Cà Phê Sữa Đá Sài Gòn')).toBeInTheDocument();
   });
 });

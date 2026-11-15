@@ -26,6 +26,8 @@ const addProduct = async () => {
   await waitFor(() => expect(screen.queryByTestId('add-item-dialog')).toBeNull());
 };
 
+const SHOP = { name: 'Quán Phở Hương Quê', address: '12 Lê Lợi, Huế', phone: '0909123456' };
+
 describe('TakeawayDialog (AO-4)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -39,12 +41,12 @@ describe('TakeawayDialog (AO-4)', () => {
   });
 
   it('chưa chọn món thì nút thu tiền bị khoá', () => {
-    render(<TakeawayDialog onClose={vi.fn()} onCreated={vi.fn()} />);
+    render(<TakeawayDialog shop={SHOP} onClose={vi.fn()} onCreated={vi.fn()} />);
     expect((screen.getByTestId('takeaway-submit') as HTMLButtonElement).disabled).toBe(true);
   });
 
   it('thêm món → tổng lấy từ máy chủ; tăng số lượng gọi báo giá lại', async () => {
-    render(<TakeawayDialog onClose={vi.fn()} onCreated={vi.fn()} />);
+    render(<TakeawayDialog shop={SHOP} onClose={vi.fn()} onCreated={vi.fn()} />);
     await addProduct();
     await waitFor(() => expect(screen.getByTestId('takeaway-total').textContent).toContain('5.000'));
     fireEvent.click(screen.getByLabelText('Tăng 1 Trà Đá'));
@@ -55,7 +57,7 @@ describe('TakeawayDialog (AO-4)', () => {
   it('thu tiền → hiện số phiếu MV-12, Xong gọi onCreated', async () => {
     const onCreated = vi.fn();
     vi.mocked(api.createTakeaway).mockResolvedValue({ ticketNo: 12, orderId: '9001', payAmount: 5000 });
-    render(<TakeawayDialog onClose={vi.fn()} onCreated={onCreated} />);
+    render(<TakeawayDialog shop={SHOP} onClose={vi.fn()} onCreated={onCreated} />);
     await addProduct();
     fireEvent.click(screen.getByTestId('takeaway-paytype-1'));
     fireEvent.change(screen.getByTestId('takeaway-remark'), { target: { value: 'tên: Lan' } });
@@ -69,11 +71,41 @@ describe('TakeawayDialog (AO-4)', () => {
     expect(onCreated).toHaveBeenCalledWith({ ticketNo: 12, orderId: '9001', payAmount: 5000 });
   });
 
+  it('in phiếu MV-n: một phiếu khách và một phiếu bếp, mỗi phiếu một lệnh in 80mm', async () => {
+    const printed: string[] = [];
+    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {
+      printed.push(document.getElementById('print-root')?.textContent || '');
+      window.dispatchEvent(new Event('afterprint'));
+    });
+    vi.mocked(api.createTakeaway).mockResolvedValue({ ticketNo: 12, orderId: '9001', payAmount: 5000 });
+    render(<TakeawayDialog shop={SHOP} onClose={vi.fn()} onCreated={vi.fn()} />);
+    await addProduct();
+    fireEvent.change(screen.getByTestId('takeaway-remark'), { target: { value: 'Ít đá' } });
+    fireEvent.click(await screen.findByTestId('takeaway-submit'));
+    await screen.findByTestId('takeaway-ticket');
+
+    fireEvent.click(screen.getByTestId('takeaway-print-btn'));
+    await waitFor(() => expect(printSpy).toHaveBeenCalledTimes(2));
+
+    expect(printed[0]).toContain('Quán Phở Hương Quê');
+    expect(printed[0]).toContain('PHIẾU MANG VỀ');
+    expect(printed[0]).toContain('MV-12');
+    expect(printed[0]).toContain('Trà Đá');
+    expect(printed[0]).toContain('5.000 đ');
+    expect(printed[0]).toContain('Tiền mặt – đã thu');
+    expect(printed[0]).toContain('Ghi chú: Ít đá');
+    expect(printed[1]).toContain('PHIẾU BẾP');
+    expect(printed[1]).toContain('MV-12');
+    expect(printed[1]).toContain('Trà Đá');
+    expect(printed[1]).not.toContain('5.000');
+    printSpy.mockRestore();
+  });
+
   it('giữ nguyên requestId khi thử lại sau lỗi mạng', async () => {
     vi.mocked(api.createTakeaway)
       .mockRejectedValueOnce(new Error('Failed to fetch'))
       .mockResolvedValueOnce({ ticketNo: 12, orderId: '9001', payAmount: 5000 });
-    render(<TakeawayDialog onClose={vi.fn()} onCreated={vi.fn()} />);
+    render(<TakeawayDialog shop={SHOP} onClose={vi.fn()} onCreated={vi.fn()} />);
     await addProduct();
     fireEvent.click(await screen.findByTestId('takeaway-submit'));
     expect(await screen.findByText(/Lỗi mạng/)).toBeDefined();
@@ -86,7 +118,7 @@ describe('TakeawayDialog (AO-4)', () => {
 
   it('hết hàng → hiện lỗi nguyên văn, không hiện số phiếu', async () => {
     vi.mocked(api.createTakeaway).mockRejectedValue(new ApiError(400, 'Món Trà Đá đã hết hàng'));
-    render(<TakeawayDialog onClose={vi.fn()} onCreated={vi.fn()} />);
+    render(<TakeawayDialog shop={SHOP} onClose={vi.fn()} onCreated={vi.fn()} />);
     await addProduct();
     fireEvent.click(await screen.findByTestId('takeaway-submit'));
     expect(await screen.findByText('Món Trà Đá đã hết hàng')).toBeDefined();
@@ -95,7 +127,7 @@ describe('TakeawayDialog (AO-4)', () => {
 
   it('Esc khi đã chọn món thì hỏi xác nhận, không đóng ngay', async () => {
     const onClose = vi.fn();
-    render(<TakeawayDialog onClose={onClose} onCreated={vi.fn()} />);
+    render(<TakeawayDialog shop={SHOP} onClose={onClose} onCreated={vi.fn()} />);
     await addProduct();
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(onClose).not.toHaveBeenCalled();
@@ -104,7 +136,7 @@ describe('TakeawayDialog (AO-4)', () => {
 
   it('đóng khi đã chọn món thì hỏi xác nhận', async () => {
     const onClose = vi.fn();
-    render(<TakeawayDialog onClose={onClose} onCreated={vi.fn()} />);
+    render(<TakeawayDialog shop={SHOP} onClose={onClose} onCreated={vi.fn()} />);
     await addProduct();
     fireEvent.click(screen.getByTestId('takeaway-close-btn'));
     expect(onClose).not.toHaveBeenCalled();
@@ -116,7 +148,7 @@ describe('TakeawayDialog (AO-4)', () => {
     vi.mocked(api.createTakeaway)
       .mockRejectedValueOnce(new Error('Failed to fetch'))
       .mockResolvedValueOnce({ ticketNo: 12, orderId: '9001', payAmount: 5000 });
-    render(<TakeawayDialog onClose={vi.fn()} onCreated={vi.fn()} />);
+    render(<TakeawayDialog shop={SHOP} onClose={vi.fn()} onCreated={vi.fn()} />);
     await addProduct();
     fireEvent.click(await screen.findByTestId('takeaway-submit'));
     expect(await screen.findByText(/Lỗi mạng/)).toBeDefined();
@@ -141,7 +173,7 @@ describe('TakeawayDialog (AO-4)', () => {
     let resolve: (v: { ticketNo: number; orderId: string; payAmount: number }) => void = () => {};
     vi.mocked(api.createTakeaway).mockReturnValue(new Promise((res) => { resolve = res; }));
     const onClose = vi.fn();
-    render(<TakeawayDialog onClose={onClose} onCreated={vi.fn()} />);
+    render(<TakeawayDialog shop={SHOP} onClose={onClose} onCreated={vi.fn()} />);
     await addProduct();
     fireEvent.click(await screen.findByTestId('takeaway-submit'));
     await waitFor(() => expect((screen.getByTestId('takeaway-close-btn') as HTMLButtonElement).disabled).toBe(true));
@@ -154,7 +186,7 @@ describe('TakeawayDialog (AO-4)', () => {
   });
 
   it('Esc lần hai khi đang hỏi bỏ đơn thì quay lại chọn món', async () => {
-    render(<TakeawayDialog onClose={vi.fn()} onCreated={vi.fn()} />);
+    render(<TakeawayDialog shop={SHOP} onClose={vi.fn()} onCreated={vi.fn()} />);
     await addProduct();
     fireEvent.keyDown(document, { key: 'Escape' });
     await screen.findByTestId('takeaway-discard-confirm');
@@ -170,7 +202,7 @@ describe('TakeawayDialog (AO-4)', () => {
       .mockRejectedValueOnce(new Error('Failed to fetch'))
       .mockRejectedValueOnce(apiErr);
     const onClose = vi.fn();
-    render(<TakeawayDialog onClose={onClose} onCreated={vi.fn()} />);
+    render(<TakeawayDialog shop={SHOP} onClose={onClose} onCreated={vi.fn()} />);
     await addProduct();
     fireEvent.click(await screen.findByTestId('takeaway-submit'));
     await screen.findByText(/Lỗi mạng, chưa chắc/);
@@ -187,7 +219,7 @@ describe('TakeawayDialog (AO-4)', () => {
 
   it('lỗi 500 "chưa thu tiền" là dứt khoát → mở khoá', async () => {
     vi.mocked(api.createTakeaway).mockRejectedValue(new ApiError(500, 'Không tạo được đơn, chưa thu tiền'));
-    render(<TakeawayDialog onClose={vi.fn()} onCreated={vi.fn()} />);
+    render(<TakeawayDialog shop={SHOP} onClose={vi.fn()} onCreated={vi.fn()} />);
     await addProduct();
     fireEvent.click(await screen.findByTestId('takeaway-submit'));
     await screen.findByText('Không tạo được đơn, chưa thu tiền');

@@ -11,9 +11,10 @@ vi.mock('../../services/api', () => ({
   adminSetOrderItemStatus: vi.fn(),
   adminCheckout: vi.fn(),
   getAdminShopId: vi.fn(() => 1),
-  getShopByIds: vi.fn().mockResolvedValue([
-    { id: 1, name: 'Nhà Hàng Bếp Việt', position: '123 Test', phone: '0901234567' },
-  ]),
+  getShopList: vi.fn().mockResolvedValue({
+    list: [{ id: 1, name: 'Nhà Hàng Bếp Việt', position: '123 Test', phone: '0901234567' }],
+    total: 1,
+  }),
 }));
 
 // Mock WebSocket
@@ -113,6 +114,39 @@ describe('OrderMonitor (Story A7)', () => {
     expect(screen.getAllByText('1x Phở Bò Tái Nạm').length).toBeGreaterThan(0);
     expect(screen.getAllByText('2x Cà Phê Sữa Đá').length).toBeGreaterThan(0);
     expect(screen.getByTestId('detail-total-amount').textContent).toContain('165.000');
+  });
+
+  it('In hoá đơn và In phiếu bếp đều in ra một phiếu 80mm, dữ liệu lấy từ đơn thật', async () => {
+    const printed: string[] = [];
+    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {
+      printed.push(document.getElementById('print-root')?.textContent || '');
+      window.dispatchEvent(new Event('afterprint'));
+    });
+    render(<OrderMonitor />);
+    await waitFor(() => expect(screen.getByText('Chi Tiết Bàn 03')).toBeDefined());
+    await waitFor(() => expect(api.getShopList).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByTestId('admin-print-receipt-btn'));
+    await waitFor(() => expect(printSpy).toHaveBeenCalledTimes(1));
+    expect(printed[0]).toContain('Nhà Hàng Bếp Việt');
+    expect(printed[0]).toContain('123 Test');
+    expect(printed[0]).toContain('ĐT: 0901234567');
+    expect(printed[0]).toContain('PHIẾU TẠM TÍNH');
+    expect(printed[0]).toContain('Bàn 03');
+    expect(printed[0]).toContain('#102938');
+    expect(printed[0]).toContain('Phở Bò Tái Nạm');
+    expect(printed[0]).toContain('100.000 đ');
+    expect(printed[0]).toContain('165.000 đ');
+    expect(printed[0]).toMatch(/\d{2}:\d{2} \d{2}\/\d{2}\/\d{4}/);
+
+    fireEvent.click(screen.getByTestId('admin-print-kitchen-btn'));
+    await waitFor(() => expect(printSpy).toHaveBeenCalledTimes(2));
+    expect(printed[1]).toContain('PHIẾU BẾP');
+    expect(printed[1]).toContain('Bàn 03');
+    expect(printed[1]).toContain('Cà Phê Sữa Đá');
+    expect(printed[1]).toContain('Ghi chú: Phở ít cay');
+    expect(printed[1]).not.toContain('165.000');
+    printSpy.mockRestore();
   });
 
   it('toggles item status between Chờ lên (0) and Đã lên (2)', async () => {

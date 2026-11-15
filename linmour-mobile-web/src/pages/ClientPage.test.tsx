@@ -1399,10 +1399,8 @@ describe('Story C2: Menu theo danh mục (ClientPage)', () => {
       expect(screen.queryByText('#ORD-102938')).toBeNull();
       expect(screen.queryByText(/145\.000/)).toBeNull();
 
-      // Customer receipt in print portal contains real items
-      expect(screen.getByText('Bún Chả Hà Nội')).toBeInTheDocument();
-      expect(screen.getByText('(Thêm chả nướng)')).toBeInTheDocument();
-      expect(screen.getByText('Cà Phê Sữa Đá Sài Gòn')).toBeInTheDocument();
+      // Điện thoại khách không còn biên lai in (chủ quán bỏ, 15/11/2026)
+      expect(screen.queryByTestId('print-receipt-btn')).toBeNull();
     });
 
     it('A-5: does not fall back to shopId 2 in ClientPage when parameters are absent', async () => {

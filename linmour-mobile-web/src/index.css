@@ -11,36 +11,47 @@ html, body {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Print root container is hidden on screen */
+/*
+ * In 80mm (src/print/print80mm.tsx): phiếu được dựng vào #print-root.
+ * Trên màn hình #print-root nằm ngoài khung nhìn nhưng vẫn được dàn trang, để đo chiều dài phiếu.
+ */
 #print-root {
-  display: none;
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: 80mm;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Phiếu 80mm: giấy rộng 80mm, lề trái/phải 4mm → vùng in 72mm */
+.slip80 {
+  width: 80mm;
+  padding: 3mm 4mm;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #000000;
+  font-family: Arial, 'Be Vietnam Pro', sans-serif;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 @media print {
-  /* PR-1: Khi in hoá đơn / biên nhận, chỉ in #print-root và ẩn toàn bộ giao diện khác */
-  body.printing-receipt {
+  body.printing-80mm {
     background: #ffffff !important;
     margin: 0 !important;
     padding: 0 !important;
   }
 
-  body.printing-receipt > :not(#print-root) {
+  body.printing-80mm > :not(#print-root) {
     display: none !important;
   }
 
-  body.printing-receipt #print-root {
-    display: block !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 74mm !important;
-    max-width: 74mm !important;
+  body.printing-80mm #print-root {
+    position: static !important;
+    visibility: visible !important;
+    width: 80mm !important;
     margin: 0 !important;
-    padding: 2mm 3mm !important;
-    background: #ffffff !important;
-    color: #000000 !important;
-    font-size: 11px !important;
-    line-height: 1.35 !important;
-    box-sizing: border-box !important;
+    padding: 0 !important;
   }
 }

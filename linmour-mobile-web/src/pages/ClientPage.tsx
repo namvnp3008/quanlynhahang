@@ -583,12 +583,10 @@ const ClientPageContent: React.FC<ClientPageContentProps> = ({
     return (
       <div className="w-full md:max-w-[375px] md:mx-auto min-h-screen min-h-[100dvh] bg-slate-50 relative flex flex-col shadow-2xl border-x border-slate-200 overflow-x-clip">
         <ThankYouView
-          shopName={paidData?.shopName || shopInfo?.name}
           tableName={paidData?.tableName || tableInfo.name}
           orderNumber={paidData?.orderNumber || currentOrderId || '—'}
           totalAmount={paidData?.totalAmount ?? currentOrderTotal ?? totalAmount ?? 0}
           payType={paidData?.payType || 1}
-          orderItems={paidData?.orderItems}
           onBackToMenu={() => setCurrentView('menu')}
         />
       </div>
