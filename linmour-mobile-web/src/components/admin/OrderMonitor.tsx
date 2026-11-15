@@ -12,10 +12,14 @@ import {
   addOpenOrderItem,
   updateOpenOrderItemQuantity,
   removeOpenOrderItem,
+  handoverTakeaway,
   ApiError,
 } from '../../services/api';
-import { OrderEditResult } from '../../types/order';
+import { OrderEditResult, TakeawayResult } from '../../types/order';
 import { AddItemDialog, AddItemSelection, ReduceItemDialog } from './OrderEditDialogs';
+import { TakeawayDialog } from './TakeawayDialog';
+import { TakeawayStrip } from './TakeawayStrip';
+import { isTakeawayTableId } from '../../utils/takeaway';
 import { getOrCreateAdminWebSocket, WebSocketClient } from '../../services/websocket';
 import { WsIncomingMessage, WsNewOrderData, WsPayosMismatchData } from '../../types/websocket';
 import { formatVND } from '../../utils/currency';
@@ -152,6 +156,9 @@ export const OrderMonitor: React.FC = () => {
   const [savingKey, setSavingKey] = useState<number | 'add' | null>(null);
   const [reduceTarget, setReduceTarget] = useState<{ index: number; item: OrderItem; newQuantity: number | null } | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  // AO-4: đơn mang về
+  const [isTakeawayOpen, setIsTakeawayOpen] = useState(false);
+  const [handoverBusy, setHandoverBusy] = useState<Set<number>>(new Set());
 
   // Shop info for 80mm thermal receipt printing (PR-1)
   const [shopInfo, setShopInfo] = useState<{ name: string; position?: string; phone?: string }>({
@@ -211,7 +218,9 @@ export const OrderMonitor: React.FC = () => {
           return prev;
         }
         // Prefer first table with open orders
-        const occupiedOrder = (fetchedOrders || []).find((o) => o?.orderInfo?.tableId);
+        const occupiedOrder = (fetchedOrders || []).find(
+          (o) => o?.orderInfo?.tableId && !isTakeawayTableId(o.orderInfo.tableId)
+        );
         if (occupiedOrder) {
           return occupiedOrder.orderInfo.tableId;
         }
@@ -326,11 +335,45 @@ export const OrderMonitor: React.FC = () => {
     };
   }, [activeShopId, refreshData]);
 
+  // AO-4: phiếu mang về (tableId âm) chỉ hiện ở dải, không là bàn
+  const takeawayOrders = useMemo(
+    () =>
+      openOrders
+        .filter((o) => isTakeawayTableId(o?.orderInfo?.tableId))
+        .sort((a, b) => Number(b.orderInfo.tableId) - Number(a.orderInfo.tableId)),
+    [openOrders]
+  );
+
+  const handleHandover = async (ticketNo: number, orderId: string) => {
+    setHandoverBusy((prev) => new Set(prev).add(ticketNo));
+    try {
+      await handoverTakeaway(ticketNo, orderId);
+      // Bỏ chip ngay để không bấm lại trong lúc tải lại danh sách
+      setOpenOrders((prev) => prev.filter((o) => Number(o?.orderInfo?.tableId) !== -ticketNo));
+      setFeedbackToast(`Đã giao phiếu MV-${ticketNo}.`);
+    } catch (err) {
+      setFeedbackToast(err instanceof Error && err.message ? err.message : 'Không cập nhật được phiếu, vui lòng thử lại');
+    } finally {
+      await refreshData(true);
+      setHandoverBusy((prev) => {
+        const next = new Set(prev);
+        next.delete(ticketNo);
+        return next;
+      });
+    }
+  };
+
+  const handleTakeawayCreated = (result: TakeawayResult) => {
+    setIsTakeawayOpen(false);
+    setFeedbackToast(`Đã tạo phiếu MV-${result.ticketNo} và báo bếp.`);
+    refreshData(true);
+  };
+
   // Helper: map open order by tableId
   const orderMap = useMemo(() => {
     const map = new Map<string, OrderAllDto>();
     for (const order of openOrders) {
-      if (order && order.orderInfo && order.orderInfo.tableId !== undefined) {
+      if (order && order.orderInfo && order.orderInfo.tableId !== undefined && !isTakeawayTableId(order.orderInfo.tableId)) {
         map.set(String(order.orderInfo.tableId), order);
       }
     }
@@ -414,13 +457,17 @@ export const OrderMonitor: React.FC = () => {
   }, [isEditMode, selectedOrder]);
 
   const applyEditResult = (result: OrderEditResult) => {
-    setOpenOrders((prev) =>
-      prev.map((ord) =>
+    setOpenOrders((prev) => {
+      const exists = prev.some((ord) => String(ord.orderInfo?.tableId) === String(selectedTableId));
+      if (!exists) {
+        return [...prev, { orderInfo: result.orderInfo, orderItems: result.orderItems || [] }];
+      }
+      return prev.map((ord) =>
         String(ord.orderInfo?.tableId) === String(selectedTableId)
           ? { ...ord, orderInfo: result.orderInfo, orderItems: result.orderItems || [] }
           : ord
-      )
-    );
+      );
+    });
   };
 
   const PAYOS_CANCELLED_NOTE = 'Đã huỷ mã PayOS cũ của bàn vì tổng tiền thay đổi.';
@@ -430,10 +477,11 @@ export const OrderMonitor: React.FC = () => {
     action: (version: number) => Promise<OrderEditResult>,
     successMessage?: string
   ) => {
-    if (!selectedTableId || !selectedOrder) return false;
+    if (!selectedTableId) return false;
+    const opening = !selectedOrder;
     setSavingKey(key);
     try {
-      const result = await action(Number(selectedOrder.orderInfo?.version ?? 0));
+      const result = await action(opening ? 0 : Number(selectedOrder.orderInfo?.version ?? 0));
       applyEditResult(result);
       const parts = [successMessage, result.payosCancelled ? PAYOS_CANCELLED_NOTE : undefined].filter(Boolean);
       if (parts.length > 0) setFeedbackToast(parts.join(' '));
@@ -441,7 +489,11 @@ export const OrderMonitor: React.FC = () => {
     } catch (err) {
       const code = err instanceof ApiError ? err.code : 0;
       if (code === 409) {
-        setFeedbackToast('Đơn vừa thay đổi (khách gọi thêm món), đã tải lại. Vui lòng thao tác lại.');
+        setFeedbackToast(
+          opening
+            ? 'Bàn vừa có đơn (khách vừa đặt món), đã tải lại. Vui lòng thao tác lại.'
+            : 'Đơn vừa thay đổi (khách gọi thêm món), đã tải lại. Vui lòng thao tác lại.'
+        );
       } else if (code === 404) {
         setFeedbackToast('Bàn này không còn đơn đang mở (đã thanh toán).');
         setIsEditMode(false);
@@ -490,12 +542,16 @@ export const OrderMonitor: React.FC = () => {
 
   const handleAddItem = async (selection: AddItemSelection) => {
     if (!selectedTableId) return;
+    const opening = !selectedOrder;
     const ok = await runOrderEdit(
       'add',
       (version) => addOpenOrderItem(selectedTableId, { version, ...selection }),
-      'Đã thêm món vào đơn.'
+      opening ? 'Đã mở đơn cho bàn.' : 'Đã thêm món vào đơn.'
     );
-    if (ok) setIsAddDialogOpen(false);
+    if (ok) {
+      setIsAddDialogOpen(false);
+      if (opening) setIsEditMode(true);
+    }
   };
 
   // Toggle order item status: 0/1 (Chờ lên) <-> 2 (Đã lên)
@@ -586,6 +642,14 @@ export const OrderMonitor: React.FC = () => {
             <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse"></span>
             Trực Tuyến
           </span>
+          <button
+            type="button"
+            data-testid="open-takeaway-btn"
+            onClick={() => setIsTakeawayOpen(true)}
+            className="min-h-[44px] px-5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-bold shrink-0"
+          >
+            + Mang về
+          </button>
         </div>
 
         {/* Service Call Bar (Story A8 / A7) */}
@@ -710,6 +774,8 @@ export const OrderMonitor: React.FC = () => {
           )}
         </div>
       </header>
+
+      <TakeawayStrip orders={takeawayOrders} busyTickets={handoverBusy} onHandover={handleHandover} />
 
       {/* 2. Main Dual-Pane Workspace */}
       <div className="flex-1 flex overflow-hidden p-5 gap-5">
@@ -948,6 +1014,19 @@ export const OrderMonitor: React.FC = () => {
                       )}
                     </div>
                   </div>
+
+                  {/* AO-3: Mở đơn cho bàn trống */}
+                  {!selectedOrder && (
+                    <button
+                      type="button"
+                      data-testid="open-order-btn"
+                      onClick={() => setIsAddDialogOpen(true)}
+                      disabled={savingKey !== null}
+                      className="shrink-0 min-h-[44px] px-4 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition disabled:opacity-50"
+                    >
+                      Mở đơn
+                    </button>
+                  )}
 
                   {/* OE-4: Sửa đơn / Xong */}
                   {selectedOrder && (
@@ -1375,6 +1454,10 @@ export const OrderMonitor: React.FC = () => {
           onClose={() => setIsAddDialogOpen(false)}
           onSubmit={handleAddItem}
         />
+      )}
+
+      {isTakeawayOpen && (
+        <TakeawayDialog onClose={() => setIsTakeawayOpen(false)} onCreated={handleTakeawayCreated} />
       )}
 
       {/* 5. Payment Modal (Modal 1: Xác Nhận Thu Tiền) */}

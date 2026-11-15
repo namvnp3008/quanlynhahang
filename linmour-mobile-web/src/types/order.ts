@@ -23,6 +23,8 @@ export interface OrderInfo {
   createTime?: string;
   shopId?: number;
   version?: number; // OE-2: phiên bản đơn đang mở, gửi kèm khi chủ quán sửa đơn
+  orderType?: number; // AO-2: 0 tại bàn, 1 mang về
+  ticketNo?: number; // AO-2: số phiếu MV-n
 }
 
 /** OE-2: Yêu cầu chủ quán sửa đơn đang mở */
@@ -102,3 +104,30 @@ export interface PayosTransactionDto {
   deleted?: number;
 }
 
+
+/** AO-2: đơn mang về */
+export interface TakeawayItemReq {
+  productId: number;
+  specOptionIds: number[];
+  quantity: number;
+}
+
+export interface TakeawayQuoteLine {
+  productId: number;
+  name: string;
+  propsText?: string;
+  price: number;
+  quantity: number;
+  lineTotal: number;
+}
+
+export interface TakeawayQuote {
+  lines: TakeawayQuoteLine[];
+  total: number;
+}
+
+export interface TakeawayResult {
+  ticketNo: number;
+  orderId: string;
+  payAmount: number;
+}

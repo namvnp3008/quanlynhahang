@@ -3,12 +3,14 @@ package com.linmour.order.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.linmour.order.feign.ProductFeign;
+import com.linmour.order.feign.RestaurantFeign;
 import com.linmour.order.feign.SystemFeign;
 import com.linmour.order.pojo.Do.OrderInfo;
 import com.linmour.order.pojo.Do.OrderItem;
 import com.linmour.order.pojo.Dto.OrderEditReqDto;
 import com.linmour.order.pojo.Dto.OrderEditRespDto;
 import com.linmour.order.service.OrderEditService;
+import com.linmour.order.utils.IdGenerateUtil;
 import com.linmour.order.service.PayosPaymentService;
 import com.linmour.product.pojo.Dto.PriceQuoteDto;
 import com.linmour.product.pojo.Dto.PriceQuoteVo;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -44,7 +47,7 @@ public class OrderEditServiceImpl implements OrderEditService {
 
     static final int MAX_QUANTITY = 99;
 
-    private enum Op { ADD, QTY, REMOVE }
+    private enum Op { ADD, QTY, REMOVE, OPEN }
 
     @Resource
     private RedisCache redisCache;
@@ -60,6 +63,9 @@ public class OrderEditServiceImpl implements OrderEditService {
 
     @Resource
     private PayosPaymentService payosPaymentService;
+
+    @Resource
+    private RestaurantFeign restaurantFeign;
 
     @Override
     public Result addItem(Long tableId, OrderEditReqDto req) {
@@ -81,7 +87,10 @@ public class OrderEditServiceImpl implements OrderEditService {
         if (shopId == null || shopId <= 0) {
             return Result.error(400, "Thiếu shopId");
         }
-        if (tableId == null || tableId <= 0) {
+        if (tableId != null && tableId < 0) {
+            return Result.error(400, "Đơn mang về đã thanh toán, không sửa được");
+        }
+        if (tableId == null || tableId == 0) {
             return Result.error(400, "Thiếu tableId");
         }
         if (req == null || req.getVersion() == null) {
@@ -96,8 +105,21 @@ public class OrderEditServiceImpl implements OrderEditService {
         checkoutLock.lock();
         try {
             Map<String, Object> map = redisCache.getAllHash(orderInfoKey);
-            if (map == null || map.isEmpty() || map.get("id") == null) {
-                return Result.error(404, "Bàn này không còn đơn đang mở");
+            boolean tableEmpty = map == null || map.isEmpty() || map.get("id") == null;
+            boolean opening = false;
+            if (tableEmpty) {
+                if (op != Op.ADD || req.getVersion() != 0L) {
+                    return Result.error(404, "Bàn này không còn đơn đang mở");
+                }
+                Result tableRes = restaurantFeign.getTable(tableId, shopId);
+                if (tableRes == null || tableRes.getCode() == null || tableRes.getCode() != 200) {
+                    return Result.error(404, "Không tìm thấy bàn");
+                }
+                opening = true;
+                map = new HashMap<>();
+                map.put("id", String.valueOf(IdGenerateUtil.get().nextId()));
+                map.put("version", 0L);
+                map.put("payAmount", BigDecimal.ZERO);
             }
             long currentVersion = parseLong(map.get("version"));
             if (req.getVersion() != currentVersion) {
@@ -106,7 +128,8 @@ public class OrderEditServiceImpl implements OrderEditService {
             String orderId = map.get("id").toString();
             BigDecimal amountBefore = parseAmount(map.get("payAmount"));
 
-            List<Object> cacheList = redisCache.getCacheList(orderItemKey);
+            // Bàn trống mở đơn mới: không gộp danh sách món cũ còn sót trong Redis
+            List<Object> cacheList = opening ? null : redisCache.getCacheList(orderItemKey);
             List<OrderItem> items = cacheList != null
                     ? new ArrayList<>(JSONObject.parseArray(JSONObject.toJSONString(cacheList), OrderItem.class))
                     : new ArrayList<>();
@@ -114,7 +137,7 @@ public class OrderEditServiceImpl implements OrderEditService {
             Map<String, Object> detail = new LinkedHashMap<>();
             detail.put("tableId", tableId);
             detail.put("orderId", orderId);
-            detail.put("op", op.name());
+            detail.put("op", opening ? Op.OPEN.name() : op.name());
 
             Result failure;
             switch (op) {
@@ -129,6 +152,17 @@ public class OrderEditServiceImpl implements OrderEditService {
             }
             if (failure != null) {
                 return failure;
+            }
+            if (opening) {
+                Map<String, Object> created = new HashMap<>();
+                created.put("id", orderId);
+                created.put("tableId", tableId);
+                created.put("shopId", shopId);
+                created.put("payAmount", BigDecimal.ZERO);
+                created.put("remark", "");
+                created.put("orderType", 0);
+                created.put("createTime", LocalDateTime.now());
+                redisCache.setHashValues(orderInfoKey, created);
             }
 
             BigDecimal amountAfter = BigDecimal.ZERO;

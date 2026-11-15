@@ -19,6 +19,7 @@ import {
   setTableSession,
   getWsTicket,
   regenerateAllQr,
+  handoverTakeaway,
 } from './api';
 import { ApiError } from '../types/api';
 
@@ -304,6 +305,23 @@ describe('REST API Client & Service (S0-2)', () => {
         method: 'POST',
         body: JSON.stringify({ product: sampleProduct }),
       })
+    );
+  });
+
+  it('handoverTakeaway gửi orderId trong body để máy chủ không giao nhầm phiếu cùng số', async () => {
+    setAdminShopId('1');
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ code: 200, msg: 'success', data: null }),
+    });
+    global.fetch = mockFetch;
+
+    await handoverTakeaway(3, '9001');
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      '/order/order/takeaway/3/handover',
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ orderId: '9001' }) })
     );
   });
 

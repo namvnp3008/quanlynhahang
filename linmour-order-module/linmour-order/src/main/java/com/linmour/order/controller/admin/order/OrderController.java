@@ -4,9 +4,11 @@ import com.linmour.order.pojo.Dto.CheckoutDto;
 import com.linmour.order.pojo.Dto.OrderInfoPage;
 import com.linmour.order.pojo.Dto.OrderEditReqDto;
 import com.linmour.order.pojo.Dto.OrderInfoDto;
+import com.linmour.order.pojo.Dto.TakeawayReqDto;
 import com.linmour.order.service.OrderEditService;
 import com.linmour.order.service.OrderInfoService;
 import com.linmour.order.service.PayosPaymentService;
+import com.linmour.order.service.TakeawayService;
 import com.linmour.security.dtos.Result;
 import com.linmour.security.exception.CustomException;
 import com.linmour.security.exception.enums.AppHttpCodeEnum;
@@ -60,6 +62,28 @@ public class OrderController {
     @DeleteMapping("/openOrder/{tableId}/items/{index}")
     public Result removeOpenOrderItem(@PathVariable Long tableId, @PathVariable int index, @RequestBody OrderEditReqDto req) {
         return orderEditService.removeItem(tableId, index, req);
+    }
+
+    @Resource
+    private TakeawayService takeawayService;
+
+    /** AO-2: Báo giá đơn mang về (không trừ kho, không lưu) */
+    @PostMapping("/takeaway/quote")
+    public Result quoteTakeaway(@RequestBody TakeawayReqDto req) {
+        return takeawayService.quote(req != null ? req.getItems() : null);
+    }
+
+    /** AO-2: Thu tiền & báo bếp cho đơn mang về */
+    @PostMapping("/takeaway")
+    public Result createTakeaway(@RequestBody TakeawayReqDto req) {
+        return takeawayService.create(req);
+    }
+
+    /** AO-2: Đã giao phiếu mang về → rời màn bếp */
+    @PostMapping("/takeaway/{ticketNo}/handover")
+    public Result handoverTakeaway(@PathVariable Integer ticketNo, @RequestBody(required = false) Map<String, Object> body) {
+        Object orderId = body != null ? body.get("orderId") : null;
+        return takeawayService.handover(ticketNo, orderId != null ? orderId.toString() : null);
     }
 
     @PostMapping("/updateOrderItemStatus/{tableId}/{index}")

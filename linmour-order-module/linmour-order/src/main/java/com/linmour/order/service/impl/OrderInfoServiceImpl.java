@@ -89,6 +89,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         if (createOrderDto.getTableId() == null) {
             return Result.error(AppHttpCodeEnum.PARAM_ERROR.getCode(), "Thiếu tableId");
         }
+        if (createOrderDto.getTableId() <= 0) {
+            // AO-2: tableId âm là phiếu mang về đã thanh toán, khách không được đặt vào
+            return Result.error(400, "Bàn không hợp lệ");
+        }
         Long currentShopId = getShopId();
         Long shopId = (currentShopId != null && currentShopId > 0) ? currentShopId : createOrderDto.getShopId();
         if (shopId == null || shopId <= 0) {
@@ -200,6 +204,9 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             Map<String, Object> map = redisCache.getAllHash(orderInfoKey);
             if (ObjectUtil.isEmpty(map) || map.get("id") == null) {
                 return Result.error(AppHttpCodeEnum.PARAM_ERROR.getCode(), "Không tìm thấy đơn hàng cho bàn này");
+            }
+            if (map.get("orderType") != null && "1".equals(map.get("orderType").toString())) {
+                return Result.error(400, "Đơn mang về đã thanh toán, không sửa được");
             }
 
             // Cập nhật trạng thái thanh toán trong Redis

@@ -10,7 +10,11 @@ export const EDIT_REASONS = ['Khách đổi ý', 'Món bị lỗi / trả lại'
 const OTHER_REASON = 'Khác…';
 
 /** Esc để đóng, Tab vòng trong hộp thoại, tự focus phần tử đầu tiên */
-function useDialogKeyboard(ref: React.RefObject<HTMLDivElement>, onClose: () => void, disabled: boolean) {
+export function useDialogKeyboard(ref: React.RefObject<HTMLDivElement>, onClose: () => void, disabled: boolean) {
+  const onCloseRef = useRef(onClose);
+  const disabledRef = useRef(disabled);
+  onCloseRef.current = onClose;
+  disabledRef.current = disabled;
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
@@ -18,8 +22,8 @@ function useDialogKeyboard(ref: React.RefObject<HTMLDivElement>, onClose: () => 
       Array.from(root.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), [tabindex="0"]'));
     focusables()[0]?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !disabled) {
-        onClose();
+      if (e.key === 'Escape' && !disabledRef.current) {
+        onCloseRef.current();
       } else if (e.key === 'Tab') {
         const list = focusables();
         if (list.length === 0) return;

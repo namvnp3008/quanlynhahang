@@ -11,6 +11,7 @@ import {
 } from '../../services/api';
 import { getOrCreateAdminWebSocket } from '../../services/websocket';
 import { WsIncomingMessage } from '../../types/websocket';
+import { isTakeawayTableId, takeawayLabel } from '../../utils/takeaway';
 import {
   Volume2,
   VolumeX,
@@ -298,9 +299,23 @@ export const KitchenDisplay: React.FC = () => {
   };
 
   // Filter tickets according to current status tab
+  // Phiếu mang về: cũ nhất lên trước (FIFO); bàn giữ nguyên thứ tự máy chủ
+  const sortedOrders = useMemo(() => {
+    const takeaways = openOrders
+      .filter((o) => isTakeawayTableId(o.orderInfo.tableId))
+      .sort((a, b) => {
+        const ta = a.orderInfo.createTime ? Date.parse(a.orderInfo.createTime) : NaN;
+        const tb = b.orderInfo.createTime ? Date.parse(b.orderInfo.createTime) : NaN;
+        if (Number.isFinite(ta) && Number.isFinite(tb) && ta !== tb) return ta - tb;
+        return (a.orderInfo.ticketNo ?? -Number(a.orderInfo.tableId)) - (b.orderInfo.ticketNo ?? -Number(b.orderInfo.tableId));
+      });
+    let next = 0;
+    return openOrders.map((o) => (isTakeawayTableId(o.orderInfo.tableId) ? takeaways[next++] : o));
+  }, [openOrders]);
+
   const filteredOrders = useMemo(() => {
-    if (filter === 'ALL') return openOrders;
-    return openOrders
+    if (filter === 'ALL') return sortedOrders;
+    return sortedOrders
       .map((ord) => {
         const matchingItems = (ord.orderItems || []).filter(
           (it) => (it.status ?? 0) === filter
@@ -311,7 +326,7 @@ export const KitchenDisplay: React.FC = () => {
         };
       })
       .filter((ord) => ord.orderItems.length > 0);
-  }, [openOrders, filter]);
+  }, [sortedOrders, filter]);
 
   return (
     <div
@@ -516,9 +531,10 @@ export const KitchenDisplay: React.FC = () => {
         ) : (
           filteredOrders.map((order) => {
             const tableId = order.orderInfo.tableId;
-            const tableName =
-              tableNameMap.get(String(tableId)) ||
-              (tableId ? `BÀN ${String(tableId).padStart(2, '0')}` : 'Mang về');
+            const tableName = isTakeawayTableId(tableId)
+              ? `${takeawayLabel(tableId)} · Mang về`
+              : tableNameMap.get(String(tableId)) ||
+                (tableId ? `BÀN ${String(tableId).padStart(2, '0')}` : 'Mang về');
 
             const elapsedMinutes = getElapsedMinutes(order.orderInfo.createTime);
             const isUrgent = elapsedMinutes >= 12;
@@ -534,6 +550,8 @@ export const KitchenDisplay: React.FC = () => {
                 className={`w-[310px] bg-slate-950 rounded-2xl shadow-xl flex flex-col shrink-0 h-full overflow-hidden transition ${
                   allDone
                     ? 'border border-slate-800 opacity-70 hover:opacity-100'
+                    : isTakeawayTableId(tableId)
+                    ? 'border border-amber-300'
                     : isUrgent
                     ? 'border-2 border-red-500/80'
                     : 'border border-slate-700'
@@ -544,12 +562,20 @@ export const KitchenDisplay: React.FC = () => {
                   className={`p-3.5 border-b flex items-center justify-between ${
                     isUrgent && !allDone
                       ? 'bg-red-950/40 border-red-900/50'
+                      : isTakeawayTableId(tableId)
+                      ? 'bg-amber-50 border-amber-200'
                       : 'bg-slate-900 border-slate-800'
                   }`}
                 >
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-black text-white">{tableName}</span>
+                      <span
+                        className={`text-lg font-black ${
+                          isTakeawayTableId(tableId) && !(isUrgent && !allDone) ? 'text-slate-900' : 'text-white'
+                        }`}
+                      >
+                        {tableName}
+                      </span>
                       {allDone ? (
                         <span className="px-2 py-0.5 bg-green-950 text-green-400 border border-green-800 font-bold text-xs rounded-md">
                           Đã phục vụ
@@ -566,7 +592,11 @@ export const KitchenDisplay: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-slate-400 mt-0.5">
+                    <div
+                      className={`text-xs mt-0.5 ${
+                        isTakeawayTableId(tableId) && !(isUrgent && !allDone) ? 'text-slate-500' : 'text-slate-400'
+                      }`}
+                    >
                       Đơn #{order.orderInfo.id?.slice(-8) || 'ORD'} •{' '}
                       {order.orderInfo.createTime
                         ? new Date(order.orderInfo.createTime).toLocaleTimeString('vi-VN', {

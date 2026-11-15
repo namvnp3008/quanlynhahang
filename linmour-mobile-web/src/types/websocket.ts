@@ -88,6 +88,8 @@ export interface WsOrderEditedData {
   version?: number;
   payAmount?: number | string;
   payosCancelled?: boolean;
+  /** AO-4: TAKEAWAY / HANDOVER cho phiếu mang về (tableId âm) */
+  op?: string;
 }
 
 export interface WsPayosMismatchData {
