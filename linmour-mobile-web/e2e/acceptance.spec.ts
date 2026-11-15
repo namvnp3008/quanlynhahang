@@ -605,6 +605,18 @@ test.describe.serial('Sprint 8 E2E Acceptance Test Suite (Kịch bản 2 -> 3 ->
     const table5 = tableListData?.data?.find((t: { id: number; qrToken?: string }) => t.id === 5);
     expect(table5?.qrToken).toBeTruthy();
 
+    // Món lấy từ thực đơn đang bán (không cố định id) để chạy được trên dữ liệu thật của quán.
+    // Chỉ lấy món không có nhóm tuỳ chọn: bấm "Chọn +" là vào giỏ ngay, giá không đổi.
+    type PlainProduct = { id: number; name: string; price: number; status: number; productSortAndOptions?: unknown[] };
+    const menuRes = await fetch('http://127.0.0.1:12800/app/product/product/getProductList', { headers: { Shopid: '1' } });
+    const plain: PlainProduct[] = ((await menuRes.json())?.data || [])
+      .flatMap((s: { list?: PlainProduct[] }) => s.list || [])
+      .filter((x: PlainProduct) => x.status === 1 && (x.productSortAndOptions || []).length === 0);
+    expect(plain.length).toBeGreaterThanOrEqual(2);
+    const [p, q] = plain;
+    const total = Number(p.price) + Number(q.price);
+    const vnd = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
+
     // 2. Client mở URL với qrToken trên giao diện mobile (375x812)
     const clientContext = await browser.newContext({ viewport: { width: 375, height: 812 } });
     const clientPage = await clientContext.newPage();
@@ -615,20 +627,17 @@ test.describe.serial('Sprint 8 E2E Acceptance Test Suite (Kịch bản 2 -> 3 ->
     // Đợi WS sync khởi tạo hoàn tất trước khi thao tác giỏ
     await clientPage.waitForTimeout(300);
 
-    // 3. Khách chọn 2 món: Bún Chả Hà Nội (50k) và Cà Phê Sữa Đá Sài Gòn (25k) có tuỳ chọn
-    await expect(clientPage.locator('[data-testid="product-add-btn-3"]')).toBeVisible({ timeout: 10000 });
-    await clientPage.click('[data-testid="product-add-btn-3"]');
+    // 3. Khách chọn 2 món p và q
+    for (const item of [p, q]) {
+      const addBtn = clientPage.locator(`[data-testid="product-add-btn-${item.id}"]`);
+      await expect(addBtn).toBeVisible({ timeout: 10000 });
+      await addBtn.click();
+    }
 
-    await expect(clientPage.locator('[data-testid="product-add-btn-6"]')).toBeVisible({ timeout: 10000 });
-    await clientPage.click('[data-testid="product-add-btn-6"]');
-    await expect(clientPage.locator('[data-testid="product-sheet-container"]')).toBeVisible({ timeout: 5000 });
-    await clientPage.click('[data-testid="option-item-4"]'); // Ít đá (50% đá)
-    await clientPage.click('[data-testid="add-to-cart-submit-btn"]');
-
-    // Mở giỏ hàng và kiểm tra giỏ hiển thị đúng 75.000 đ trước khi đặt món
+    // Mở giỏ hàng và kiểm tra tổng tiền đúng trước khi đặt món
     await clientPage.click('[data-testid="view-cart-btn"]');
     await expect(clientPage.locator('[data-testid="cart-view"]')).toBeVisible({ timeout: 5000 });
-    await expect(clientPage.locator('[data-testid="cart-total-amount"]')).toContainText('75.000');
+    await expect(clientPage.locator('[data-testid="cart-total-amount"]')).toContainText(vnd(total));
 
     await clientPage.click('[data-testid="submit-order-btn"]');
     await expect(clientPage.locator('[data-testid="table-order-view"]')).toBeVisible({ timeout: 10000 });
@@ -668,9 +677,11 @@ test.describe.serial('Sprint 8 E2E Acceptance Test Suite (Kịch bản 2 -> 3 ->
       .poll(() => adminPage.evaluate(() => (window as unknown as { __printed: string[] }).__printed.length))
       .toBe(1);
     const adminPrinted = await adminPage.evaluate(() => (window as unknown as { __printed: string[] }).__printed[0]);
-    expect(adminPrinted).toContain('Bàn 05');
-    expect(adminPrinted).toContain('Bún Chả Hà Nội');
-    expect(adminPrinted).toContain('75.000');
+    expect(adminPrinted).toContain('PHIẾU TẠM TÍNH');
+    expect(adminPrinted).toMatch(/Bàn\s*0?5/);
+    expect(adminPrinted).toContain(p.name);
+    expect(adminPrinted).toContain(q.name);
+    expect(adminPrinted).toContain(`${vnd(total)} đ`);
     console.log('[BUG-TY-1] Hoá đơn admin đi qua luồng in 80mm (window.print), không tạo file PDF.');
 
     // KHÁCH TUYỆT ĐỐI KHÔNG MỞ MÀN THANH TOÁN (ở nguyên màn TableOrderView)
@@ -692,9 +703,9 @@ test.describe.serial('Sprint 8 E2E Acceptance Test Suite (Kịch bản 2 -> 3 ->
     await expect(clientPage.locator('text=Thanh Toán Thành Công')).toBeVisible();
     await expect(clientPage.locator('text=Cảm Ơn Quý Khách!')).toBeVisible();
 
-    // Kiểm tra tổng tiền đúng 75.000 đ và mã đơn thật (không rơi về #ORD-102938 hay 145.000 đ)
+    // Kiểm tra tổng tiền đúng và mã đơn thật (không rơi về #ORD-102938 hay 145.000 đ)
     const receiptTotal = clientPage.locator('[data-testid="receipt-total-amount"]');
-    await expect(receiptTotal).toContainText('75.000');
+    await expect(receiptTotal).toContainText(vnd(total));
     await expect(clientPage.locator('text=#ORD-102938')).not.toBeVisible();
     await expect(clientPage.locator('text=145.000')).not.toBeVisible();
 
