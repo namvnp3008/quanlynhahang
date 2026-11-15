@@ -9,5 +9,7 @@ WORKDIR /app
 COPY --from=builder /src/${MODULE_JAR} /app/app.jar
 # Tess4jClient tìm dữ liệu OCR ở ${user.dir}/ocr
 COPY --from=builder /src/ocr /app/ocr
+COPY docker/java-entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 EXPOSE ${SERVICE_PORT}
-ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["/app/entrypoint.sh"]
