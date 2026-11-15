@@ -1,0 +1,295 @@
+# Toàn bộ hệ thống (infra + 7 service Java + web) chạy bằng Docker.
+# Dùng cho laptop Windows tự khởi động cùng Docker Desktop; chạy được cả trên Mac.
+#   cp .env.example .env   # rồi điền giá trị thật
+#   docker compose up -d --build
+# Hướng dẫn đầy đủ: .claude/reference/windows-autostart.md
+#
+# Tên project trùng với start-all-services.sh để dùng lại volume MySQL cũ.
+# KHÔNG chạy song song với start-all-services.sh (trùng cổng 12800–12806, 3306, 8848, 9092).
+
+name: qr-code-orders---saas-master
+
+x-java-service: &java-service
+  restart: unless-stopped
+  environment: &java-env
+    TZ: Asia/Ho_Chi_Minh
+    JAVA_OPTS: ${JAVA_OPTS:--Xms128m -Xmx256m}
+    SPRING_CLOUD_NACOS_DISCOVERY_SERVER_ADDR: nacos:8848
+    SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: nacos:8848
+    PAYOS_MOCK: ${PAYOS_MOCK:-false}
+  volumes:
+    - uploads:/root/linmour/upload
+  depends_on: &java-deps
+    mysql:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+    kafka:
+      condition: service_healthy
+    nacos-init:
+      condition: service_completed_successfully
+
+x-backend-build: &backend-build
+  context: .
+  dockerfile: docker/backend.Dockerfile
+  additional_contexts:
+    builder: service:backend-builder
+
+services:
+  # ---------------------------------------------------------------- infra
+  mysql:
+    image: mysql:8.0
+    container_name: linmour-mysql
+    restart: unless-stopped
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:?Thiếu MYSQL_PASSWORD trong .env}
+      MYSQL_PWD: ${MYSQL_PASSWORD}
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      # Chỉ chạy khi volume còn trống (máy mới): nạp bản dump đầy đủ mới nhất
+      - ./sql/backup/latest_dump.sql:/docker-entrypoint-initdb.d/01-latest_dump.sql:ro
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: linmour-redis
+    restart: unless-stopped
+    # Không publish cổng ra host: Redis riêng của stack này (app dùng DB 2)
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  nacos:
+    image: nacos/nacos-server:v2.2.3
+    container_name: linmour-nacos
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      MODE: standalone
+      PREFER_HOST_MODE: hostname
+      NACOS_AUTH_ENABLE: "false"
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - "127.0.0.1:8848:8848"
+      - "127.0.0.1:9848:9848"
+      - "127.0.0.1:9849:9849"
+    volumes:
+      - nacos_data:/home/nacos/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8848/nacos/v1/console/server/state >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+
+  kafka:
+    image: apache/kafka:3.7.0
+    container_name: linmour-kafka
+    restart: unless-stopped
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://127.0.0.1:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+    ports:
+      - "127.0.0.1:9092:9092"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server kafka:29092 >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 20s
+
+  # Publish config/nacos/*.yml lên Nacos mỗi lần `docker compose up` (chạy xong thì thoát)
+  nacos-init:
+    image: python:3.12-alpine
+    container_name: linmour-nacos-init
+    restart: "no"
+    command: ["python", "/scripts/publish.py"]
+    depends_on:
+      nacos:
+        condition: service_healthy
+    volumes:
+      - ./config/nacos:/config:ro
+      - ./docker/nacos-init:/scripts:ro
+    environment:
+      NACOS_ADDR: http://nacos:8848
+      MYSQL_HOST: mysql
+      MYSQL_PORT: "3306"
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Thiếu MYSQL_PASSWORD trong .env}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ""
+      REDIS_DATABASE: "2"
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      LAN_IP: ${LAN_IP:?Thiếu LAN_IP trong .env}
+      WEB_BASE_URL: ${WEB_BASE_URL:-http://${LAN_IP}:5181}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://${LAN_IP}:12800}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:?Thiếu INTERNAL_TOKEN trong .env}
+      JWT_SECRET: ${JWT_SECRET:?Thiếu JWT_SECRET trong .env}
+      PAYOS_CONFIG_SECRET: ${PAYOS_CONFIG_SECRET:?Thiếu PAYOS_CONFIG_SECRET trong .env}
+      OTP_SECRET: ${OTP_SECRET:?Thiếu OTP_SECRET trong .env}
+      TABLE_TOKEN_SECRET: ${TABLE_TOKEN_SECRET:?Thiếu TABLE_TOKEN_SECRET trong .env}
+      SECURITY_REQUIRE_OTP_FOR_PLATFORM_ADMIN: ${SECURITY_REQUIRE_OTP_FOR_PLATFORM_ADMIN:-true}
+      SECURITY_FORCE_WEAK_PASSWORD_CHANGE: ${SECURITY_FORCE_WEAK_PASSWORD_CHANGE:-true}
+      SECURITY_ALLOW_RAW_TABLE_IDS: ${SECURITY_ALLOW_RAW_TABLE_IDS:-false}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minio}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-}
+      MINIO_BUCKET: ${MINIO_BUCKET:-linmourscanorder}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://127.0.0.1:9000}
+      MINIO_READ_PATH: ${MINIO_READ_PATH:-http://127.0.0.1:9000}
+
+  # -------------------------------------------------------- Java services
+  # Chỉ để build: chạy Maven một lần cho cả 7 service (không có container chạy thật)
+  backend-builder:
+    image: linmour/backend-builder:local
+    build:
+      context: .
+      dockerfile: docker/backend-builder.Dockerfile
+    scale: 0
+
+  system:
+    <<: *java-service
+    image: linmour/system:local
+    container_name: linmour-system
+    build:
+      <<: *backend-build
+      args:
+        MODULE_JAR: linmour-system-module/linmour-system/target/linmour-system.jar
+        SERVICE_PORT: "12801"
+    healthcheck: &java-health
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/12801"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 120s
+
+  product:
+    <<: *java-service
+    image: linmour/product:local
+    container_name: linmour-product
+    build:
+      <<: *backend-build
+      args:
+        MODULE_JAR: linmour-product-module/linmour-product/target/linmour-product.jar
+        SERVICE_PORT: "12802"
+    healthcheck:
+      <<: *java-health
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/12802"]
+
+  restaurant:
+    <<: *java-service
+    image: linmour/restaurant:local
+    container_name: linmour-restaurant
+    build:
+      <<: *backend-build
+      args:
+        MODULE_JAR: linmour-restaurant-module/linmour-restaurant/target/linmour-restaurant.jar
+        SERVICE_PORT: "12803"
+    healthcheck:
+      <<: *java-health
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/12803"]
+
+  order:
+    <<: *java-service
+    image: linmour/order:local
+    container_name: linmour-order
+    build:
+      <<: *backend-build
+      args:
+        MODULE_JAR: linmour-order-module/linmour-order/target/linmour-order.jar
+        SERVICE_PORT: "12804"
+    healthcheck:
+      <<: *java-health
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/12804"]
+
+  websocket:
+    <<: *java-service
+    image: linmour/websocket:local
+    container_name: linmour-websocket
+    build:
+      <<: *backend-build
+      args:
+        MODULE_JAR: linmour-websocket/target/linmour-websocket.jar
+        SERVICE_PORT: "12805"
+    healthcheck:
+      <<: *java-health
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/12805"]
+
+  dataanaly:
+    <<: *java-service
+    image: linmour/dataanaly:local
+    container_name: linmour-dataAnaly
+    build:
+      <<: *backend-build
+      args:
+        MODULE_JAR: linmour-dataAnaly-module/linmour-dataAnaly/target/linmour-dataAnaly.jar
+        SERVICE_PORT: "12806"
+    healthcheck:
+      <<: *java-health
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/12806"]
+
+  gateway:
+    <<: *java-service
+    image: linmour/gateway:local
+    container_name: linmour-gateway
+    build:
+      <<: *backend-build
+      args:
+        MODULE_JAR: linmour-gateway/target/linmour-gateway.jar
+        SERVICE_PORT: "12800"
+    ports:
+      # PUBLIC_BASE_URL (ảnh, QR) trỏ vào cổng này
+      - "12800:12800"
+    healthcheck:
+      <<: *java-health
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/12800"]
+
+  # ---------------------------------------------------------------- web
+  web:
+    image: linmour/web:local
+    container_name: linmour-web
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+      args:
+        VITE_VIETQR_BANK_BIN: ${VITE_VIETQR_BANK_BIN:-}
+        VITE_VIETQR_ACCOUNT_NO: ${VITE_VIETQR_ACCOUNT_NO:-}
+        VITE_VIETQR_ACCOUNT_NAME: ${VITE_VIETQR_ACCOUNT_NAME:-}
+    ports:
+      - "5181:5181"
+    depends_on:
+      - gateway
+
+volumes:
+  mysql_data:
+  redis_data:
+  nacos_data:
+  uploads:
