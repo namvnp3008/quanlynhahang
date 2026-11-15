@@ -89,10 +89,7 @@ const ClientPageContent: React.FC<ClientPageContentProps> = ({
     orderNumber?: string;
     totalAmount?: number | string;
     payType?: number | string;
-    shopName?: string;
     tableName?: string;
-    paidAt?: string;
-    orderItems?: OrderItem[];
   } | null>(
     mockMode === 'paid'
       ? {
@@ -188,34 +185,21 @@ const ClientPageContent: React.FC<ClientPageContentProps> = ({
             ? (data.payType as number | string)
             : 1;
 
-        const incomingShopName = (data.shopName as string) || '';
         const incomingTableName = (data.tableName as string) || '';
-        const incomingPaidAt = (data.paidAt as string) || '';
-
-        const rawItems = Array.isArray(data.items) ? (data.items as Array<Record<string, unknown>>) : [];
-        const incomingItems: OrderItem[] = rawItems.map((it) => ({
-          name: (it.name as string) || (it.productName as string) || 'Món ăn',
-          quantity: Number(it.quantity) || 1,
-          price: Number(it.price) || 0,
-          propsText: (it.propsText as string) || undefined,
-        }));
 
         const finalData = {
           orderNumber: incomingOrderId || '—',
           totalAmount: incomingAmount,
           payType: incomingPayType,
-          shopName: incomingShopName || shopInfo?.name || '',
           tableName: incomingTableName || tableInfo.name || '—',
-          paidAt: incomingPaidAt,
-          orderItems: incomingItems.length > 0 ? incomingItems : undefined,
         };
 
         setPaidData(finalData);
         setCurrentView('paid');
         setOrderToast({ type: 'success', message: 'Thanh toán thành công!' });
 
-        // Fallback: If orderItems or orderNumber is missing and tableId exists, fetch current order info
-        if ((!finalData.orderItems || finalData.orderNumber === '—' || !finalData.totalAmount) && tableInfo.id) {
+        // Fallback: thiếu mã đơn hoặc tổng tiền thì lấy lại từ đơn hiện tại của bàn
+        if ((finalData.orderNumber === '—' || !finalData.totalAmount) && tableInfo.id) {
           getCurrentOrderInfo(tableInfo.id)
             .then((res) => {
               if (res) {
@@ -229,18 +213,7 @@ const ClientPageContent: React.FC<ClientPageContentProps> = ({
                       : res.orderId || '—',
                   totalAmount: prev?.totalAmount || fetchedOrderInfo?.payAmount || res.payAmount || 0,
                   payType: prev?.payType || fetchedOrderInfo?.payType || 1,
-                  shopName: prev?.shopName || shopInfo?.name || '',
                   tableName: prev?.tableName || tableInfo.name || '—',
-                  paidAt: prev?.paidAt || fetchedOrderInfo?.createTime,
-                  orderItems:
-                    prev?.orderItems && prev.orderItems.length > 0
-                      ? prev.orderItems
-                      : res.orderItems?.map((it) => ({
-                          name: it.name || (it as unknown as { productName?: string }).productName || 'Món ăn',
-                          quantity: it.quantity || (it as unknown as { num?: number }).num || 1,
-                          price: it.price || 0,
-                          propsText: it.propsText,
-                        })),
                 }));
               }
             })
@@ -262,7 +235,7 @@ const ClientPageContent: React.FC<ClientPageContentProps> = ({
     return () => {
       unsubscribe();
     };
-  }, [wsClient, setCart, clearCart, onTokenRevoked, shopInfo?.name, tableInfo.id, tableInfo.name]);
+  }, [wsClient, setCart, clearCart, onTokenRevoked, tableInfo.id, tableInfo.name]);
 
   useEffect(() => {
     return () => {
