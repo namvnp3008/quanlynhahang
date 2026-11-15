@@ -59,7 +59,7 @@ docker compose up -d --build
 ```
 - Lần đầu mất khoảng 10–20 phút (tải image, build Maven và web). Maven chỉ chạy một lần trong image `linmour/backend-builder:local` (~2 GB). Các lần sau có cache nên chỉ vài phút.
 - Nếu Docker Desktop bị sập khi build, hãy tăng RAM trong `.wslconfig` (mục 1).
-- MySQL trống sẽ tự nạp `sql/backup/latest_dump.sql`. Việc này **chỉ xảy ra một lần** khi volume `mysql_data` còn trống.
+- MySQL trống sẽ tự nạp `sql/backup/latest_dump.sql` rồi chạy các migration mới hơn bản dump (hiện là V15: loại đơn và số phiếu mang về). Việc này **chỉ xảy ra một lần** khi volume `mysql_data` còn trống.
 - `nacos-init` chạy xong rồi dừng (trạng thái `Exited (0)` là đúng).
 
 Kiểm tra:

@@ -47,16 +47,20 @@ services:
       --collation-server=utf8mb4_general_ci
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:?Thiếu MYSQL_PASSWORD trong .env}
-      MYSQL_PWD: ${MYSQL_PASSWORD}
       TZ: Asia/Ho_Chi_Minh
     ports:
       - "127.0.0.1:3306:3306"
     volumes:
       # Chỉ chạy khi volume còn trống (máy mới): nạp bản dump đầy đủ mới nhất
       - ./sql/backup/latest_dump.sql:/docker-entrypoint-initdb.d/01-latest_dump.sql:ro
+      # Migration mới hơn bản dump (dump có tới V14). Các file này kiểm tra trước khi ALTER nên chạy lại vẫn an toàn.
+      # Khi tạo dump mới thì bỏ các dòng đã nằm trong dump.
+      - ./sql/migrations/V15__order_type_ticket_no.sql:/docker-entrypoint-initdb.d/02-V15__order_type_ticket_no.sql:ro
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot"]
+      # mysqladmin ping trả 0 khi server sống, kể cả khi không có mật khẩu (không đặt MYSQL_PWD:
+      # biến đó làm script khởi tạo của image lỗi "Access denied" khi volume còn trống)
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
       interval: 10s
       timeout: 5s
       retries: 30
