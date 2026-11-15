@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, within, fireEvent, waitFor } from '@testing-library/react';
 import { TableManage } from './TableManage';
 import * as api from '../../services/api';
 import { RestaurantTable, Shop } from '../../types/restaurant';
@@ -180,8 +180,14 @@ describe('Story A6: TableManage Component (mockup a10)', () => {
     });
   });
 
-  it('opens printable A4 sheet modal and triggers window.print', async () => {
-    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
+  it('xem trước và in mã QR khổ 80mm: mỗi bàn một lệnh in riêng', async () => {
+    // jsdom không tải ảnh; coi ảnh QR đã tải xong để print80mm không phải chờ
+    vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(true);
+    const printedTexts: string[] = [];
+    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {
+      printedTexts.push(document.getElementById('print-root')?.textContent || '');
+      window.dispatchEvent(new Event('afterprint'));
+    });
 
     render(<TableManage />);
 
@@ -189,22 +195,40 @@ describe('Story A6: TableManage Component (mockup a10)', () => {
       expect(screen.getByText('Bàn 01')).toBeInTheDocument();
     });
 
-    // Open A4 print preview
-    fireEvent.click(screen.getByTestId('open-a4-preview-btn'));
-    expect(screen.getByTestId('a4-print-modal')).toBeInTheDocument();
-    expect(screen.getByTestId('a4-printable-sheet')).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('open-qr-print-preview-btn'));
+    expect(screen.getByTestId('qr-print-modal')).toBeInTheDocument();
+    const preview = screen.getByTestId('qr-print-preview');
+    await waitFor(() => {
+      expect(within(preview).getAllByTestId('print-qr-slip')).toHaveLength(4);
+    });
 
-    // Verify QR cards exist in sheet
-    expect(screen.getByTestId('a4-qr-card-1')).toBeInTheDocument();
-    expect(screen.getByTestId('a4-qr-card-2')).toBeInTheDocument();
-
-    // Trigger print
     fireEvent.click(screen.getByTestId('print-now-btn'));
-    expect(printSpy).toHaveBeenCalled();
+    await waitFor(() => expect(printSpy).toHaveBeenCalledTimes(4));
+    expect(printedTexts.map((t) => t.match(/Bàn 0\d/)?.[0])).toEqual(['Bàn 01', 'Bàn 02', 'Bàn 03', 'Bàn 04']);
 
-    // Close preview
-    fireEvent.click(screen.getByTestId('close-a4-preview-btn'));
-    expect(screen.queryByTestId('a4-print-modal')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('close-qr-print-preview-btn'));
+    expect(screen.queryByTestId('qr-print-modal')).not.toBeInTheDocument();
+    vi.restoreAllMocks();
+  });
+
+  it('in mã QR 80mm cho riêng một bàn', async () => {
+    vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(true);
+    const printedTexts: string[] = [];
+    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {
+      printedTexts.push(document.getElementById('print-root')?.textContent || '');
+      window.dispatchEvent(new Event('afterprint'));
+    });
+
+    render(<TableManage />);
+    await waitFor(() => {
+      expect(screen.getByTestId('print-qr-btn-2')).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTestId('print-qr-btn-2'));
+    await waitFor(() => expect(printSpy).toHaveBeenCalledTimes(1));
+    expect(printedTexts[0]).toContain('Bàn 02');
+    expect(printedTexts[0]).not.toContain('Bàn 01');
+    printSpy.mockRestore();
   });
 
   it('T-1: allows regenerating all QRs via confirmation modal', async () => {

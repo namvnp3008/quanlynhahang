@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import QRCode from 'qrcode';
 import { isTakeawayTableId } from '../../utils/takeaway';
+import { print80mm } from '../../print/print80mm';
+import { TableQrSlip } from '../../print/templates';
 import {
   Plus,
   Edit2,
@@ -56,7 +58,7 @@ export const TableManage: React.FC = () => {
   const [deletingTable, setDeletingTable] = useState<RestaurantTable | null>(null);
   const [isSubmittingDelete, setIsSubmittingDelete] = useState<boolean>(false);
 
-  // Modal Xem Trước Bản In A4
+  // Modal Xem Trước Bản In Mã QR 80mm
   const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState<boolean>(false);
 
   // Modal Phóng To QR
@@ -301,10 +303,19 @@ export const TableManage: React.FC = () => {
     }
   };
 
-  // In A4
-  const handlePrint = () => {
-    window.print();
+  // In mã QR khổ 80mm: mỗi bàn một phiếu (một lệnh in) để máy cắt giấy sau từng bàn
+  const printQrSlips = (list: RestaurantTable[]) => {
+    const slips = list
+      .filter((tbl) => getQrUrl(tbl))
+      .map((tbl) => <TableQrSlip key={tbl.id} shopName={shopName} tableName={tbl.name} qrSrc={getQrUrl(tbl)} />);
+    if (slips.length === 0) {
+      setErrorToast('Chưa có mã QR để in.');
+      return;
+    }
+    print80mm(slips).catch(() => setErrorToast('Không in được, vui lòng kiểm tra máy in.'));
   };
+
+  const handlePrint = () => printQrSlips(tables);
 
   return (
     <div data-testid="table-manage-page" className="flex flex-col h-full overflow-hidden bg-slate-50 relative">
@@ -352,7 +363,7 @@ export const TableManage: React.FC = () => {
         <div>
           <h1 className="text-lg font-black text-slate-900 tracking-tight">Bàn Ăn & Mã QR Gọi Món</h1>
           <p className="text-xs text-slate-500 font-medium">
-            Quản lý sơ đồ bàn, tạo mã QR theo từng bàn và xuất bản in A4 dán bàn
+            Quản lý sơ đồ bàn, tạo mã QR theo từng bàn và in mã QR khổ 80mm dán bàn
           </p>
         </div>
 
@@ -369,12 +380,12 @@ export const TableManage: React.FC = () => {
 
           <button
             type="button"
-            data-testid="open-a4-preview-btn"
+            data-testid="open-qr-print-preview-btn"
             onClick={() => setIsPrintPreviewOpen(true)}
             className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-xs cursor-pointer"
           >
             <Printer className="w-4 h-4" />
-            <span>Xem Bản In A4 Nhiều Mã QR</span>
+            <span>Xem Bản In Mã QR 80mm</span>
           </button>
 
           <button
@@ -544,6 +555,16 @@ export const TableManage: React.FC = () => {
                         className="p-1 text-slate-500 hover:text-red-600 rounded transition disabled:opacity-50"
                       >
                         <RefreshCw className={`w-3.5 h-3.5 ${isRegenerating ? 'animate-spin' : ''}`} />
+                      </button>
+                      <button
+                        type="button"
+                        data-testid={`print-qr-btn-${table.id}`}
+                        onClick={() => printQrSlips([table])}
+                        disabled={!qrSrc}
+                        title="In mã QR bàn này ra máy in 80mm"
+                        className="p-1 text-slate-500 hover:text-red-600 rounded transition disabled:opacity-50"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
                       </button>
                       <a
                         href={qrSrc}
@@ -835,19 +856,19 @@ export const TableManage: React.FC = () => {
         </div>
       )}
 
-      {/* MODAL XEM TRƯỚC BẢN IN A4 (Print Preview) */}
+      {/* MODAL XEM TRƯỚC BẢN IN MÃ QR 80mm */}
       {isPrintPreviewOpen && (
         <div
-          data-testid="a4-print-modal"
+          data-testid="qr-print-modal"
           className="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto"
         >
-          <div className="bg-white rounded-3xl max-w-4xl w-full p-6 shadow-2xl border border-slate-200 flex flex-col max-h-[90vh]">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 flex flex-col max-h-[90vh]">
             {/* Modal Controls Header */}
             <div className="flex items-center justify-between border-b border-slate-200 pb-4 mb-4 shrink-0">
               <div>
-                <h3 className="text-base font-extrabold text-slate-900">Xem Trước Bản In A4 Nhiều Mã QR</h3>
+                <h3 className="text-base font-extrabold text-slate-900">Xem Trước Bản In Mã QR 80mm</h3>
                 <p className="text-xs text-slate-500">
-                  Tối ưu để in trực tiếp trên giấy A4 tiêu chuẩn (tối đa 8 mã QR mỗi trang có kèm tên quán và số bàn)
+                  Mỗi bàn một phiếu 80mm, máy in tự cắt giấy sau từng bàn ({tables.length} bàn)
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -855,14 +876,15 @@ export const TableManage: React.FC = () => {
                   type="button"
                   data-testid="print-now-btn"
                   onClick={handlePrint}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                  className="whitespace-nowrap shrink-0 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5 cursor-pointer"
                 >
                   <Printer className="w-4 h-4" />
-                  <span>In Ngay (Print)</span>
+                  <span>In Ngay</span>
                 </button>
                 <button
                   type="button"
-                  data-testid="close-a4-preview-btn"
+                  data-testid="close-qr-print-preview-btn"
+                  aria-label="Đóng"
                   onClick={() => setIsPrintPreviewOpen(false)}
                   className="text-slate-400 hover:text-slate-600 p-2"
                 >
@@ -871,89 +893,20 @@ export const TableManage: React.FC = () => {
               </div>
             </div>
 
-            {/* Scrollable A4 Sheet Container */}
-            <div className="flex-1 overflow-y-auto bg-slate-200 p-6 rounded-2xl flex justify-center">
-              {/* PRINTABLE SHEET */}
-              <div
-                id="a4-printable-sheet"
-                data-testid="a4-printable-sheet"
-                className="w-[640px] bg-white shadow-md p-8 border border-slate-300 rounded-sm text-slate-900"
-              >
-                {/* Header */}
-                <div className="text-center border-b-2 border-slate-900 pb-4 mb-6">
-                  <h2 className="text-lg font-black uppercase tracking-wider text-slate-900">
-                    {shopName ? `${shopName.toUpperCase()} - ` : ''}QUÉT MÃ GỌI MÓN TẠI BÀN
-                  </h2>
-                  <p className="text-xs text-slate-600 mt-1">
-                    Dùng Camera điện thoại hoặc app Zalo/Ngân hàng để quét mã đặt món nhanh
-                  </p>
+            {/* Bản xem trước: đúng mẫu sẽ in */}
+            <div
+              data-testid="qr-print-preview"
+              className="flex-1 overflow-y-auto bg-slate-200 p-6 rounded-2xl flex flex-col items-center gap-4"
+            >
+              {tables.map((tbl) => (
+                <div key={tbl.id} className="bg-white shadow-md">
+                  <TableQrSlip shopName={shopName} tableName={tbl.name} qrSrc={getQrUrl(tbl)} />
                 </div>
-
-                {/* Grid 2 cột - tối đa 8 bàn */}
-                <div className="grid grid-cols-2 gap-4">
-                  {tables.slice(0, 8).map((tbl) => {
-                    const qrSrc = getQrUrl(tbl);
-                    return (
-                      <div
-                        key={tbl.id}
-                        data-testid={`a4-qr-card-${tbl.id}`}
-                        className="border-2 border-dashed border-slate-400 p-3.5 rounded-xl text-center flex flex-col items-center bg-white"
-                      >
-                        {shopName && (
-                          <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
-                            {shopName}
-                          </span>
-                        )}
-                        <h4 className="text-lg font-black text-slate-900 mt-0.5">{tbl.name.toUpperCase()}</h4>
-                        <div className="w-28 h-28 my-1.5 p-1 bg-white border border-slate-200 rounded flex items-center justify-center">
-                          <img
-                            src={qrSrc}
-                            alt={`QR ${tbl.name}`}
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                        <span className="text-xs font-bold text-red-600">Quét để xem menu & gọi món</span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Footer */}
-                <div className="text-center text-xs text-slate-400 mt-6 pt-3 border-t border-slate-200">
-                  Hệ thống QUANLYNHAHANG • Quét mã gọi món tiện lợi
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
       )}
-
-      {/* CSS @media print chuyên dụng */}
-      <style>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          #a4-printable-sheet,
-          #a4-printable-sheet * {
-            visibility: visible;
-          }
-          #a4-printable-sheet {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100% !important;
-            box-shadow: none !important;
-            border: none !important;
-            margin: 0 !important;
-            padding: 10mm !important;
-          }
-          @page {
-            size: A4 portrait;
-            margin: 10mm;
-          }
-        }
-      `}</style>
     </div>
   );
 };

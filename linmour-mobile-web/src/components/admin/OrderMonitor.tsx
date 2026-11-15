@@ -8,7 +8,7 @@ import {
   adminSetOrderItemStatus,
   adminCheckout,
   getAdminShopId,
-  getShopByIds,
+  getShopList,
   addOpenOrderItem,
   updateOpenOrderItemQuantity,
   removeOpenOrderItem,
@@ -23,13 +23,12 @@ import { isTakeawayTableId } from '../../utils/takeaway';
 import { getOrCreateAdminWebSocket, WebSocketClient } from '../../services/websocket';
 import { WsIncomingMessage, WsNewOrderData, WsPayosMismatchData } from '../../types/websocket';
 import { formatVND } from '../../utils/currency';
-import {
-  ReceiptPrintPortal,
-  AdminReceipt,
-  triggerReceiptPrint,
-} from '../common/ReceiptPrintPortal';
+import { print80mm } from '../../print/print80mm';
+import { BillSlip, KitchenSlip, linesFromOrderItems } from '../../print/templates';
+import { formatVNDateTime } from '../../utils/datetime';
 import {
   Bell,
+  ChefHat,
   Check,
   Clock,
   Printer,
@@ -170,13 +169,15 @@ export const OrderMonitor: React.FC = () => {
   useEffect(() => {
     const shopId = getAdminShopId();
     if (shopId) {
-      getShopByIds([shopId])
+      // Cùng nguồn với trang Bàn & QR; /system/shop/getShopByIds chỉ còn là API nội bộ (trả 404 từ trình duyệt)
+      getShopList({ pageNo: 1, pageSize: 20 })
         .then((res) => {
-          if (res && res[0]) {
+          const shop = res?.list?.find((s) => String(s.id) === String(shopId));
+          if (shop) {
             setShopInfo({
-              name: res[0].name || '',
-              position: res[0].position || res[0].address || '',
-              phone: res[0].phone || '',
+              name: shop.name || '',
+              position: shop.position || shop.address || '',
+              phone: shop.phone || '',
             });
           }
         })
@@ -184,9 +185,44 @@ export const OrderMonitor: React.FC = () => {
     }
   }, []);
 
+  const printTableLabel = () => selectedTable?.name || (selectedTable?.id ? `Bàn ${selectedTable.id}` : '');
+  const printOrderCode = () =>
+    String(selectedOrder?.orderInfo?.orderNumber || selectedOrder?.orderInfo?.id || '') || undefined;
+
+  const runPrint = (slips: React.ReactElement[]) => {
+    print80mm(slips).catch(() => setFeedbackToast('Không in được, vui lòng kiểm tra máy in.'));
+  };
+
   const handlePrintReceipt = () => {
     if (!selectedOrder) return;
-    triggerReceiptPrint();
+    runPrint([
+      <BillSlip
+        key="bill"
+        shop={{ name: shopInfo.name, address: shopInfo.position, phone: shopInfo.phone }}
+        title="PHIẾU TẠM TÍNH"
+        tableLabel={printTableLabel()}
+        orderCode={printOrderCode()}
+        printTime={formatVNDateTime(new Date())}
+        remark={selectedOrder.orderInfo?.remark}
+        lines={linesFromOrderItems(selectedOrder.orderItems)}
+        total={Number(selectedOrder.orderInfo?.payAmount || 0)}
+        footer="Quý khách vui lòng kiểm tra lại hoá đơn. Xin cảm ơn!"
+      />,
+    ]);
+  };
+
+  const handlePrintKitchen = () => {
+    if (!selectedOrder) return;
+    runPrint([
+      <KitchenSlip
+        key="kitchen"
+        target={printTableLabel()}
+        orderCode={printOrderCode()}
+        printTime={formatVNDateTime(new Date())}
+        remark={selectedOrder.orderInfo?.remark}
+        lines={linesFromOrderItems(selectedOrder.orderItems)}
+      />,
+    ]);
   };
 
   // Auto clear feedback toast
@@ -1251,17 +1287,29 @@ export const OrderMonitor: React.FC = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     data-testid="admin-print-receipt-btn"
                     onClick={handlePrintReceipt}
                     disabled={!selectedOrder}
-                    className="min-h-[44px] py-2.5 px-3 bg-white hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed border border-slate-300 text-slate-700 font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5"
-                    title="In hóa đơn tạm tính"
+                    className="min-h-[44px] py-2.5 px-2 bg-white hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed border border-slate-300 text-slate-700 font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5"
+                    title="In hoá đơn tạm tính ra máy in 80mm"
                   >
                     <Printer className="w-4 h-4 shrink-0" />
                     <span className="whitespace-nowrap">In hoá đơn</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    data-testid="admin-print-kitchen-btn"
+                    onClick={handlePrintKitchen}
+                    disabled={!selectedOrder || !selectedOrder.orderItems?.length}
+                    className="min-h-[44px] py-2.5 px-2 bg-white hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed border border-slate-300 text-slate-700 font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5"
+                    title="In phiếu bếp ra máy in 80mm"
+                  >
+                    <ChefHat className="w-4 h-4 shrink-0" />
+                    <span className="whitespace-nowrap">In phiếu bếp</span>
                   </button>
 
                   <button
@@ -1457,7 +1505,11 @@ export const OrderMonitor: React.FC = () => {
       )}
 
       {isTakeawayOpen && (
-        <TakeawayDialog onClose={() => setIsTakeawayOpen(false)} onCreated={handleTakeawayCreated} />
+        <TakeawayDialog
+          shop={{ name: shopInfo.name, address: shopInfo.position, phone: shopInfo.phone }}
+          onClose={() => setIsTakeawayOpen(false)}
+          onCreated={handleTakeawayCreated}
+        />
       )}
 
       {/* 5. Payment Modal (Modal 1: Xác Nhận Thu Tiền) */}
@@ -1545,22 +1597,6 @@ export const OrderMonitor: React.FC = () => {
         </div>
       )}
 
-      {/* PR-1: 80mm Thermal Receipt via React Portal into #print-root */}
-      {selectedOrder && (
-        <ReceiptPrintPortal>
-          <AdminReceipt
-            shopName={shopInfo.name}
-            shopAddress={shopInfo.position}
-            shopPhone={shopInfo.phone}
-            tableName={selectedTable?.name || (selectedTable?.id ? `Bàn ${selectedTable.id}` : 'Bàn ăn')}
-            orderId={selectedOrder.orderInfo?.id}
-            orderNumber={selectedOrder.orderInfo?.orderNumber}
-            printTime={new Date().toLocaleString('vi-VN')}
-            orderItems={selectedOrder.orderItems || []}
-            totalAmount={Number(selectedOrder.orderInfo?.payAmount || 0)}
-          />
-        </ReceiptPrintPortal>
-      )}
     </div>
   );
 };

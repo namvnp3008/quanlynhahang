@@ -13,7 +13,7 @@ vi.mock('../../services/api', async () => {
     adminSetOrderItemStatus: vi.fn(),
     adminCheckout: vi.fn(),
     getAdminShopId: vi.fn(() => 1),
-    getShopByIds: vi.fn().mockResolvedValue([{ id: 1, name: 'Nhà Hàng Bếp Việt' }]),
+    getShopList: vi.fn().mockResolvedValue({ list: [{ id: 1, name: 'Nhà Hàng Bếp Việt' }], total: 1 }),
     addOpenOrderItem: vi.fn(),
     updateOpenOrderItemQuantity: vi.fn(),
     removeOpenOrderItem: vi.fn(),

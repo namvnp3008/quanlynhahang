@@ -5,11 +5,16 @@ import { ApiError } from '../../types/api';
 import { TakeawayQuote, TakeawayResult } from '../../types/order';
 import { generateUUID } from '../../utils/deviceIdentity';
 import { formatVND } from '../../utils/currency';
+import { formatVNDateTime } from '../../utils/datetime';
+import { print80mm } from '../../print/print80mm';
+import { BillSlip, KitchenSlip, PrintLine, PrintShop } from '../../print/templates';
 
 const MAX_QTY = 99;
 const MAX_REMARK = 100;
 
 interface TakeawayDialogProps {
+  /** Thông tin quán in trên phiếu MV-n */
+  shop: PrintShop;
   onClose: () => void;
   onCreated: (result: TakeawayResult) => void;
 }
@@ -29,8 +34,17 @@ const isDefiniteFailure = (err: ApiError): boolean => {
   return true;
 };
 
+const PAY_TYPE_NAME: Record<1 | 4, string> = { 4: 'Tiền mặt', 1: 'Chuyển khoản' };
+
+interface TakeawayPrintSnapshot {
+  lines: PrintLine[];
+  payType: 1 | 4;
+  remark?: string;
+  createdAt: Date;
+}
+
 /** AO-4: Đơn mang về – chọn món, thu tiền trước rồi báo bếp */
-export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreated }) => {
+export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ shop, onClose, onCreated }) => {
   const [lines, setLines] = useState<AddItemSelection[]>([]);
   const [quote, setQuote] = useState<TakeawayQuote | null>(null);
   const [isQuoting, setIsQuoting] = useState(false);
@@ -39,6 +53,8 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<TakeawayResult | null>(null);
+  const [printSnapshot, setPrintSnapshot] = useState<TakeawayPrintSnapshot | null>(null);
+  const [printError, setPrintError] = useState<string | null>(null);
   const [isPicking, setIsPicking] = useState(false);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   // Lỗi mạng khi thu tiền: chưa biết máy chủ đã nhận chưa, khoá đơn để thử lại đúng nội dung cũ
@@ -103,6 +119,17 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
         remark: remark.trim() || undefined,
       });
       setUncertain(false);
+      setPrintSnapshot({
+        lines: (quote?.lines || []).map((l) => ({
+          name: l.name,
+          propsText: l.propsText,
+          quantity: l.quantity,
+          lineTotal: l.lineTotal,
+        })),
+        payType,
+        remark: remark.trim() || undefined,
+        createdAt: new Date(),
+      });
       setResult(created);
     } catch (err) {
       if (err instanceof ApiError && isDefiniteFailure(err)) {
@@ -116,6 +143,36 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
       submittingRef.current = false;
       setIsSubmitting(false);
     }
+  };
+
+  const handlePrintTicket = () => {
+    if (!result || !printSnapshot) return;
+    const ticket = `MV-${result.ticketNo}`;
+    const printTime = formatVNDateTime(printSnapshot.createdAt);
+    setPrintError(null);
+    print80mm([
+      <BillSlip
+        key="bill"
+        shop={shop}
+        title="PHIẾU MANG VỀ"
+        badge={ticket}
+        orderCode={result.orderId}
+        printTime={printTime}
+        payTypeName={`${PAY_TYPE_NAME[printSnapshot.payType]} – đã thu`}
+        remark={printSnapshot.remark}
+        lines={printSnapshot.lines}
+        total={result.payAmount}
+        footer="Vui lòng giữ phiếu để nhận món. Xin cảm ơn!"
+      />,
+      <KitchenSlip
+        key="kitchen"
+        target={ticket}
+        orderCode={result.orderId}
+        printTime={printTime}
+        remark={printSnapshot.remark}
+        lines={printSnapshot.lines}
+      />,
+    ]).catch(() => setPrintError('Không in được, vui lòng kiểm tra máy in.'));
   };
 
   const handleClose = () => {
@@ -154,6 +211,20 @@ export const TakeawayDialog: React.FC<TakeawayDialogProps> = ({ onClose, onCreat
               {`MV-${result.ticketNo}`}
             </div>
             <p className="text-sm text-slate-600">Gọi khách theo số phiếu này khi giao món.</p>
+            {printError && (
+              <p role="alert" className="text-sm font-bold text-red-600">
+                {printError}
+              </p>
+            )}
+            <button
+              type="button"
+              data-testid="takeaway-print-btn"
+              onClick={handlePrintTicket}
+              disabled={!printSnapshot}
+              className="min-h-[48px] px-10 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold disabled:opacity-50"
+            >
+              In phiếu MV-{result.ticketNo}
+            </button>
             <button
               type="button"
               data-testid="takeaway-done-btn"

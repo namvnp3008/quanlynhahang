@@ -1,4 +1,7 @@
 * text=auto eol=lf
+# File lệnh Windows cần xuống dòng CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
 *.traineddata binary
 *.png binary
 *.jpg binary

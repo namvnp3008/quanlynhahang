@@ -1,17 +1,12 @@
 import React from 'react';
-import { CheckCircle2, Printer, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, ArrowLeft } from 'lucide-react';
 import { formatVND } from '../../utils/currency';
-import { ReceiptPrintPortal, CustomerReceipt, triggerReceiptPrint } from '../common/ReceiptPrintPortal';
-
-import { OrderItem } from '../../types/order';
 
 export interface ThankYouViewProps {
   tableName?: string;
   orderNumber?: string;
   totalAmount?: number | string;
   payType?: number | string; // 1 = VietQR, 4 = Tiền mặt
-  shopName?: string;
-  orderItems?: OrderItem[];
   onBackToMenu: () => void;
 }
 
@@ -20,8 +15,6 @@ export const ThankYouView: React.FC<ThankYouViewProps> = ({
   orderNumber = '—',
   totalAmount = 0,
   payType = 1,
-  shopName = '',
-  orderItems,
   onBackToMenu,
 }) => {
   const currentTime = new Date().toLocaleString('vi-VN', {
@@ -45,10 +38,6 @@ export const ThankYouView: React.FC<ThankYouViewProps> = ({
       : payType === 4 || payType === '4' || String(payType).toLowerCase().includes('tiền mặt')
       ? 'Tiền Mặt Tại Bàn'
       : 'Chuyển Khoản VietQR';
-
-  const handlePrint = () => {
-    triggerReceiptPrint();
-  };
 
   return (
     <div
@@ -102,15 +91,6 @@ export const ThankYouView: React.FC<ThankYouViewProps> = ({
         <div className="space-y-2.5 w-full pt-2">
           <button
             type="button"
-            onClick={handlePrint}
-            data-testid="print-receipt-btn"
-            className="w-full min-h-[44px] py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 active:scale-95"
-          >
-            <Printer className="w-4 h-4" />
-            <span>Lưu biên nhận</span>
-          </button>
-          <button
-            type="button"
             onClick={onBackToMenu}
             data-testid="back-to-menu-btn"
             className="w-full min-h-[44px] py-3 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold text-sm rounded-xl transition flex items-center justify-center gap-1.5 active:scale-95"
@@ -121,18 +101,6 @@ export const ThankYouView: React.FC<ThankYouViewProps> = ({
         </div>
       </div>
 
-      {/* 80mm Thermal Receipt Portal for Customer */}
-      <ReceiptPrintPortal>
-        <CustomerReceipt
-          shopName={shopName}
-          tableName={tableName}
-          orderNumber={orderNumber || '—'}
-          payTypeName={payTypeName}
-          totalAmount={totalAmount}
-          printTime={currentTime}
-          orderItems={orderItems}
-        />
-      </ReceiptPrintPortal>
     </div>
   );
 };

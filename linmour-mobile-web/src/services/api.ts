@@ -419,13 +419,6 @@ export async function getCurrentOrderInfo(tableId: string | number): Promise<Cur
   return request<CurrentOrderInfoDto>('GET', `/app/order/order/GetCurrentOrderInfo/${tableId}`);
 }
 
-/**
- * Cập nhật trạng thái món thứ index trong đơn đang mở
- */
-export async function updateOrderItemStatus(tableId: string | number, index: number): Promise<unknown> {
-  return request<unknown>('POST', `/app/order/order/updateOrderItemStatus/${tableId}/${index}`);
-}
-
 /* ==========================================================================
    4.4 CHỦ QUÁN QUẢN TRỊ (Admin Mode – REST)
    ========================================================================== */
@@ -896,27 +889,6 @@ export async function getMerchantPage(params?: {
  */
 export async function saveOrUpdateMerchant(merchant: Partial<Merchant> & { id: number | string }): Promise<unknown> {
   return request<unknown>('POST', '/system/merchant/saveOrUpdateMerchant', merchant, { scope: 'admin' });
-}
-
-/**
- * Lấy báo cáo doanh thu theo quán / phương thức thanh toán (P6)
- */
-export async function getOrderPayAmount(params?: {
-  shopId?: number | string;
-  payType?: number;
-  pageNo?: number;
-  pageSize?: number;
-}): Promise<unknown> {
-  const query = new URLSearchParams();
-  if (params?.shopId) query.append('shopId', String(params.shopId));
-  if (params?.payType !== undefined) query.append('payType', String(params.payType));
-  if (params?.pageNo) query.append('pageNo', String(params.pageNo));
-  if (params?.pageSize) query.append('pageSize', String(params.pageSize));
-
-  const qs = query.toString();
-  return request<unknown>('GET', `/order/order/getOrderPayAmount${qs ? `?${qs}` : ''}`, undefined, {
-    scope: 'admin',
-  });
 }
 
 export interface ShopRevenueItem {

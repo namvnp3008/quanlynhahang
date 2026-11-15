@@ -570,14 +570,18 @@ test.describe.serial('Sprint 8 E2E Acceptance Test Suite (Kịch bản 2 -> 3 ->
     await adminPage.goto('/admin/orders');
     await expect(adminPage.locator('[data-testid="order-monitor-container"]')).toBeVisible({ timeout: 10000 });
 
-    // Emulate print media
+    // Khi in, chỉ #print-root được hiện; giao diện nền bị ẩn (body.printing-80mm trong index.css)
+    await adminPage.evaluate(() => {
+      // index.html đã có sẵn #print-root (con trực tiếp của body)
+      const root = document.getElementById('print-root') as HTMLElement;
+      root.innerHTML = '<div class="slip80">PHIẾU THỬ</div>';
+      document.body.classList.add('printing-80mm');
+    });
     await adminPage.emulateMedia({ media: 'print' });
+    await expect(adminPage.locator('#print-root')).toBeVisible();
+    await expect(adminPage.locator('[data-testid="order-monitor-container"]')).toBeHidden();
 
-    // Verify under media print that #print-root is attached
-    const printRoot = adminPage.locator('#print-root');
-    await expect(printRoot).toBeAttached();
-
-    console.log('[Kịch bản 5] Hoá đơn React Portal #print-root hoạt động đúng với media print!');
+    console.log('[Kịch bản 5] Khi in chỉ còn phiếu 80mm, giao diện nền bị ẩn.');
 
     await adminContext.close();
   });
@@ -603,6 +607,18 @@ test.describe.serial('Sprint 8 E2E Acceptance Test Suite (Kịch bản 2 -> 3 ->
     const table5 = tableListData?.data?.find((t: { id: number; qrToken?: string }) => t.id === 5);
     expect(table5?.qrToken).toBeTruthy();
 
+    // Món lấy từ thực đơn đang bán (không cố định id) để chạy được trên dữ liệu thật của quán.
+    // Chỉ lấy món không có nhóm tuỳ chọn: bấm "Chọn +" là vào giỏ ngay, giá không đổi.
+    type PlainProduct = { id: number; name: string; price: number; status: number; productSortAndOptions?: unknown[] };
+    const menuRes = await fetch('http://127.0.0.1:12800/app/product/product/getProductList', { headers: { Shopid: '1' } });
+    const plain: PlainProduct[] = ((await menuRes.json())?.data || [])
+      .flatMap((s: { list?: PlainProduct[] }) => s.list || [])
+      .filter((x: PlainProduct) => x.status === 1 && (x.productSortAndOptions || []).length === 0);
+    expect(plain.length).toBeGreaterThanOrEqual(2);
+    const [p, q] = plain;
+    const total = Number(p.price) + Number(q.price);
+    const vnd = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
+
     // 2. Client mở URL với qrToken trên giao diện mobile (375x812)
     const clientContext = await browser.newContext({ viewport: { width: 375, height: 812 } });
     const clientPage = await clientContext.newPage();
@@ -613,32 +629,33 @@ test.describe.serial('Sprint 8 E2E Acceptance Test Suite (Kịch bản 2 -> 3 ->
     // Đợi WS sync khởi tạo hoàn tất trước khi thao tác giỏ
     await clientPage.waitForTimeout(300);
 
-    // 3. Khách chọn 2 món: Bún Chả Hà Nội (50k) và Cà Phê Sữa Đá Sài Gòn (25k) có tuỳ chọn
-    await expect(clientPage.locator('[data-testid="product-add-btn-3"]')).toBeVisible({ timeout: 10000 });
-    await clientPage.click('[data-testid="product-add-btn-3"]');
+    // 3. Khách chọn 2 món p và q
+    for (const item of [p, q]) {
+      const addBtn = clientPage.locator(`[data-testid="product-add-btn-${item.id}"]`);
+      await expect(addBtn).toBeVisible({ timeout: 10000 });
+      await addBtn.click();
+    }
 
-    await expect(clientPage.locator('[data-testid="product-add-btn-6"]')).toBeVisible({ timeout: 10000 });
-    await clientPage.click('[data-testid="product-add-btn-6"]');
-    await expect(clientPage.locator('[data-testid="product-sheet-container"]')).toBeVisible({ timeout: 5000 });
-    await clientPage.click('[data-testid="option-item-4"]'); // Ít đá (50% đá)
-    await clientPage.click('[data-testid="add-to-cart-submit-btn"]');
-
-    // Mở giỏ hàng và kiểm tra giỏ hiển thị đúng 75.000 đ trước khi đặt món
+    // Mở giỏ hàng và kiểm tra tổng tiền đúng trước khi đặt món
     await clientPage.click('[data-testid="view-cart-btn"]');
     await expect(clientPage.locator('[data-testid="cart-view"]')).toBeVisible({ timeout: 5000 });
-    await expect(clientPage.locator('[data-testid="cart-total-amount"]')).toContainText('75.000');
+    await expect(clientPage.locator('[data-testid="cart-total-amount"]')).toContainText(vnd(total));
 
     await clientPage.click('[data-testid="submit-order-btn"]');
     await expect(clientPage.locator('[data-testid="table-order-view"]')).toBeVisible({ timeout: 10000 });
 
-    const pdfDir = path.resolve(__dirname, 'receipt-pdfs');
-    if (!fs.existsSync(pdfDir)) {
-      fs.mkdirSync(pdfDir, { recursive: true });
-    }
-
-    // 4. Mở Admin (/admin/orders) để xem đơn bàn 5 và xuất hoá đơn admin thật
+    // 4. Mở Admin (/admin/orders) để xem đơn bàn 5 và in hoá đơn admin thật
     const adminContext = await browser.newContext({ viewport: { width: 1280, height: 800 } });
     const adminPage = await adminContext.newPage();
+    // Thay window.print: ghi lại nội dung phiếu 80mm thay vì mở hộp thoại in
+    await adminPage.addInitScript(() => {
+      const w = window as unknown as { __printed: string[] };
+      w.__printed = [];
+      window.print = () => {
+        w.__printed.push(document.getElementById('print-root')?.textContent || '');
+        window.dispatchEvent(new Event('afterprint'));
+      };
+    });
     await adminPage.goto('/admin/login');
     await adminPage.fill('[data-testid="login-phone-input"]', E2E_MERCHANT_PHONE);
     await adminPage.fill('[data-testid="login-password-input"]', E2E_MERCHANT_PASSWORD);
@@ -658,11 +675,16 @@ test.describe.serial('Sprint 8 E2E Acceptance Test Suite (Kịch bản 2 -> 3 ->
     await expect(adminPrintBtn).toBeVisible({ timeout: 5000 });
     await adminPrintBtn.click();
 
-    await adminPage.emulateMedia({ media: 'print' });
-    const adminPdfPath = path.join(pdfDir, 'admin-receipt.pdf');
-    await adminPage.pdf({ path: adminPdfPath, width: '80mm', printBackground: true });
-    expect(fs.existsSync(adminPdfPath)).toBe(true);
-    console.log(`[BUG-TY-1] Xuất PDF hoá đơn admin thật thành công: ${adminPdfPath}`);
+    await expect
+      .poll(() => adminPage.evaluate(() => (window as unknown as { __printed: string[] }).__printed.length))
+      .toBe(1);
+    const adminPrinted = await adminPage.evaluate(() => (window as unknown as { __printed: string[] }).__printed[0]);
+    expect(adminPrinted).toContain('PHIẾU TẠM TÍNH');
+    expect(adminPrinted).toMatch(/Bàn\s*0?5/);
+    expect(adminPrinted).toContain(p.name);
+    expect(adminPrinted).toContain(q.name);
+    expect(adminPrinted).toContain(`${vnd(total)} đ`);
+    console.log('[BUG-TY-1] Hoá đơn admin đi qua luồng in 80mm (window.print), không tạo file PDF.');
 
     // KHÁCH TUYỆT ĐỐI KHÔNG MỞ MÀN THANH TOÁN (ở nguyên màn TableOrderView)
     // 5. Nhân viên thu tiền mặt tại quầy / qua API checkout (payType = 4)
@@ -683,33 +705,14 @@ test.describe.serial('Sprint 8 E2E Acceptance Test Suite (Kịch bản 2 -> 3 ->
     await expect(clientPage.locator('text=Thanh Toán Thành Công')).toBeVisible();
     await expect(clientPage.locator('text=Cảm Ơn Quý Khách!')).toBeVisible();
 
-    // Kiểm tra tổng tiền đúng 75.000 đ và mã đơn thật (không rơi về #ORD-102938 hay 145.000 đ)
+    // Kiểm tra tổng tiền đúng và mã đơn thật (không rơi về #ORD-102938 hay 145.000 đ)
     const receiptTotal = clientPage.locator('[data-testid="receipt-total-amount"]');
-    await expect(receiptTotal).toContainText('75.000');
+    await expect(receiptTotal).toContainText(vnd(total));
     await expect(clientPage.locator('text=#ORD-102938')).not.toBeVisible();
     await expect(clientPage.locator('text=145.000')).not.toBeVisible();
 
-    // 7. Bấm Lưu biên nhận và kiểm tra #print-root
-    const printReceiptBtn = clientPage.locator('[data-testid="print-receipt-btn"]');
-    await printReceiptBtn.click();
-
-    const customerReceiptPrint = clientPage.locator('[data-testid="customer-receipt-print"]');
-    await expect(customerReceiptPrint).toBeAttached();
-
-    const receiptText = await customerReceiptPrint.textContent();
-    expect(receiptText).toContain('Bàn 05');
-    expect(receiptText).toContain('Tiền mặt');
-    expect(receiptText).toContain('Bún Chả Hà Nội');
-    expect(receiptText).toContain('Cà Phê Sữa Đá Sài Gòn');
-    expect(receiptText).toContain('75.000');
-
-    // Xuất file PDF biên nhận khách thật bằng page.pdf() với media print
-    await clientPage.evaluate(() => document.body.classList.add('printing-receipt'));
-    await clientPage.emulateMedia({ media: 'print' });
-    const customerPdfPath = path.join(pdfDir, 'customer-receipt.pdf');
-    await clientPage.pdf({ path: customerPdfPath, width: '80mm', printBackground: true });
-    expect(fs.existsSync(customerPdfPath)).toBe(true);
-    console.log(`[BUG-TY-1] Xuất PDF biên nhận khách thành công: ${customerPdfPath}`);
+    // 7. Điện thoại khách không còn nút in biên lai (chủ quán bỏ, 15/11/2026)
+    await expect(clientPage.locator('[data-testid="print-receipt-btn"]')).toHaveCount(0);
 
     await clientContext.close();
     await adminContext.close();
@@ -901,6 +904,15 @@ test.describe('Kịch bản 8 – Chủ quán tự tạo đơn: bàn trống và
 
     const adminContext = await browser.newContext({ viewport: { width: 1280, height: 800 } });
     const admin = await adminContext.newPage();
+    // Thay window.print: ghi lại từng phiếu 80mm thay vì mở hộp thoại in
+    await admin.addInitScript(() => {
+      const w = window as unknown as { __printed: string[] };
+      w.__printed = [];
+      window.print = () => {
+        w.__printed.push(document.getElementById('print-root')?.textContent || '');
+        window.dispatchEvent(new Event('afterprint'));
+      };
+    });
     await admin.goto('/admin/login');
     await admin.fill('[data-testid="login-phone-input"]', E2E_MERCHANT_PHONE);
     await admin.fill('[data-testid="login-password-input"]', E2E_MERCHANT_PASSWORD);
@@ -938,6 +950,23 @@ test.describe('Kịch bản 8 – Chủ quán tự tạo đơn: bàn trống và
     const ticketText = (await tw.locator('[data-testid="takeaway-ticket"]').textContent()) || '';
     const n = Number(ticketText.replace('MV-', ''));
     expect(n).toBeGreaterThan(0);
+
+    // In phiếu MV-n: một phiếu khách (có giá) và một phiếu bếp (không giá), mỗi phiếu một lệnh in 80mm
+    await tw.locator('[data-testid="takeaway-print-btn"]').click();
+    const printed = () => admin.evaluate(() => (window as unknown as { __printed: string[] }).__printed);
+    await expect.poll(async () => (await printed()).length).toBe(2);
+    const [billSlip, kitchenSlip] = await printed();
+    expect(billSlip).toContain('PHIẾU MANG VỀ');
+    expect(billSlip).toContain(`MV-${n}`);
+    expect(billSlip).toContain(q.name);
+    expect(billSlip).toContain(vnd(q.price * 2));
+    expect(billSlip).toContain('Tiền mặt – đã thu');
+    expect(billSlip).toContain('Ghi chú: E2E AO-5');
+    expect(kitchenSlip).toContain('PHIẾU BẾP');
+    expect(kitchenSlip).toContain(`MV-${n}`);
+    expect(kitchenSlip).toContain(`2×${q.name}`);
+    expect(kitchenSlip).not.toContain(vnd(q.price * 2));
+
     await tw.locator('[data-testid="takeaway-done-btn"]').click();
     await expect(admin.locator(`[data-testid="takeaway-chip-${n}"]`)).toContainText('0/1 đã lên');
 
