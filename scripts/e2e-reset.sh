@@ -27,6 +27,7 @@ done
 # Capture CLI overrides if explicitly provided
 CLI_MYSQL_HOST="$MYSQL_HOST"
 CLI_REDIS_HOST="$REDIS_HOST"
+CLI_REDIS_PORT="$REDIS_PORT"
 
 # 1. Nạp biến môi trường từ .env nếu có
 if [ -f .env ]; then
@@ -43,6 +44,8 @@ fi
 
 [ -n "$CLI_MYSQL_HOST" ] && MYSQL_HOST="$CLI_MYSQL_HOST"
 [ -n "$CLI_REDIS_HOST" ] && REDIS_HOST="$CLI_REDIS_HOST"
+# Chạy bằng docker-compose.yml: Redis của stack ở 127.0.0.1:6380 → REDIS_PORT=6380 ./scripts/e2e-reset.sh
+[ -n "$CLI_REDIS_PORT" ] && REDIS_PORT="$CLI_REDIS_PORT"
 
 MYSQL_HOST="${MYSQL_HOST:-127.0.0.1}"
 MYSQL_PORT="${MYSQL_PORT:-3306}"

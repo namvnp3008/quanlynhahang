@@ -13,6 +13,9 @@ const E2E_MERCHANT_PHONE = process.env.E2E_MERCHANT_PHONE || '1';
 const E2E_MERCHANT_PASSWORD = process.env.E2E_MERCHANT_PASSWORD || '123';
 const E2E_ADMIN_PHONE = process.env.E2E_ADMIN_PHONE || '2';
 const E2E_ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || '123';
+// Redis của hệ thống đang test. Chạy bằng docker-compose.yml thì đặt E2E_REDIS_PORT=6380.
+const E2E_REDIS_HOST = process.env.E2E_REDIS_HOST || '127.0.0.1';
+const E2E_REDIS_PORT = Number(process.env.E2E_REDIS_PORT || '6379');
 
 function resolveScript(name: string): string {
   if (process.env.E2E_SCRIPTS_DIR) {
@@ -89,7 +92,7 @@ async function cleanTable5() {
     console.warn('[E2E-ISO] Lỗi gửi WebSocket clear:', err);
   }
 
-  // 3. Dọn Redis keys bàn 5 & xoá bộ đếm khoá IP local 127.0.0.1
+  // 3. Dọn Redis keys bàn 5 & xoá bộ đếm khoá IP (127.0.0.1 khi chạy Vite, IP container nginx khi chạy Docker)
   try {
     const keysToDelete = [
       'orderInfo:1:5',
@@ -100,9 +103,8 @@ async function cleanTable5() {
       'lock:order:1:5',
       'cart:1:5',
       'cartHistory:1:5',
-      'login:fail:ip:127.0.0.1',
     ];
-    const pyScript = `import redis; r = redis.Redis(host='127.0.0.1', port=6379, db=2); [r.delete(k) for k in ${JSON.stringify(keysToDelete)}]`;
+    const pyScript = `import redis; r = redis.Redis(host='${E2E_REDIS_HOST}', port=${E2E_REDIS_PORT}, db=2); [r.delete(k) for k in ${JSON.stringify(keysToDelete)}]; [r.delete(k) for k in r.scan_iter('login:fail:ip:*')]`;
     execFileSync('python3', ['-c', pyScript], { stdio: 'ignore' });
   } catch (err) {
     console.warn('[E2E-ISO] Lỗi dọn Redis keys:', err);
@@ -539,12 +541,12 @@ test.describe.serial('Sprint 8 E2E Acceptance Test Suite (Kịch bản 2 -> 3 ->
       }
     }
 
-    // Dọn bộ đếm login:fail để các lần chạy sau không bị khoá IP 127.0.0.1 (E2E-ISO/b)
+    // Dọn bộ đếm login:fail để các lần chạy sau không bị khoá IP (E2E-ISO/b)
     try {
-      const keysToDelete = [`login:fail:phone:${testPhone}`, 'login:fail:ip:127.0.0.1'];
-      const pyScript = `import redis; r = redis.Redis(host='127.0.0.1', port=6379, db=2); [r.delete(k) for k in ${JSON.stringify(keysToDelete)}]`;
+      const keysToDelete = [`login:fail:phone:${testPhone}`];
+      const pyScript = `import redis; r = redis.Redis(host='${E2E_REDIS_HOST}', port=${E2E_REDIS_PORT}, db=2); [r.delete(k) for k in ${JSON.stringify(keysToDelete)}]; [r.delete(k) for k in r.scan_iter('login:fail:ip:*')]`;
       execFileSync('python3', ['-c', pyScript], { stdio: 'ignore' });
-      console.log(`[Kịch bản 4] Đã dọn bộ đếm login:fail:phone:${testPhone} và login:fail:ip:127.0.0.1`);
+      console.log(`[Kịch bản 4] Đã dọn bộ đếm login:fail:phone:${testPhone} và login:fail:ip:*`);
     } catch (e) {
       console.warn('[Kịch bản 4] Lỗi dọn Redis login:fail:', e);
     }
@@ -856,6 +858,6 @@ test.describe('Kịch bản 7 – Chủ quán sửa đơn đang mở (OE-6)', ()
       if (!open || open.orderItems.length === 0) break;
       await api('DELETE', '/order/order/openOrder/5/items/0', token, { version: open.orderInfo.version, reason: 'Dọn dữ liệu E2E' });
     }
-    execFileSync('python3', ['-c', "import redis; redis.Redis(host='127.0.0.1', port=6379, db=2).delete('orderInfo:1:5', 'orderItem:1:5')"]);
+    execFileSync('python3', ['-c', `import redis; redis.Redis(host='${E2E_REDIS_HOST}', port=${E2E_REDIS_PORT}, db=2).delete('orderInfo:1:5', 'orderItem:1:5')`]);
   });
 });
