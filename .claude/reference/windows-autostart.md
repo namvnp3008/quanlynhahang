@@ -135,7 +135,9 @@ Dùng khi container không tự lên sau khi khởi động (ví dụ đã từn
 ⚠️ **Không** chạy `docker compose down -v`: lệnh này xoá luôn volume MySQL và ảnh đã upload.
 
 ## 10. Giới hạn đã biết
-- Đây là tài liệu, chưa được kiểm chứng trên Windows thật.
-- OCR (Tess4j) trong container Linux chưa được kiểm tra.
-- Redis trong compose không mở cổng ra host. App dùng DB 2.
+- Tài liệu chưa được chạy thử trên Windows thật.
+- OCR CCCD (`/system/merchant/ocr`, hiện web chưa gọi tới): image `system` đã cài `libtesseract4`. Đã kiểm chứng chạy được trên x86-64 (laptop Windows). **Không chạy được trên Mac ARM64**, vì JNA 4.1.0 đi kèm Tess4j 4.1.1 không có bản native linux-aarch64.
+- Redis của stack mở trên `127.0.0.1:6380` (app dùng DB 2). Chạy e2e với Docker thì đặt `E2E_REDIS_PORT=6380`.
 - Kafka phục vụ container qua `kafka:29092`; công cụ chạy trên host dùng `127.0.0.1:9092`.
+- Qua nginx, gateway thấy mọi client là IP của container `web`, giống như mọi client là `127.0.0.1` khi chạy qua Vite. Vì vậy khoá đăng nhập theo IP (5 lần sai) áp dụng chung cho cả quán.
+- Image Java dùng `eclipse-temurin:11-jre-jammy` (Ubuntu 22.04), cố định để có `libtesseract4` và để build ổn định.
