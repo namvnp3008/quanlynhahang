@@ -148,6 +148,17 @@ do {
     if ((Get-Date) -gt $deadline) { Warn "Mới có $count/7 service sẵn sàng. Đợi thêm vài phút rồi kiểm tra: docker compose ps"; break }
     Start-Sleep -Seconds 5
 } while ($true)
+# Gateway cần thêm ~30 giây để cập nhật danh sách service (trước đó trả 503)
+$deadline = (Get-Date).AddMinutes(3)
+while ($true) {
+    $code = 0
+    try { $code = (Invoke-WebRequest -Uri 'http://localhost:5181/app/order/order/GetCurrentOrderInfo/1' -Headers @{ Shopid = '1' } -UseBasicParsing -TimeoutSec 5).StatusCode } catch {
+        if ($_.Exception.Response) { $code = [int]$_.Exception.Response.StatusCode }
+    }
+    if ($code -ne 0 -and $code -ne 502 -and $code -ne 503 -and $code -ne 504) { break }
+    if ((Get-Date) -gt $deadline) { Warn "Gateway vẫn trả $code. Đợi thêm 1-2 phút rồi thử mở web."; break }
+    Start-Sleep -Seconds 5
+}
 Ok "Web trả lời ở http://localhost:5181 ($count/7 service)"
 
 # ---------------------------------------------------------------- 4. uploads
