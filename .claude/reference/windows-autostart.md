@@ -4,6 +4,20 @@
 
 Kết quả: bật máy → đăng nhập Windows → Docker Desktop tự chạy → các container `restart: unless-stopped` tự lên → mở `http://<LAN_IP>:5181` (máy chủ quán) hoặc điện thoại trong cùng Wi-Fi quét QR.
 
+## Cách nhanh: gói cài đặt + `cai-dat.bat`
+1. Cài WSL2 + Docker Desktop (mục 1) và bật tự mở khi đăng nhập (mục 2).
+2. Giải nén gói `quanlynhahang-windows-*.zip` vào ví dụ `C:\quanlynhahang`.
+3. Bấm đúp `cai-dat.bat` (đồng ý quyền Administrator). Script `scripts/windows/cai-dat.ps1` sẽ:
+   - kiểm tra Docker và `.env`;
+   - tự điền `LAN_IP` nếu đang là `AUTO`/`127.0.0.1`;
+   - chạy `docker compose up -d --build`, rồi đợi đủ 7 service;
+   - nạp ảnh từ `data\uploads.tar` (chỉ lần đầu);
+   - mở firewall cổng 5181/12800, tắt sleep khi cắm sạc;
+   - tạo shortcut in 80mm trên Desktop.
+4. Chạy lại `cai-dat.bat` bao nhiêu lần cũng an toàn (dùng khi cập nhật mã mới).
+
+Các mục dưới là hướng dẫn chi tiết / làm tay.
+
 ## 0. Yêu cầu máy
 - Windows 10 22H2 hoặc Windows 11, 64-bit; bật ảo hoá (Intel VT-x / AMD-V) trong BIOS.
 - RAM ≥ 16 GB khuyến nghị (stack dùng khoảng 4–5 GB: 7 JVM × ~350 MB + MySQL + Nacos + Kafka). 8 GB chạy được nhưng chậm.
