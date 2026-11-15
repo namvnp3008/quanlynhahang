@@ -570,10 +570,9 @@ test.describe.serial('Sprint 8 E2E Acceptance Test Suite (Kịch bản 2 -> 3 ->
 
     // Khi in, chỉ #print-root được hiện; giao diện nền bị ẩn (body.printing-80mm trong index.css)
     await adminPage.evaluate(() => {
-      const root = document.createElement('div');
-      root.id = 'print-root';
+      // index.html đã có sẵn #print-root (con trực tiếp của body)
+      const root = document.getElementById('print-root') as HTMLElement;
       root.innerHTML = '<div class="slip80">PHIẾU THỬ</div>';
-      document.body.appendChild(root);
       document.body.classList.add('printing-80mm');
     });
     await adminPage.emulateMedia({ media: 'print' });
@@ -892,6 +891,15 @@ test.describe('Kịch bản 8 – Chủ quán tự tạo đơn: bàn trống và
 
     const adminContext = await browser.newContext({ viewport: { width: 1280, height: 800 } });
     const admin = await adminContext.newPage();
+    // Thay window.print: ghi lại từng phiếu 80mm thay vì mở hộp thoại in
+    await admin.addInitScript(() => {
+      const w = window as unknown as { __printed: string[] };
+      w.__printed = [];
+      window.print = () => {
+        w.__printed.push(document.getElementById('print-root')?.textContent || '');
+        window.dispatchEvent(new Event('afterprint'));
+      };
+    });
     await admin.goto('/admin/login');
     await admin.fill('[data-testid="login-phone-input"]', E2E_MERCHANT_PHONE);
     await admin.fill('[data-testid="login-password-input"]', E2E_MERCHANT_PASSWORD);
@@ -929,6 +937,23 @@ test.describe('Kịch bản 8 – Chủ quán tự tạo đơn: bàn trống và
     const ticketText = (await tw.locator('[data-testid="takeaway-ticket"]').textContent()) || '';
     const n = Number(ticketText.replace('MV-', ''));
     expect(n).toBeGreaterThan(0);
+
+    // In phiếu MV-n: một phiếu khách (có giá) và một phiếu bếp (không giá), mỗi phiếu một lệnh in 80mm
+    await tw.locator('[data-testid="takeaway-print-btn"]').click();
+    const printed = () => admin.evaluate(() => (window as unknown as { __printed: string[] }).__printed);
+    await expect.poll(async () => (await printed()).length).toBe(2);
+    const [billSlip, kitchenSlip] = await printed();
+    expect(billSlip).toContain('PHIẾU MANG VỀ');
+    expect(billSlip).toContain(`MV-${n}`);
+    expect(billSlip).toContain(q.name);
+    expect(billSlip).toContain(vnd(q.price * 2));
+    expect(billSlip).toContain('Tiền mặt – đã thu');
+    expect(billSlip).toContain('Ghi chú: E2E AO-5');
+    expect(kitchenSlip).toContain('PHIẾU BẾP');
+    expect(kitchenSlip).toContain(`MV-${n}`);
+    expect(kitchenSlip).toContain(`2×${q.name}`);
+    expect(kitchenSlip).not.toContain(vnd(q.price * 2));
+
     await tw.locator('[data-testid="takeaway-done-btn"]').click();
     await expect(admin.locator(`[data-testid="takeaway-chip-${n}"]`)).toContainText('0/1 đã lên');
 
